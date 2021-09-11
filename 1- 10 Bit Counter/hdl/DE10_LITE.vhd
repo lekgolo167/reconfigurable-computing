@@ -4,6 +4,10 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
 entity DE10_LITE is
+	generic (
+		-- clk frequency
+		g_CLK_FREQ : natural := 50000000
+	);
 	port (
 		ADC_CLK_10 : in std_logic;
 		MAX10_CLK1_50 : in std_logic;
@@ -14,20 +18,18 @@ entity DE10_LITE is
 end DE10_LITE;
 
 architecture rtl of DE10_LITE is
-	-- clk frequency
-	constant c_50MHZ  : natural := 50000000;
 	-- signal for when 1 second passes
-	signal one_Hz_tick : std_logic;
+	signal one_Hz_tick : std_logic := '0';
 	-- signal to count to 50 M
-	signal one_Hz_counter : natural range 0 to c_50MHZ;
+	signal one_Hz_counter : natural range 0 to g_CLK_FREQ := 0;
 	-- seconds counter 10 bits
-	signal ten_bit_counter : std_logic_vector(9 downto 0);
+	signal ten_bit_counter : std_logic_vector(9 downto 0) := (others => '0');
 begin
 	
 	p_1_HZ : process (MAX10_CLK1_50) is
 	begin
 		if rising_edge(MAX10_CLK1_50) then
-			if one_Hz_counter = c_50MHZ-1 then -- one second has passed
+			if one_Hz_counter = g_CLK_FREQ-1 then -- one second has passed
 				one_Hz_counter <= 0;
 				one_Hz_tick <= '1';
 			else
