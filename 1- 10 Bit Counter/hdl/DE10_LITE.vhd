@@ -39,7 +39,7 @@ begin
 		end if;
 	end process;
 
-	p_10_bit : process (MAX10_CLK1_50, KEY(0)) is
+	p_10_bit : process (MAX10_CLK1_50) is -- removed KEY(0)
 	begin
 		if rising_edge(MAX10_CLK1_50) then
 			if KEY(0) = '0' then -- reset
