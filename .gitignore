@@ -60,7 +60,8 @@
 */db/
 */incremental_db/
 */simulation/
-*/synthesis/
+# */synthesis/
+# */simulation/work/
 */timing/
 */testbench/
 */*_sim/
