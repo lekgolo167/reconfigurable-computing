@@ -30,7 +30,7 @@ architecture behave of Stopwatch is
 begin
     -- instances
 
-    clk_100th: entity work.Seg_Counter(rtl)
+    clk_100th: entity work.Counter(rtl)
         generic map (
             g_max_count => c_clks_per_100th
         )
@@ -38,8 +38,7 @@ begin
             clk => MAX10_CLK1_50,
             rstn => KEY(0),
             en => KEY(1),
-            tick => ,
-            hex =>
+            tick => 
         );
 
     hundredths: entity work.Seg_Counter(rtl)
