@@ -6,34 +6,61 @@ use ieee.numeric_std.all;
 entity Counter is
     generic (
         -- limit of the counter
-        g_max_count : unsigned := 15
+        g_max_count : natural := 15
     );
     port (
         clk : in std_logic;
         rstn : in std_logic;
         en : in std_logic;
         tick : out std_logic;
-        count : out unsigned range 0 to g_max_count
+        count : out natural range 0 to g_max_count
     );
 end Counter;
 
 architecture rtl of Counter is
-
+	signal sum : natural range 0 to g_max_count;
+begin
     process (clk) is
 	begin
 		if rising_edge(clk) then
             if rstn = '0' then --reset
-                count <= (others => '0');
+                sum <= 0;
 			elsif en = '1' then
-                if count = g_max_count then
-                    count <= (others => '0');
+                if sum = g_max_count then
+                    sum <= 0;
                     tick <= '1';
                 else
-                    count <= count + 1;
+                    sum <= sum + 1;
                 end if;
             else
                 tick <= '0';
 			end if;
 		end if;
-	end process;
+    end process;
+    
+    count <= sum;
+	 
 end rtl;
+
+architecture behave of Counter is
+	signal sum : natural range 0 to g_max_count;
+begin
+    process (clk) is
+	begin
+		if rising_edge(clk) then
+            if rstn = '0' then --reset
+                sum <= 0;
+			elsif en = '1' then
+                if sum = g_max_count then
+                    sum <= 0;
+                else
+                    sum <= sum + 1;
+                end if;
+			end if;
+		end if;
+    end process;
+    tick <= '1' when sum = g_max_count else '0';
+    
+    count <= sum;
+	 
+end behave;
