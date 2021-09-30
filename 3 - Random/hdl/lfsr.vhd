@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
+use work.P.all;
 
 entity lfsr is
 	port (
@@ -29,15 +30,16 @@ begin
 		if rising_edge(clk) then
 			if rstn = '0' then --reset
 				random_number <= switches;
+				random_bit <= '0';
 			elsif en = '1' then
-				random_bit <= random_number(2) xor random_number(5) xor random_number(7) xor random_number(8); --taps:3 6 8 9
+				random_bit <= random_number(1) xor random_number(4) xor random_number(6) xor random_number(9); --taps:3 6 8 9
 				random_number <= random_number(8 downto 0) & random_bit;
---				random_number <= random_number sll 1;
---				random_number(0) <= random_bit;
 			
 			end if;
 		end if;
 	end process;
+
 	HEX1 <= not seg_decoder(to_integer(unsigned(random_number(8 downto 5))));
 	HEX0 <= not seg_decoder(to_integer(unsigned(random_number(4 downto 1))));
+
 end behave;

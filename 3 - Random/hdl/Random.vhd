@@ -42,6 +42,6 @@ begin
    HEX3 <= (others => '1');
    HEX4 <= (others => '1');
    HEX5 <= (others => '1');
-	LEDR <= (others => '0');  -- to drive the LEDs to zeros
+   LEDR <= (others => '0');  -- to drive the LEDs to zeros
 
 end behave;
