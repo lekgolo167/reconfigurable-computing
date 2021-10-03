@@ -40,7 +40,7 @@ begin
 			wait for c_CLK_PERIOD*5;   -- no buttons pressed
 			gen <= '1';                -- gen with reset off
 			SW <= "0101010101";        -- change seeds
-			wait for c_CLK_PERIOD*150; -- enough clock cycles to show all combinations
+			wait for c_CLK_PERIOD*2700; -- enough clock cycles to show all combinations
 			reset <= '0';              -- gen with reset on
 			wait for c_CLK_PERIOD*5;   -- reset to seed value
 			reset <= '1';              -- reset off
@@ -50,10 +50,14 @@ begin
 		end process;
 
 	p_PRINT : process is
+		variable line_v : line;
+		file out_file : text open write_mode is "output.txt";
 	begin
 		wait until clk = '1';
 		if gen = '1' then
-			report "RANDOM = " & to_hstring(<<signal .random_tb.dut.random_number : std_logic_vector(9 downto 0)>>(8 downto 1));
+			-- report "RANDOM = " & to_hstring(<<signal .random_tb.dut.random_number : std_logic_vector(9 downto 0)>>(8 downto 1));
+			write(line_v, to_hstring(<<signal .random_tb.dut.random_number : std_logic_vector(9 downto 0)>>(8 downto 1)));
+			writeline(out_file, line_v);
 		end if;
 		wait until clk = '0';
 	end process;
