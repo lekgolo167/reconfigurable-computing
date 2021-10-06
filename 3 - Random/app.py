@@ -9,5 +9,3 @@ for line in f.readlines():
 
 print(m)
 print(len(lst))
-lst.sort()
-print(lst)

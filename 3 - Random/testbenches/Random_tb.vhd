@@ -40,7 +40,7 @@ begin
 			wait for c_CLK_PERIOD*5;   -- no buttons pressed
 			gen <= '1';                -- gen with reset off
 			SW <= "0101010101";        -- change seeds
-			wait for c_CLK_PERIOD*2700; -- enough clock cycles to show all combinations
+			wait for c_CLK_PERIOD*50; -- enough clock cycles to show all combinations
 			reset <= '0';              -- gen with reset on
 			wait for c_CLK_PERIOD*5;   -- reset to seed value
 			reset <= '1';              -- reset off
