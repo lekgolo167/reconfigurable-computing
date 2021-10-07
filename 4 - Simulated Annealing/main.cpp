@@ -47,11 +47,14 @@ int main(int argc, char *argv[]) {
 	while(!inputFile.eof()) {
 		try {
 			inputFile >> type;
+			if (type == "")
+				continue;
 			inputFile >> x;
 			inputFile >> y;
 
 			// read in edges
 			annealing.add_edge(stoi(x), stoi(y));
+			type = "";
 
 		} catch(exception e) {
 
@@ -59,8 +62,8 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 	}
-
-	annealing.solve();
+	annealing.print_grid();
+	cout << annealing.solve() << endl;
 	annealing.print_solution();
 	annealing.save_to_file(outputFile);
 
