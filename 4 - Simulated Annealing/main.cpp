@@ -31,18 +31,17 @@ int main(int argc, char *argv[]) {
     }
 
 	//read lines of ifile
-	string type, x, y;
+	string type, x, y, z;
 	inputFile >> type;
 	inputFile >> x;
 	inputFile >> y;
 
-	// set grid size
-	Annealing annealing = Annealing(stoi(x), stoi(y));
 
 	inputFile >> type;
-	inputFile >> x;
-	// set number of nodes
-	annealing.set_num_nodes(stoi(x));
+	inputFile >> z;
+
+	// set grid size and number of nodes
+	Annealing annealing = Annealing(stoi(x), stoi(y), stoi(z));
 
 	while(!inputFile.eof()) {
 		try {

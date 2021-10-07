@@ -3,77 +3,110 @@
 #include <algorithm>
 #include <cmath>
 
-Annealing::Annealing() {
+FloorPlan::FloorPlan() {
 
 }
 
-Annealing::Annealing(int grid_x, int grid_y) {
-    best_grid = new int* [grid_x];
-    tmp_grid = new int* [grid_x];
+FloorPlan::FloorPlan(int grid_x, int grid_y, int num_nodes) {
+    m_grid = new int* [grid_x];
     for(int i = 0; i < grid_x; i++) {
-        best_grid[i] = new int[grid_y];
-        tmp_grid[i] = new int[grid_y];
+        m_grid[i] = new int[grid_y];
     }
+
     grid_size_x = grid_x;
     grid_size_y = grid_y;
+    m_num_nodes = num_nodes;
 
-    srand(time(NULL));
-}
-
-void Annealing::set_num_nodes(int num) {
     int nodes_placed = 0;
     for (int x = 0; x < grid_size_x; x++) {
         for (int y = 0; y < grid_size_y; y++) {
-            if (nodes_placed < num) {
+            if (nodes_placed < m_num_nodes) {
                 node n = node{nodes_placed, x, y};
-                best_nodes.push_back(n);
-                tmp_nodes.push_back(n);
-                best_grid[x][y] = n.id;
-                tmp_grid[x][y] = n.id;
+                m_nodes.push_back(n);
+                m_grid[x][y] = n.id;
             }
             else {
-                best_grid[x][y] = -1;
-                tmp_grid[x][y] = -1;
+                m_grid[x][y] = -1;
             }
             nodes_placed++;
         }
     }
 }
 
-void Annealing::add_edge(int n1, int n2) {
-    edges.push_back(new edge{0, n1, n2});
+void FloorPlan::add_edge(int n1, int n2) {
+    m_edges.push_back(new edge{0, n1, n2});
 }
 
-int Annealing::edge_length(node& n1, node& n2) {
+int FloorPlan::edge_length(node& n1, node& n2) {
     return std::abs(n1.x - n2.x) + std::abs(n1.y - n2.y);
 }
 
-int Annealing::cost(std::vector<node>& nodes) {
+int FloorPlan::cost() {
     int sum = 0;
-    for(edge* e : edges) {
-        int e_cost = edge_length(nodes[e->node_1], nodes[e->node_2]);
+    for(edge* e : m_edges) {
+        int e_cost = edge_length(m_nodes[e->node_1], m_nodes[e->node_2]);
         e->length = e_cost;
         sum += e_cost * e_cost;
     }
     return sum;
 }
 
+void FloorPlan::print_grid() {
+    for (int x = 0; x < grid_size_x; x++) {
+        for (int y = 0; y < grid_size_y; y++) {
+            if (m_grid[x][y] >= 0) {
+                std::cout << "| " << m_grid[x][y] << " |";
+            }
+            else {
+                std::cout << "| - |";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+void FloorPlan::print_solution() {
+    for (node n : m_nodes) {
+        std::cout << "Node " << n.id << " placed at (" << n.x << "," << n.y << ")\n";
+    }
+    for (edge* e : m_edges) {
+        std::cout << "Edge from " << e->node_1 << " to " << e->node_2 << " has length " << e->length << "\n";
+    }
+    std::cout << std::endl;
+}
+
+Annealing::Annealing() {
+
+}
+
+Annealing::Annealing(int grid_x, int grid_y, int num_nodes) {
+    m_solution = FloorPlan(grid_x, grid_y, num_nodes);
+    srand(time(NULL));
+}
+
+void Annealing::add_edge(int n1, int n2) {
+    m_solution.add_edge(n1, n2);
+}
+
+
 int Annealing::solve() {
     double temperature = initial_temperature;
-    int best_score, new_score;
-
     // initial floorplan and cost
-    best_score = cost(best_nodes);
+    int best_score, new_score;
+    best_score = m_solution.cost();
+    new_score = best_score;
+    FloorPlan new_solution = m_solution;
+
 
     while(temperature > stop_threshold) {
         // generate new solution, maybe use 5 different types of moves to generate new solution
 
         // score solution
-        new_score = cost(tmp_nodes);
+        new_score = new_solution.cost();
 
         // if new better than old
         if (new_score < best_score) {
-            // copy new grid to best grid
+            // copy new solution to best solution
 
             best_score = new_score;
         }
@@ -86,38 +119,18 @@ int Annealing::solve() {
             double r = (rand() % 100) / 100;
 
             if (r <= p) {
-                // copy new grid to best grid
+                // copy new solution to best solution
             }
             
         }
         temperature *= t_ratio;
     }
-    print_grid(best_grid);
+    m_solution.print_grid();
     return best_score;
 }
 
-void Annealing::print_grid(int** grid) {
-    for (int x = 0; x < grid_size_x; x++) {
-        for (int y = 0; y < grid_size_y; y++) {
-            if (grid[x][y] >= 0) {
-                std::cout << "| " << grid[x][y] << " |";
-            }
-            else {
-                std::cout << "| - |";
-            }
-        }
-        std::cout << std::endl;
-    }
-}
-
 void Annealing::print_solution() {
-    for (node n : best_nodes) {
-        std::cout << "Node " << n.id << " placed at (" << n.x << "," << n.y << ")\n";
-    }
-    for (edge* e : edges) {
-        std::cout << "Edge from " << e->node_1 << " to " << e->node_2 << " has length " << e->length << "\n";
-    }
-    std::cout << std::endl;
+
 }
 
 void Annealing::save_to_file(std::ofstream& ofile) {
