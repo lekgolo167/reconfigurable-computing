@@ -8,9 +8,9 @@ FloorPlan::FloorPlan() {
 }
 
 FloorPlan::FloorPlan(int grid_x, int grid_y, int num_nodes) {
-    m_grid = new int* [grid_x];
-    for(int i = 0; i < grid_x; i++) {
-        m_grid[i] = new int[grid_y];
+    m_grid = new int* [grid_y];
+    for(int i = 0; i < grid_y; i++) {
+        m_grid[i] = new int[grid_x];
     }
 
     grid_size_x = grid_x;
@@ -18,8 +18,8 @@ FloorPlan::FloorPlan(int grid_x, int grid_y, int num_nodes) {
     m_num_nodes = num_nodes;
 
     int nodes_placed = 0;
-    for (int x = 0; x < grid_size_x; x++) {
-        for (int y = 0; y < grid_size_y; y++) {
+    for (int y = 0; y < grid_size_y; y++) {
+        for (int x = 0; x < grid_size_x; x++) {
             if (nodes_placed < m_num_nodes) {
                 node n = node{nodes_placed, x, y};
                 m_nodes.push_back(n);
@@ -29,6 +29,19 @@ FloorPlan::FloorPlan(int grid_x, int grid_y, int num_nodes) {
                 m_grid[x][y] = -1;
             }
             nodes_placed++;
+        }
+    }
+}
+
+void FloorPlan::copy(FloorPlan& other) {
+    for (int y = 0; y < grid_size_y; y++) {
+        for (int x = 0; x < grid_size_x; x++) {
+            int id = other.m_grid[x][y];
+            m_grid[x][y] = id;
+            if (id >= 0) {
+                m_nodes[id].x = x;
+                m_nodes[id].y = y;
+            }
         }
     }
 }
@@ -52,8 +65,8 @@ int FloorPlan::cost() {
 }
 
 void FloorPlan::print_grid() {
-    for (int x = 0; x < grid_size_x; x++) {
-        for (int y = 0; y < grid_size_y; y++) {
+    for (int y = 0; y < grid_size_y; y++) {
+        for (int x = 0; x < grid_size_x; x++) {
             if (m_grid[x][y] >= 0) {
                 std::cout << "| " << m_grid[x][y] << " |";
             }
@@ -81,33 +94,33 @@ Annealing::Annealing() {
 
 Annealing::Annealing(int grid_x, int grid_y, int num_nodes) {
     m_solution = FloorPlan(grid_x, grid_y, num_nodes);
+    m_new_solution = FloorPlan(grid_x, grid_y, num_nodes);
     srand(time(NULL));
 }
 
 void Annealing::add_edge(int n1, int n2) {
     m_solution.add_edge(n1, n2);
+    m_new_solution.add_edge(n1, n2);
 }
 
 
 int Annealing::solve() {
     double temperature = initial_temperature;
-    // initial floorplan and cost
     int best_score, new_score;
-    best_score = m_solution.cost();
-    new_score = best_score;
-    FloorPlan new_solution = m_solution;
 
+    // initial floorplan and cost
+    best_score = m_solution.cost();
 
     while(temperature > stop_threshold) {
         // generate new solution, maybe use 5 different types of moves to generate new solution
 
         // score solution
-        new_score = new_solution.cost();
+        new_score = m_new_solution.cost();
 
         // if new better than old
         if (new_score < best_score) {
             // copy new solution to best solution
-
+            m_solution.copy(m_new_solution);
             best_score = new_score;
         }
         else {
@@ -120,11 +133,16 @@ int Annealing::solve() {
 
             if (r <= p) {
                 // copy new solution to best solution
+                m_solution.copy(m_new_solution);
+            }
+            else {
+                m_new_solution.copy(m_solution);
             }
             
         }
         temperature *= t_ratio;
     }
+
     m_solution.print_grid();
     return best_score;
 }
