@@ -32,7 +32,7 @@ void Annealing::set_num_nodes(int num) {
 }
 
 void Annealing::add_edge(int n1, int n2) {
-    edges.push_back(edge{n1, n2});
+    edges.push_back(new edge{0, n1, n2});
 }
 
 int Annealing::edge_length(node& n1, node& n2) {
@@ -41,8 +41,9 @@ int Annealing::edge_length(node& n1, node& n2) {
 
 int Annealing::cost() {
     int sum = 0;
-    for(edge e : edges) {
-        int e_cost = edge_length(nodes[e.node_1], nodes[e.node_2]);
+    for(edge* e : edges) {
+        int e_cost = edge_length(nodes[e->node_1], nodes[e->node_2]);
+        e->length = e_cost;
         sum += e_cost * e_cost;
     }
     return sum;
@@ -67,7 +68,13 @@ void Annealing::print_grid() {
 }
 
 void Annealing::print_solution() {
-
+    for (node n : nodes) {
+        std::cout << "Node " << n.id << " placed at (" << n.x << "," << n.y << ")\n";
+    }
+    for (edge* e : edges) {
+        std::cout << "Edge from " << e->node_1 << " to " << e->node_2 << " has length " << e->length << "\n";
+    }
+    std::cout << std::endl;
 }
 
 void Annealing::save_to_file(std::ofstream& ofile) {

@@ -15,6 +15,7 @@ public:
 
 private:
 	struct edge {
+		int length;
 		int node_1;
 		int node_2;
 	};
@@ -29,6 +30,6 @@ private:
 	int grid_size_y;
 	int num_nodes;
 	node*** grid;
-	std::vector<edge> edges;
+	std::vector<edge*> edges;
 	std::vector<node> nodes;
 };
