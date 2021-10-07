@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 	}
-	annealing.print_grid();
 	cout << annealing.solve() << endl;
 	annealing.print_solution();
 	annealing.save_to_file(outputFile);

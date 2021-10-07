@@ -9,7 +9,7 @@ public:
 	void set_num_nodes(int num);
 	void add_edge(int n1, int n2);
 	int solve();
-	void print_grid();
+	void print_grid(int** grid);
 	void print_solution();
 	void save_to_file(std::ofstream& ofile);
 
@@ -24,12 +24,17 @@ private:
 		int x;
 		int y;
 	};
-	int cost();
+	int cost(std::vector<node>& nodes);
 	int edge_length(node& n1, node& n2);
 	int grid_size_x;
 	int grid_size_y;
 	int num_nodes;
-	node*** grid;
+	double initial_temperature = 0.0;
+	double t_ratio = 0.0;
+	double stop_threshold = 0.0;
+	int** best_grid;
+	int** tmp_grid;
 	std::vector<edge*> edges;
-	std::vector<node> nodes;
+	std::vector<node> best_nodes;
+	std::vector<node> tmp_nodes;
 };
