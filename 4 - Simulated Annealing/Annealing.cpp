@@ -88,6 +88,42 @@ void FloorPlan::print_solution() {
     std::cout << std::endl;
 }
 
+void FloorPlan::adjust_floorplan(){
+    int option, rand_id, rand_id_2, rand_x, rand_y;
+    //generate a random number between 0 and 1 (2 options we can add more)
+    option = rand() % 3;
+    //if option 0 swap two nodes
+    if (option == 0){
+        do{
+            rand_id = rand() % m_num_nodes;
+            rand_id_2 = rand() % m_num_nodes;
+        } while(rand_id == rand_id_2);
+        int temp_x = m_nodes[rand_id].x;
+        int temp_y = m_nodes[rand_id].y;
+        m_nodes[rand_id].x = m_nodes[rand_id_2].x;
+        m_nodes[rand_id].y = m_nodes[rand_id_2].y;
+        m_nodes[rand_id_2].x = temp_x;
+        m_nodes[rand_id_2].y = temp_y;
+        m_grid[m_nodes[rand_id_2].x][m_nodes[rand_id_2].y] = rand_id_2;
+        m_grid[m_nodes[rand_id].x][m_nodes[rand_id].y] = rand_id;
+    }
+    else if (option == 1){  // if option 1 then just move a node to a random open location in grid
+        rand_id = rand() % m_num_nodes;
+        do{
+            rand_x = rand() % grid_size_x;
+            rand_y = rand() % grid_size_y;
+        } while(m_grid[rand_x][rand_y] >= 0);
+        m_grid[m_nodes[rand_id].x][m_nodes[rand_id].y] = -1;
+        m_nodes[rand_id].x = rand_x;
+        m_nodes[rand_id].y = rand_y;
+        m_grid[rand_x][rand_y] = m_nodes[rand_id].id;
+    }
+    else if (option ==2){  //place nodes with longest edge close to eachother
+
+
+    }
+}
+
 Annealing::Annealing() {
 
 }
@@ -106,14 +142,13 @@ void Annealing::add_edge(int n1, int n2) {
 
 int Annealing::solve() {
     double temperature = initial_temperature;
-    int best_score, new_score;
-
+    int best_score, new_score, i;
+    i = 0;
     // initial floorplan and cost
     best_score = m_solution.cost();
-
     while(temperature > stop_threshold) {
         // generate new solution, maybe use 5 different types of moves to generate new solution
-
+        m_new_solution.adjust_floorplan();
         // score solution
         new_score = m_new_solution.cost();
 
@@ -138,12 +173,12 @@ int Annealing::solve() {
             else {
                 m_new_solution.copy(m_solution);
             }
-            
         }
         temperature *= t_ratio;
+        i += 1;
     }
-
     m_solution.print_grid();
+    std::cout << "Number of Iterations: " << i << std::endl;
     return best_score;
 }
 
@@ -154,3 +189,5 @@ void Annealing::print_solution() {
 void Annealing::save_to_file(std::ofstream& ofile) {
 
 }
+
+

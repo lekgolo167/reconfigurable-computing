@@ -10,6 +10,7 @@ class FloorPlan {
 		void copy(FloorPlan& other);
 		void print_grid();
 		void print_solution();
+		void adjust_floorplan();
 		int grid_size_x;
 		int grid_size_y;
 		int m_num_nodes;
@@ -43,7 +44,7 @@ public:
 private:
 	FloorPlan m_solution;
 	FloorPlan m_new_solution;
-	double initial_temperature = 0.0;
-	double t_ratio = 0.0;
-	double stop_threshold = 0.0;
+	double initial_temperature = 1000000;
+	double t_ratio = .9999;
+	double stop_threshold = 0.1;
 };
