@@ -56,10 +56,15 @@ int FloorPlan::edge_length(node& n1, node& n2) {
 
 int FloorPlan::cost() {
     int sum = 0;
+    int longest = 0;
     for(edge* e : m_edges) {
         int e_cost = edge_length(m_nodes[e->node_1], m_nodes[e->node_2]);
         e->length = e_cost;
         sum += e_cost * e_cost;
+        if (e_cost > longest) {
+            m_longest_edge = e;
+            longest = e_cost;
+        }
     }
     return sum;
 }
@@ -119,8 +124,25 @@ void FloorPlan::adjust_floorplan(){
         m_grid[rand_x][rand_y] = m_nodes[rand_id].id;
     }
     else if (option ==2){  //place nodes with longest edge close to eachother
-
-
+        node* n1 = &m_nodes[m_longest_edge->node_1];
+        node* n2 = &m_nodes[m_longest_edge->node_2];
+        // check for an open spot
+        int x, y;
+        int xx[] = { 0, 1,1,1,0,-1,-1,-1};
+        int yy[] = {-1,-1,0,1,1, 1, 0,-1};
+        for (int i = 0; i < 8; i++) {
+            x = n2->x + xx[i];
+            y = n2->y + yy[i];
+            if (x < grid_size_x && x >= 0 && y < grid_size_y && y >= 0) {
+                if (m_grid[x][y] < 0) { // place node here
+                    m_grid[x][y] = n1->id;
+                    m_grid[n1->x][n1->y] = -1;
+                    n1->x = x;
+                    n1->y = y;
+                    break;
+                } 
+            }
+        }
     }
 }
 
@@ -146,6 +168,7 @@ int Annealing::solve() {
     i = 0;
     // initial floorplan and cost
     best_score = m_solution.cost();
+
     while(temperature > stop_threshold) {
         // generate new solution, maybe use 5 different types of moves to generate new solution
         m_new_solution.adjust_floorplan();
@@ -177,13 +200,14 @@ int Annealing::solve() {
         temperature *= t_ratio;
         i += 1;
     }
+    best_score = m_solution.cost();
     m_solution.print_grid();
     std::cout << "Number of Iterations: " << i << std::endl;
     return best_score;
 }
 
 void Annealing::print_solution() {
-
+    //m_solution.print_solution();
 }
 
 void Annealing::save_to_file(std::ofstream& ofile) {
