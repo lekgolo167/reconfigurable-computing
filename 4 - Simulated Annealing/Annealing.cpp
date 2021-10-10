@@ -21,7 +21,7 @@ FloorPlan::FloorPlan(int grid_x, int grid_y, int num_nodes) {
     for (int y = 0; y < grid_size_y; y++) {
         for (int x = 0; x < grid_size_x; x++) {
             if (nodes_placed < m_num_nodes) {
-                node n = node{nodes_placed, x, y};
+                node n = node{nodes_placed, false, x, y};
                 m_nodes.push_back(n);
                 m_grid[x][y] = n.id;
             }
@@ -65,7 +65,13 @@ int FloorPlan::cost() {
             m_longest_edge = e;
             longest = e_cost;
         }
+        else if (e_cost == 1) {
+            m_nodes[e->node_1].locked = true;
+            m_nodes[e->node_2].locked = true;
+        }
     }
+    m_nodes[m_longest_edge->node_1].locked = false;
+    m_nodes[m_longest_edge->node_2].locked = false;
     return sum;
 }
 
@@ -103,6 +109,9 @@ void FloorPlan::adjust_floorplan(){
             rand_id = rand() % m_num_nodes;
             rand_id_2 = rand() % m_num_nodes;
         } while(rand_id == rand_id_2);
+        if (m_nodes[rand_id].locked || m_nodes[rand_id_2].locked) {
+            return;
+        }
         int temp_x = m_nodes[rand_id].x;
         int temp_y = m_nodes[rand_id].y;
         m_nodes[rand_id].x = m_nodes[rand_id_2].x;
@@ -114,6 +123,17 @@ void FloorPlan::adjust_floorplan(){
     }
     else if (option == 1){  // if option 1 then just move a node to a random open location in grid
         rand_id = rand() % m_num_nodes;
+        int start_id = rand_id;
+        while (m_nodes[rand_id].locked) {
+            if(++rand_id == m_num_nodes) {
+                rand_id = 0;
+            }
+            if (rand_id = start_id) {
+                // all nodes locked
+                return;
+            }
+        }
+
         do{
             rand_x = rand() % grid_size_x;
             rand_y = rand() % grid_size_y;
@@ -171,7 +191,7 @@ int Annealing::solve() {
 
     // initialize other solution 
     new_score = m_new_solution.cost();
-    
+
     while(temperature > stop_threshold) {
         // generate new solution, maybe use 5 different types of moves to generate new solution
         m_new_solution.adjust_floorplan();
@@ -210,7 +230,7 @@ int Annealing::solve() {
 }
 
 void Annealing::print_solution() {
-    //m_solution.print_solution();
+    m_solution.print_solution();
 }
 
 void Annealing::save_to_file(std::ofstream& ofile) {

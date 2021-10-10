@@ -24,6 +24,7 @@ class FloorPlan {
 		};
 		struct node {
 			int id;
+			bool locked;
 			int x;
 			int y;
 		};
@@ -45,7 +46,7 @@ public:
 private:
 	FloorPlan m_solution;
 	FloorPlan m_new_solution;
-	double initial_temperature = 1000000;
+	double initial_temperature = 100000000;
 	double t_ratio = .9999;
 	double stop_threshold = 0.1;
 };
