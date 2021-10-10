@@ -169,6 +169,9 @@ int Annealing::solve() {
     // initial floorplan and cost
     best_score = m_solution.cost();
 
+    // initialize other solution 
+    new_score = m_new_solution.cost();
+    
     while(temperature > stop_threshold) {
         // generate new solution, maybe use 5 different types of moves to generate new solution
         m_new_solution.adjust_floorplan();
