@@ -32,6 +32,7 @@ class FloorPlan {
 		std::vector<edge*> m_edges;
 		std::vector<node> m_nodes;
 		edge* m_longest_edge;
+		int m_shortest_len;
 };
 
 class Annealing {

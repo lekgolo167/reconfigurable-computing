@@ -16,6 +16,7 @@ FloorPlan::FloorPlan(int grid_x, int grid_y, int num_nodes) {
     grid_size_x = grid_x;
     grid_size_y = grid_y;
     m_num_nodes = num_nodes;
+    m_shortest_len = 1;
 
     int nodes_placed = 0;
     for (int y = 0; y < grid_size_y; y++) {
@@ -56,20 +57,24 @@ int FloorPlan::edge_length(node& n1, node& n2) {
 
 int FloorPlan::cost() {
     int sum = 0;
-    int longest = 0;
+    int longest = 0, shortest = INT32_MAX;
     for(edge* e : m_edges) {
         int e_cost = edge_length(m_nodes[e->node_1], m_nodes[e->node_2]);
         e->length = e_cost;
         sum += e_cost * e_cost;
+        if (e_cost < shortest) {
+            shortest = e_cost;
+        }
         if (e_cost > longest) {
             m_longest_edge = e;
             longest = e_cost;
         }
-        else if (e_cost == 1) {
+        else if (e_cost <= m_shortest_len) {
             m_nodes[e->node_1].locked = true;
             m_nodes[e->node_2].locked = true;
         }
     }
+    m_shortest_len = shortest;
     m_nodes[m_longest_edge->node_1].locked = false;
     m_nodes[m_longest_edge->node_2].locked = false;
     return sum;
@@ -148,9 +153,9 @@ void FloorPlan::adjust_floorplan(){
         node* n2 = &m_nodes[m_longest_edge->node_2];
         // check for an open spot
         int x, y;
-        int xx[] = { 0, 1,1,1,0,-1,-1,-1};
-        int yy[] = {-1,-1,0,1,1, 1, 0,-1};
-        for (int i = 0; i < 8; i++) {
+        int xx[] = { 0, 1,1,1,0,-1,-1,-1,2,2,2,1,0,-1,-2,-2,-2,-2,-2,-1,0,1,2,2};
+        int yy[] = {-1,-1,0,1,1, 1, 0,-1,0,1,2,2,2,2,2,0,0,-1,-2,-2,-2,-2,-2,-1};
+        for (int i = 0; i < 24; i++) {
             x = n2->x + xx[i];
             y = n2->y + yy[i];
             if (x < grid_size_x && x >= 0 && y < grid_size_y && y >= 0) {
