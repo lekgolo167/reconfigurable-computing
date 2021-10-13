@@ -39,6 +39,7 @@ class Annealing {
 public:
 	Annealing();
 	Annealing(int grid_x, int grid_y, int num_nodes);
+	void set_temperatures(double init, double ratio, double threshold);
 	void add_edge(int n1, int n2);
 	int solve();
 	void print_solution();

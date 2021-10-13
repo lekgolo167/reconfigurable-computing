@@ -83,11 +83,14 @@ int FloorPlan::cost() {
 void FloorPlan::print_grid() {
     for (int y = 0; y < grid_size_y; y++) {
         for (int x = 0; x < grid_size_x; x++) {
-            if (m_grid[x][y] >= 0) {
-                std::cout << "| " << m_grid[x][y] << " |";
+            if (m_grid[x][y] < 0) {
+                std::cout << "| -- |";
+            }
+            else if (m_grid[x][y] < 10) {
+                std::cout << "|  " << m_grid[x][y] << " |";
             }
             else {
-                std::cout << "| - |";
+                std::cout << "| " << m_grid[x][y] << " |";
             }
         }
         std::cout << std::endl;
@@ -181,6 +184,12 @@ Annealing::Annealing(int grid_x, int grid_y, int num_nodes) {
     srand(time(NULL));
 }
 
+void Annealing::set_temperatures(double init, double ratio, double threshold) {
+    initial_temperature = init;
+    t_ratio = ratio;
+    stop_threshold = threshold;
+}
+
 void Annealing::add_edge(int n1, int n2) {
     m_solution.add_edge(n1, n2);
     m_new_solution.add_edge(n1, n2);
@@ -235,7 +244,7 @@ int Annealing::solve() {
 }
 
 void Annealing::print_solution() {
-    m_solution.print_solution();
+    // m_solution.print_solution();
 }
 
 void Annealing::save_to_file(std::ofstream& ofile) {
