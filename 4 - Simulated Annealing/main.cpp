@@ -3,8 +3,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
-#include <vector>
-#include <algorithm>
+#include <chrono>
 
 #include "Annealing.hpp"
 
@@ -63,9 +62,25 @@ int main(int argc, char *argv[]) {
 			return -1;
 		}
 	}
-	cout << annealing.solve() << endl;
-	annealing.print_solution();
-	annealing.save_to_file(outputFile);
+
+	if (argc == 6) {
+		std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
+		int cost = annealing.solve(true);
+		std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<long, std::nano> time = end - start;
+
+		cout << cost << endl;
+		outputFile << cost << "\n";
+		outputFile << time.count() / 1000;
+
+		annealing.print_solution(cout);
+	}
+	else {
+		annealing.solve(false);
+		annealing.print_solution(outputFile);
+	}
+
+	outputFile.close();
 
     return 0;
 }

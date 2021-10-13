@@ -9,7 +9,7 @@ class FloorPlan {
 		int cost();
 		void copy(FloorPlan& other);
 		void print_grid();
-		void print_solution();
+		void print_solution(std::ostream& output_stream);
 		void adjust_floorplan();
 		int grid_size_x;
 		int grid_size_y;
@@ -41,9 +41,8 @@ public:
 	Annealing(int grid_x, int grid_y, int num_nodes);
 	void set_temperatures(double init, double ratio, double threshold);
 	void add_edge(int n1, int n2);
-	int solve();
-	void print_solution();
-	void save_to_file(std::ofstream& ofile);
+	int solve(bool verbose);
+	void print_solution(std::ostream& output_stream);
 
 private:
 	FloorPlan m_solution;

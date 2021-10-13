@@ -97,14 +97,14 @@ void FloorPlan::print_grid() {
     }
 }
 
-void FloorPlan::print_solution() {
+void FloorPlan::print_solution(std::ostream& output_stream) {
     for (node n : m_nodes) {
-        std::cout << "Node " << n.id << " placed at (" << n.x << "," << n.y << ")\n";
+        output_stream << "Node " << n.id << " placed at (" << n.x << "," << n.y << ")\n";
     }
     for (edge* e : m_edges) {
-        std::cout << "Edge from " << e->node_1 << " to " << e->node_2 << " has length " << e->length << "\n";
+        output_stream << "Edge from " << e->node_1 << " to " << e->node_2 << " has length " << e->length << "\n";
     }
-    std::cout << std::endl;
+    output_stream << "\n";
 }
 
 void FloorPlan::adjust_floorplan(){
@@ -196,7 +196,7 @@ void Annealing::add_edge(int n1, int n2) {
 }
 
 
-int Annealing::solve() {
+int Annealing::solve(bool verbose) {
     double temperature = initial_temperature;
     int best_score, new_score, i;
     i = 0;
@@ -238,17 +238,13 @@ int Annealing::solve() {
         i += 1;
     }
     best_score = m_solution.cost();
-    m_solution.print_grid();
-    std::cout << "Number of Iterations: " << i << std::endl;
+    if (verbose) {
+        m_solution.print_grid();
+        std::cout << "Number of Iterations: " << i << std::endl;
+    }
     return best_score;
 }
 
-void Annealing::print_solution() {
-    // m_solution.print_solution();
+void Annealing::print_solution(std::ostream& output_stream) {
+    m_solution.print_solution(output_stream);
 }
-
-void Annealing::save_to_file(std::ofstream& ofile) {
-
-}
-
-
