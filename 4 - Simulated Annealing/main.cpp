@@ -13,7 +13,7 @@ using namespace std;
 int main(int argc, char *argv[]) {
 	
 	//check args
-    if(argc != 3) {
+    if(argc <= 2) {
         cout << "Need 2 filenames for input and output from the commandline\nExiting..." << endl;
         return -1;
     }
@@ -42,7 +42,9 @@ int main(int argc, char *argv[]) {
 
 	// set grid size and number of nodes
 	Annealing annealing = Annealing(stoi(x), stoi(y), stoi(z));
-
+	if(argc == 6){
+		annealing.set_temperatures(atof(argv[3]), atof(argv[4]), atof(argv[5]));
+	}
 	while(!inputFile.eof()) {
 		try {
 			inputFile >> type;
