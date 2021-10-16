@@ -1,0 +1,6 @@
+DATE = "22:01:04 October 15, 2021"
+QUARTUS_VERSION = "16.0.0"
+
+# Revisions
+
+PROJECT_REVISION = "FSM"
