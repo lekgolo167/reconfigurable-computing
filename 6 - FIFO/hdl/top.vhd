@@ -22,34 +22,91 @@ entity top is
 end top;
 
 architecture behave of top is
-	type state_type is (IDLE, ACCUM);
-	signal state : state_type;
+	type state_type is (IDLE, STORE, HOLD, ACCUM);
+	signal write_state : state_type;
+	signal read_state : state_type;
 	signal accumulator : std_logic_vector(23 downto 0);
+	signal write_clk : std_logic;
+	signal read_clk : std_logic;
+	signal wr_en : std_logic;
+	signal rd_en : std_logic;
+	signal empty : std_logic;
+	signal data : std_logic_vector(9 downto 0);
+	signal num : std_logic_vector(2 downto 0);
 	signal rstn_btn : std_logic;
-	signal add_btn : std_logic;
+	signal store_btn : std_logic;
 begin
 
-	STATE_MACHINE : process (MAX10_CLK1_50)
+	WRITE_MACHINE : process (write_clk)
 	begin
-		if rising_edge(MAX10_CLK1_50) then
-			if (rstn_btn = '0') then
-				state <= IDLE;
-				accumulator <= (others => '0');
-			else
-				case state is
-					when IDLE =>
-						if add_btn = '1' then
-							accumulator <= accumulator + SW;
-							state <= ACCUM;
-						end if;
-					when ACCUM =>
-						if add_btn = '0' then
-							state <= IDLE;
-						end if;
-				end case;
-			end if;
+		store_btn <= not KEY(1);
+		if rising_edge(write_clk) then
+			case write_state is
+				when IDLE =>
+					wr_en <= '0';
+					if store_btn = '1' then
+						write_state <= STORE;
+					end if;
+				when STORE =>
+					wr_en <= '1';
+					write_state <= HOLD;
+				when HOLD =>
+					wr_en <= '0';
+					if store_btn = '0' then
+						write_state <= IDLE;
+					end if;
+				when others =>
+					write_state <= IDLE;
+			end case;
 		end if;
 	end process;
+	
+	READ_MACHINE : process (read_clk)
+	begin
+		if rstn_btn = '0' then
+			accumulator <= (others => '0');
+		elsif rising_edge(read_clk) then
+			case read_state is
+				when IDLE =>
+					rd_en <= '0';
+					if num >= 5 then
+						rd_en <= '1';
+						read_state <= ACCUM;
+					end if;
+				when ACCUM =>
+					if empty = '1' then
+						read_state <= IDLE;
+					else
+						rd_en <= '1';
+						accumulator <= accumulator + data;
+					end if;
+				when others =>
+					read_state <= IDLE;
+			end case;
+		end if;
+	end process;
+	
+	FF0: entity work.FIFO(syn)
+		port map (
+			aclr => NOT rstn_btn,
+			data => SW,
+			rdclk	=> read_clk,
+			rdreq	=> rd_en,
+			wrclk	=> write_clk,
+			wrreq	=> wr_en,
+			q => data,
+			rdempty => empty,
+			rdusedw => num
+		);
+		
+	PL0: entity work.PLL(syn)
+		port map	(
+			inclk0 => MAX10_CLK1_50,
+			c0	=> write_clk,
+			c1	=> read_clk
+		);
+
+
 
     HX0: entity work.Seg_Decoder(rtl)
         port map (
@@ -94,7 +151,6 @@ begin
         );
 
 	LEDR <= SW;
-	add_btn <= not KEY(1);
 	rstn_btn <= KEY(0);
 
 end behave;
