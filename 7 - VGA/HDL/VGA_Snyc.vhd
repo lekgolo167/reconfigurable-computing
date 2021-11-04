@@ -24,11 +24,11 @@ architecture behave of VGA_Sync is
 	constant hs_bp : natural := 50;
 	signal hs_count : natural := 0;
 	
-	constant vs_count_max : natural := 420000;
-	constant vs_disp : natural := 384000;
-	constant vs_fp : natural := 8000;
-	constant vs_sync : natural := 9600;
-	constant vs_bp : natural := 26400;
+	constant vs_count_max : natural := 525;
+	constant vs_disp : natural := 480;
+	constant vs_fp : natural := 10;
+	constant vs_sync : natural := 12;
+	constant vs_bp : natural := 33;
 	signal vs_count : natural := 0;
 
 begin
@@ -64,7 +64,7 @@ begin
 		elsif rising_edge(vga_clk) then
 			if vs_count >= vs_count_max-1 then
 				vs_count <= 0;
-			else
+			elsif hs_count = hs_count_max-1 then
 				vs_count <= vs_count + 1;
 			end if;
 		end if;

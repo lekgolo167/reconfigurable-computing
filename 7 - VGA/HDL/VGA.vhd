@@ -23,9 +23,9 @@ architecture behave of VGA is
 	constant vga_max_y : natural := 480;
 	constant flag_v_x1 : natural := 200;
 	constant flag_v_x2 : natural := 440;
-	constant flag_h_y1 : natural := 128000;
-	constant flag_h_mid : natural := 192000;
-	constant flag_h_y2 : natural := 256000;
+	constant flag_h_y1 : natural := 160;
+	constant flag_h_mid : natural := 240;
+	constant flag_h_y2 : natural := 320;
 
 	constant WHITE : std_logic_vector(11 downto 0) := x"FFF";
 	constant BLACK : std_logic_vector(11 downto 0) := x"000";
