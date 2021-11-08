@@ -6,7 +6,6 @@ use ieee.std_logic_unsigned.all;
 entity VGA_Sync is
 	port (
 		vga_clk : in std_logic;
-		rstn : in std_logic;
 		vga_hs : out std_logic;
 		vga_x : out natural;
 		vga_vs : out std_logic;
@@ -35,9 +34,7 @@ begin
 
 	p_hs_count : process (vga_clk)
 	begin
-		if rstn = '0' then
-			hs_count <= 0;
-		elsif rising_edge(vga_clk) then
+		if rising_edge(vga_clk) then
 			if hs_count >= hs_count_max-1 then
 				hs_count <= 0;
 			else
@@ -59,9 +56,7 @@ begin
 	
 	p_vs_count : process (vga_clk)
 	begin
-		if rstn = '0' then
-			vs_count <= 0;
-		elsif rising_edge(vga_clk) then
+		if rising_edge(vga_clk) then
 			if vs_count >= vs_count_max-1 then
 				vs_count <= 0;
 			elsif hs_count = hs_count_max-1 then

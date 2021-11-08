@@ -36,7 +36,7 @@ architecture behave of VGA is
 	constant ORANGE : std_logic_vector(11 downto 0) := x"F70";
 	constant LIME : std_logic_vector(11 downto 0) := x"3F3";
 	constant CRIMSON : std_logic_vector(11 downto 0) := x"B11";
-	constant BANANA : std_logic_vector(11 downto 0) := x"DD2";
+	constant BANANA : std_logic_vector(11 downto 0) := x"DC2";
 	constant AZULE : std_logic_vector(11 downto 0) := x"109";
 
 	type state_type is (FRANCE, ITALY, IRELAND, BELGIUM, MALI, CHAD, NIGERIA, IVORY, POLAND, GERMANY, AUSTRIA, CONGO);
@@ -51,6 +51,7 @@ architecture behave of VGA is
 	signal vga_x : natural;
 	signal vga_y : natural;
 	signal pixel_color : std_logic_vector(11 downto 0);
+	signal diagonal_x : natural;
 begin
 
 	p_next : process (vga_clk)
@@ -79,9 +80,9 @@ begin
 
 	p_state_machine : process (vga_clk)
 	begin
-		if rising_edge(vga_clk) then
-			
-
+		if rstn_btn = '0' then
+			flag_state <= FRANCE;
+		elsif rising_edge(vga_clk) then
 			case flag_state is
 				when FRANCE =>
 					if next_pulse = '1' then
@@ -193,7 +194,7 @@ begin
 					end if;
 				when AUSTRIA =>
 					if next_pulse = '1' then
-						flag_state <= FRANCE;
+						flag_state <= CONGO;
 					end if;
 					if vga_y < flag_h_y1 then
 						pixel_color <= RED;
@@ -201,6 +202,23 @@ begin
 						pixel_color <= WHITE;
 					else
 						pixel_color <= RED;
+					end if;
+				when CONGO =>
+					if next_pulse = '1' then
+						flag_state <= FRANCE;
+					end if;
+					if vga_x < diagonal_x then
+						pixel_color <= GREEN;
+					elsif vga_x < diagonal_x + 160 then
+						pixel_color <= YELLOW;
+					else
+						pixel_color <= RED;
+					end if;
+
+					if vga_y = 0 then
+						diagonal_x <= 480;
+					elsif vga_x = 0 then
+						diagonal_x <= diagonal_x - 1;
 					end if;
 				when others =>
 					flag_state <= FRANCE;
@@ -213,7 +231,6 @@ begin
 	VG0: entity work.VGA_Sync(behave)
 	port map (
 		vga_clk => vga_clk,
-		rstn => rstn_btn,
 		vga_hs => VGA_HS,
 		vga_x => vga_x,
 		vga_vs => VGA_VS,
