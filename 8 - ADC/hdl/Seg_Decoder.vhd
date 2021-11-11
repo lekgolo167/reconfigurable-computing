@@ -22,7 +22,7 @@ architecture rtl of Seg_Decoder is
 begin
 
     decoded <= not seg_decoder(to_integer(unsigned(binary)))(6 downto 0);
-    hex(6 downto 0) <= decoded when en else "1111111";
-    hex(7) <= not dp when en else '1';
+    hex(6 downto 0) <= decoded when en = '1' else "1111111";
+    hex(7) <= not dp when en = '1' else '1';
         
 end rtl;

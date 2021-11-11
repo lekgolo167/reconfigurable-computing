@@ -23,24 +23,53 @@ end ADC_lab;
 
 architecture behave of ADC_lab is
 
-	signal rstn_btn : std_logic;
-	signal adc_clk : std_logic;
+	 signal rstn_btn : std_logic;
+	 signal adc_clk : std_logic;
     signal lock : std_logic;
     signal adc_voltage : std_logic_vector(11 downto 0);
+	 signal cmd_valid : std_logic := '1';
+	 signal cmd_channel : std_logic_vector(4 downto 0) := "00001";
+	 signal cmd_start_pack : std_logic := '1';
+	 signal cmd_end_pack : std_logic := '1';
+	 signal cmd_ready : std_logic := '1';
+	 signal resp_valid : std_logic;
+	 signal resp_channel : std_logic_vector(4 downto 0);
+	 signal resp_data : std_logic_vector(11 downto 0);
+	 signal resp_start_pack : std_logic;
+	 signal resp_end_pack : std_logic;
+	 signal counter : natural;
+	 signal adc_voltage_reading : std_logic_vector(11 downto 0);
 
 begin
 
-p_ : process ()
+p_sample : process (adc_clk)
 	begin
-		if rising_edge() then
-
+		if rising_edge(adc_clk) then
+			if resp_valid = '1' then
+				adc_voltage_reading <= resp_data;
+			end if;
 		end if;
 	end process;
+	
+p_one_hz : process (adc_clk)
+begin
+	if rising_edge(adc_clk) then
+		if rstn_btn = '0' then
+			adc_voltage <= adc_voltage;
+		elsif counter >= (10000000 - 1) then
+			counter <= 0;
+			adc_voltage <= adc_voltage_reading;
+		else
+			counter <= counter + 1;
+		end if;
+	end if;
+end process;
 
 PL0: entity work.PLL(syn)
 	port map (
 		inclk0 => ADC_CLK_10,
-		c0	=> adc_clk
+		c0	=> adc_clk,
+		locked => lock
 	);
 
 HX0: entity work.Seg_Decoder(rtl)
@@ -92,6 +121,24 @@ HX5: entity work.Seg_Decoder(rtl)
     );
 
     rstn_btn <= KEY(0);
+	 
+adc_0 : entity work.adc(rtl)
+	port map (
+		clock_clk              => ADC_CLK_10,
+		reset_sink_reset_n     => rstn_btn,
+		adc_pll_clock_clk      => adc_clk,
+		adc_pll_locked_export  => lock,
+		command_valid          => cmd_valid,
+		command_channel        => cmd_channel,
+		command_startofpacket  => cmd_start_pack,
+		command_endofpacket    => cmd_end_pack,
+		command_ready          => cmd_ready,
+		response_valid         => resp_valid,
+		response_channel       => resp_channel,
+		response_data          => resp_data,
+		response_startofpacket => resp_start_pack,
+		response_endofpacket   => resp_end_pack
+	);
 
 end behave;
 
