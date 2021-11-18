@@ -141,22 +141,3 @@ adc_0 : entity work.adc(rtl)
 	);
 
 end behave;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
