@@ -39,7 +39,8 @@ architecture behave of Bumper_Pool is
 	 signal new_ball_btn : std_logic;
 	 signal new_ball_delay : std_logic;
 	 signal new_ball_pulse : std_logic;
-	 signal volts : std_logic_vector(3 downto 0);
+	 signal paddle_1_y : natural;
+	 signal paddle_2_y : natural;
 begin
 
 	p_btn : process (vga_clk)
@@ -66,6 +67,10 @@ PL0: entity work.PLL(syn)
 GPH: entity work.Graphics(behave)
 		port map (
 			vga_clk => vga_clk,
+			ball_x => 420,
+			ball_y => 170,
+			paddle_1_y => paddle_1_y,
+			paddle_2_y => 160,
 			vga_red => VGA_R,
 			vga_green => VGA_G,
 			vga_blue => VGA_B,
@@ -80,8 +85,8 @@ UIP: entity work.User_Input(behave)
 		adc_pll_clk => adc_clk,
 		rstn => rstn_btn,
 		lock => lock,
-		update => update,
-		volts => volts
+		paddle_1_y => paddle_1_y
+		--paddle_2_y =>
 	);
 
 -- SND: entity work.Sound(behave)
@@ -96,8 +101,8 @@ UIP: entity work.User_Input(behave)
 
 HX0: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volts,
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX0
     );

@@ -9,8 +9,8 @@ entity User_Input is
 		adc_pll_clk : in std_logic;
 		rstn : in std_logic;
 		lock : in std_logic;
-		update : in std_logic;
-		volts : out std_logic_vector(3 downto 0)
+		paddle_1_y : out natural;
+		paddle_2_y : out natural
 	);
 end User_Input;
 
@@ -28,15 +28,21 @@ architecture behave of User_Input is
 	signal resp_data : std_logic_vector(11 downto 0);
 	signal resp_start_pack : std_logic;
 	signal resp_end_pack : std_logic;
-	signal adc_voltage_reading : std_logic_vector(11 downto 0);
+	signal channel_1_reading : std_logic_vector(8 downto 0);
+	signal channel_2_reading : std_logic_vector(8 downto 0);
+	signal player_1_bounded : std_logic_vector(8 downto 0);
+	signal player_2_bounded : std_logic_vector(8 downto 0);
 
 begin
+
+	paddle_1_y <= to_integer(unsigned(player_1_bounded));
+	paddle_2_y <= to_integer(unsigned(player_2_bounded));
 
 p_sample : process (adc_pll_clk)
    begin
 	   if rising_edge(adc_pll_clk) then
 		   if resp_valid = '1' then
-			   adc_voltage_reading <= resp_data;
+			   channel_1_reading <= resp_data(11 downto 3);
 		   end if;
 	   end if;
    end process;
@@ -44,13 +50,23 @@ p_sample : process (adc_pll_clk)
 p_map : process (adc_pll_clk)
 begin
 	if rising_edge(adc_pll_clk) then
-		if update = '1' then
-			adc_voltage <= adc_voltage_reading;
-			volts <= adc_voltage(3 downto 0);
+		if channel_1_reading > "100101100" then
+			player_1_bounded <= "100101100";
+		elsif channel_1_reading < "000010100" then
+			player_1_bounded <= "000010100";
+		else
+			player_1_bounded <= channel_1_reading;
+		end if;
+
+		if channel_2_reading > "100101100" then
+			player_2_bounded <= "100101100";
+		elsif channel_2_reading < "000010100" then
+			player_2_bounded <= "000010100";
+		else
+			player_2_bounded <= channel_2_reading;
 		end if;
 	end if;
 end process;
-	
 
 	adc_0 : entity work.adc(rtl)
 	port map (
