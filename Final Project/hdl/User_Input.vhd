@@ -42,7 +42,13 @@ p_sample : process (adc_pll_clk)
    begin
 	   if rising_edge(adc_pll_clk) then
 		   if resp_valid = '1' then
-			   channel_1_reading <= resp_data(11 downto 3);
+				if resp_channel = "00001" then
+					cmd_channel <= "00010";
+					channel_1_reading <= resp_data(11 downto 4) & '0';
+				else
+					cmd_channel <= "00001";
+					channel_2_reading <= resp_data(11 downto 4 ) & '0';
+				end if;
 		   end if;
 	   end if;
    end process;

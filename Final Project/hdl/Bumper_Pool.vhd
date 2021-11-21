@@ -41,6 +41,8 @@ architecture behave of Bumper_Pool is
 	 signal new_ball_pulse : std_logic;
 	 signal paddle_1_y : natural;
 	 signal paddle_2_y : natural;
+
+	 signal demux : std_logic_vector(3 downto 0);
 begin
 
 	p_btn : process (vga_clk)
@@ -70,7 +72,7 @@ GPH: entity work.Graphics(behave)
 			ball_x => 420,
 			ball_y => 170,
 			paddle_1_y => paddle_1_y,
-			paddle_2_y => 160,
+			paddle_2_y => paddle_2_y,
 			vga_red => VGA_R,
 			vga_green => VGA_G,
 			vga_blue => VGA_B,
@@ -85,19 +87,25 @@ UIP: entity work.User_Input(behave)
 		adc_pll_clk => adc_clk,
 		rstn => rstn_btn,
 		lock => lock,
-		paddle_1_y => paddle_1_y
-		--paddle_2_y =>
+		paddle_1_y => paddle_1_y,
+		paddle_2_y => paddle_2_y
 	);
-
--- SND: entity work.Sound(behave)
--- 	port map (
--- 		clk => vga_clk,
--- 		obstacle => ,
--- 		goal => ,
--- 		paddle => ,
--- 		wall => ,
--- 		speaker => 
--- 	);
+with SW(1 downto 0) select
+demux <= ("000" & new_ball_pulse) when "00",
+		 ("00" & new_ball_pulse & "0") when "01",
+		 ("0" & new_ball_pulse & "00") when "10",
+		 (new_ball_pulse & "000") when others;
+		 
+SND: entity work.Sound(behave)
+	port map (
+		clk => vga_clk,
+		rstn => rstn_btn,
+		goal => demux(0),
+		obstacle => demux(1),
+		wall => demux(2),
+		paddle => demux(3),
+		speaker => ARDUINO_IO(0)
+	);
 
 HX0: entity work.Seg_Decoder(rtl)
     port map (
