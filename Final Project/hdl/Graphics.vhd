@@ -8,8 +8,10 @@ entity Graphics is
 		vga_clk : in std_logic;
 		ball_x : in natural;
 		ball_y : in natural;
-		paddle_1_y : natural;
-		paddle_2_y : natural;
+		paddle_1_y : in natural;
+		paddle_2_y : in natural;
+		score_1 : in std_logic_vector(8 downto 0);
+		score_2 : in std_logic_vector(8 downto 0);
 		vga_red : out std_logic_vector(3 downto 0);
 		vga_green : out std_logic_vector(3 downto 0);
 		vga_blue : out std_logic_vector(3 downto 0);
@@ -43,6 +45,11 @@ architecture behave of Graphics is
 	constant paddle_width : natural := 5;
 	constant paddle_height : natural := 40;
 	constant ball_width : natural := 10;
+	constant font_width : natural := 8;
+	constant font_height : natural := 8;
+	constant score_y : natural := 380;
+	constant score_1_x : natural := 190;
+	constant score_2_x : natural := 442;
 
 	constant WHITE : std_logic_vector(11 downto 0) := x"FFF";
 	constant BLACK : std_logic_vector(11 downto 0) := x"000";
@@ -73,6 +80,11 @@ architecture behave of Graphics is
 	signal draw_obstacle_7 : std_logic;
 	signal draw_obstacle_8 : std_logic;
 	signal draw_ball : std_logic;
+	signal draw_score : std_logic;
+	signal active_score : std_logic_vector(8 downto 0);
+	signal font_data : std_logic_vector(0 to 7);
+	signal font_addr_col : natural;
+	signal font_addr_row : std_logic_vector(8 downto 0);
 
 begin
 
@@ -136,6 +148,13 @@ begin
 						(vga_x >= ball_x and vga_x <= ball_x + ball_width) 
 					else '0';
 
+	active_score <= score_1 when vga_x < 320 else score_2;
+
+	draw_score <= '1' when (vga_y >= score_y and vga_y < (score_y + font_height)) and
+					 ((vga_x >= score_1_x and vga_x < (score_1_x + font_width)) or 
+					 (vga_x >= score_2_x and vga_x < (score_2_x + font_width))) else '0';
+
+	
 	p_draw_board : process (vga_clk)
 	begin
 		if rising_edge(vga_clk) then
@@ -145,6 +164,12 @@ begin
 				pixel_color <= CRIMSON;
 			elsif draw_paddle_p1 = '1' or draw_paddle_p2 = '1' then
 				pixel_color <= ORANGE;
+			elsif draw_score = '1' then
+				if font_data(font_addr_col) = '1' then
+					pixel_color <= WHITE;
+				else
+					pixel_color <= BLACK;
+				end if;
 			else
 				pixel_color <= BLACK;
 			end if;
@@ -165,7 +190,32 @@ begin
 				end if;
 			end if;
 		end process;
-		
+	
+	p_font : process (vga_clk)
+		begin
+			if rising_edge(vga_clk) then
+				if draw_score = '1' then
+					font_addr_col <= font_addr_col + 1;
+				else
+					font_addr_col <= 0;
+				end if;
+
+				if (vga_y >= score_y and vga_y < (score_y + font_height)) then
+					if (vga_x = vga_max_x) then
+						font_addr_row <= font_addr_row + '1';
+					end if;
+				else
+					font_addr_row <= (others => '0');
+				end if;
+			end if;
+		end process;
+
+		FNT: entity work.Font_ROM(content)
+		port map (
+			addr => active_score(5 downto 0) & "000" +font_addr_row,
+			data => font_data
+		);
+
 	VG0: entity work.VGA_Sync(behave)
 	port map (
 		vga_clk => vga_clk,

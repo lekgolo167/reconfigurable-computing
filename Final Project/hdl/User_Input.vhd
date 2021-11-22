@@ -7,10 +7,14 @@ entity User_Input is
 	port (
 		adc_clk : in std_logic;
 		adc_pll_clk : in std_logic;
+		vga_clk : in std_logic;
 		rstn : in std_logic;
 		lock : in std_logic;
+		update : in std_logic;
 		paddle_1_y : out natural;
-		paddle_2_y : out natural
+		paddle_2_y : out natural;
+		volt_1 : out std_logic_vector(11 downto 0);
+		volt_2 : out std_logic_vector(11 downto 0)
 	);
 end User_Input;
 
@@ -35,8 +39,18 @@ architecture behave of User_Input is
 
 begin
 
-	paddle_1_y <= to_integer(unsigned(player_1_bounded));
-	paddle_2_y <= to_integer(unsigned(player_2_bounded));
+p_save : process (vga_clk)
+begin
+	if rising_edge(vga_clk) then
+		if update = '1' then
+			paddle_1_y <= to_integer(unsigned(player_1_bounded));
+			paddle_2_y <= to_integer(unsigned(player_2_bounded));
+		end if;
+	end if;
+end process;
+
+	volt_1 <= channel_1_reading & "000";
+	volt_2 <= channel_2_reading & "000";
 
 p_sample : process (adc_pll_clk)
    begin
@@ -44,10 +58,10 @@ p_sample : process (adc_pll_clk)
 		   if resp_valid = '1' then
 				if resp_channel = "00001" then
 					cmd_channel <= "00010";
-					channel_1_reading <= resp_data(11 downto 4) & '0';
+					channel_1_reading <= resp_data(11 downto 5) & "00";
 				else
 					cmd_channel <= "00001";
-					channel_2_reading <= resp_data(11 downto 4 ) & '0';
+					channel_2_reading <= resp_data(11 downto 5 ) & "00";
 				end if;
 		   end if;
 	   end if;

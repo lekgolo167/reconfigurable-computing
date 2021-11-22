@@ -43,6 +43,7 @@ architecture behave of Bumper_Pool is
 	 signal paddle_2_y : natural;
 
 	 signal demux : std_logic_vector(3 downto 0);
+	 signal volt_1, volt_2 : std_logic_vector(11 downto 0);
 begin
 
 	p_btn : process (vga_clk)
@@ -73,6 +74,8 @@ GPH: entity work.Graphics(behave)
 			ball_y => 170,
 			paddle_1_y => paddle_1_y,
 			paddle_2_y => paddle_2_y,
+			score_1 => "00000" & SW(9 downto 6),
+			score_2 => "00000" & SW(5 downto 2),
 			vga_red => VGA_R,
 			vga_green => VGA_G,
 			vga_blue => VGA_B,
@@ -85,11 +88,16 @@ UIP: entity work.User_Input(behave)
 	port map (
 		adc_clk => ADC_CLK_10,
 		adc_pll_clk => adc_clk,
+		vga_clk => vga_clk,
 		rstn => rstn_btn,
 		lock => lock,
+		update => update,
 		paddle_1_y => paddle_1_y,
-		paddle_2_y => paddle_2_y
+		paddle_2_y => paddle_2_y,
+		volt_1 => volt_1,
+		volt_2 => volt_2
 	);
+
 with SW(1 downto 0) select
 demux <= ("000" & new_ball_pulse) when "00",
 		 ("00" & new_ball_pulse & "0") when "01",
@@ -109,48 +117,48 @@ SND: entity work.Sound(behave)
 
 HX0: entity work.Seg_Decoder(rtl)
     port map (
-        en => '0',
-        binary => "0000",
+        en => '1',
+        binary => volt_1(3 downto 0),
         dp => '0',
         hex => HEX0
     );
 
 HX1: entity work.Seg_Decoder(rtl)
     port map (
-        en => '0',
-        binary => "0000",
+        en => '1',
+        binary => volt_1(7 downto 4),
         dp => '0',
         hex => HEX1
     );
 
 HX2: entity work.Seg_Decoder(rtl)
     port map (
-        en => '0',
-        binary => "0000",
+        en => '1',
+        binary => volt_1(11 downto 8),
         dp => '0',
         hex => HEX2
     );
 
 HX3: entity work.Seg_Decoder(rtl)
     port map (
-        en => '0',
-        binary => "0000",
+        en => '1',
+        binary => volt_2(3 downto 0),
         dp => '0',
         hex => HEX3
     );
 
 HX4: entity work.Seg_Decoder(rtl)
     port map (
-        en => '0',
-        binary => "0000",
+        en => '1',
+        binary => volt_2(7 downto 4),
         dp => '0',
         hex => HEX4
     );
 
 HX5: entity work.Seg_Decoder(rtl)
     port map (
-        en => '0',
-        binary => "0000",
+        en => '1',
+        binary => volt_2(11 downto 8),
         dp => '0',
         hex => HEX5
     );
