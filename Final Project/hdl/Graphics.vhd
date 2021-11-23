@@ -45,8 +45,8 @@ architecture behave of Graphics is
 	constant paddle_width : natural := 5;
 	constant paddle_height : natural := 40;
 	constant ball_width : natural := 10;
-	constant font_width : natural := 8;
-	constant font_height : natural := 8;
+	constant font_width : natural := 20;
+	constant font_height : natural := 30;
 	constant score_y : natural := 380;
 	constant score_1_x : natural := 190;
 	constant score_2_x : natural := 442;
@@ -82,7 +82,7 @@ architecture behave of Graphics is
 	signal draw_ball : std_logic;
 	signal draw_score : std_logic;
 	signal active_score : std_logic_vector(8 downto 0);
-	signal font_data : std_logic_vector(0 to 7);
+	signal font_data : std_logic_vector(0 to 19);
 	signal font_addr_col : natural;
 	signal font_addr_row : std_logic_vector(8 downto 0);
 
@@ -212,7 +212,7 @@ begin
 
 		FNT: entity work.Font_ROM(content)
 		port map (
-			addr => active_score(5 downto 0) & "000" +font_addr_row,
+			addr => active_score(3 downto 0) & "00000" + font_addr_row,
 			data => font_data
 		);
 
