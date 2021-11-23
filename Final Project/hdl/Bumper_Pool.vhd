@@ -41,6 +41,8 @@ architecture behave of Bumper_Pool is
 	 signal new_ball_pulse : std_logic;
 	 signal paddle_1_y : natural;
 	 signal paddle_2_y : natural;
+	 signal ball_x : natural;
+	 signal ball_y : natural;
 
 	 signal demux : std_logic_vector(3 downto 0);
 	 signal volt_1, volt_2 : std_logic_vector(11 downto 0);
@@ -62,16 +64,20 @@ PL0: entity work.PLL(syn)
 		locked => lock
 	);
 
--- GAM: entity work.Game(behave)
--- 	port map (
--- 		vga_clk => vga_clk
--- 	);
+GAM: entity work.Game(behave)
+	port map (
+		clk => vga_clk,
+		rst_n => rstn_btn,
+		ball_x_out => ball_x,
+		ball_y_out => ball_y,
+		update => update
+	);
 
 GPH: entity work.Graphics(behave)
 		port map (
 			vga_clk => vga_clk,
-			ball_x => 420,
-			ball_y => 170,
+			ball_x => ball_x,
+			ball_y => ball_y,
 			paddle_1_y => paddle_1_y,
 			paddle_2_y => paddle_2_y,
 			score_1 => "00000" & SW(9 downto 6),
