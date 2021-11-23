@@ -49,7 +49,7 @@ architecture behave of Graphics is
 	constant font_height : natural := 30;
 	constant score_y : natural := 380;
 	constant score_1_x : natural := 190;
-	constant score_2_x : natural := 442;
+	constant score_2_x : natural := 432;
 
 	constant WHITE : std_logic_vector(11 downto 0) := x"FFF";
 	constant BLACK : std_logic_vector(11 downto 0) := x"000";
