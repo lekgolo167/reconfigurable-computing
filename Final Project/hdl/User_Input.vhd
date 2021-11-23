@@ -12,9 +12,7 @@ entity User_Input is
 		lock : in std_logic;
 		update : in std_logic;
 		paddle_1_y : out natural;
-		paddle_2_y : out natural;
-		volt_1 : out std_logic_vector(11 downto 0);
-		volt_2 : out std_logic_vector(11 downto 0)
+		paddle_2_y : out natural
 	);
 end User_Input;
 
@@ -48,9 +46,6 @@ begin
 		end if;
 	end if;
 end process;
-
-	volt_1 <= channel_1_reading & "000";
-	volt_2 <= channel_2_reading & "000";
 
 p_sample : process (adc_pll_clk)
    begin

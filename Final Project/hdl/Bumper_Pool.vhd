@@ -30,22 +30,24 @@ end Bumper_Pool;
 
 architecture behave of Bumper_Pool is
 
-	 signal rstn_btn : std_logic;
-	 signal next_ball : std_logic;
-	 signal adc_clk : std_logic;
-	 signal vga_clk : std_logic;
-	 signal lock : std_logic;
-	 signal update : std_logic;
-	 signal new_ball_btn : std_logic;
-	 signal new_ball_delay : std_logic;
-	 signal new_ball_pulse : std_logic;
-	 signal paddle_1_y : natural;
-	 signal paddle_2_y : natural;
-	 signal ball_x : natural;
-	 signal ball_y : natural;
+	signal rstn_btn : std_logic;
+	signal next_ball : std_logic;
+	signal adc_clk : std_logic;
+	signal vga_clk : std_logic;
+	signal lock : std_logic;
+	signal update : std_logic;
+	signal new_ball_btn : std_logic;
+	signal new_ball_delay : std_logic;
+	signal new_ball_pulse : std_logic;
+	signal paddle_1_y : natural;
+	signal paddle_2_y : natural;
+	signal ball_x : natural;
+	signal ball_y : natural;
+	signal goal_sound : std_logic;
+	signal wall_sound : std_logic;
+	signal object_sound : std_logic;
+	signal paddle_sound : std_logic;
 
-	 signal demux : std_logic_vector(3 downto 0);
-	 signal volt_1, volt_2 : std_logic_vector(11 downto 0);
 begin
 
 	p_btn : process (vga_clk)
@@ -68,9 +70,15 @@ GAM: entity work.Game(behave)
 	port map (
 		clk => vga_clk,
 		rst_n => rstn_btn,
+		update => update,
+		paddle_1_y => paddle_1_y,
+		paddle_2_y => paddle_2_y,
 		ball_x_out => ball_x,
 		ball_y_out => ball_y,
-		update => update
+		goal_sound => goal_sound,
+		wall_sound => wall_sound,
+		object_sound => object_sound,
+		paddle_sound => paddle_sound 
 	);
 
 GPH: entity work.Graphics(behave)
@@ -99,72 +107,64 @@ UIP: entity work.User_Input(behave)
 		lock => lock,
 		update => update,
 		paddle_1_y => paddle_1_y,
-		paddle_2_y => paddle_2_y,
-		volt_1 => volt_1,
-		volt_2 => volt_2
+		paddle_2_y => paddle_2_y
 	);
-
-with SW(1 downto 0) select
-demux <= ("000" & new_ball_pulse) when "00",
-		 ("00" & new_ball_pulse & "0") when "01",
-		 ("0" & new_ball_pulse & "00") when "10",
-		 (new_ball_pulse & "000") when others;
 		 
 SND: entity work.Sound(behave)
 	port map (
 		clk => vga_clk,
 		rstn => rstn_btn,
-		goal => demux(0),
-		obstacle => demux(1),
-		wall => demux(2),
-		paddle => demux(3),
+		goal => goal_sound,
+		obstacle => '0',
+		wall => wall_sound,
+		paddle => '0',
 		speaker => ARDUINO_IO(0)
 	);
 
 HX0: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volt_1(3 downto 0),
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX0
     );
 
 HX1: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volt_1(7 downto 4),
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX1
     );
 
 HX2: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volt_1(11 downto 8),
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX2
     );
 
 HX3: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volt_2(3 downto 0),
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX3
     );
 
 HX4: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volt_2(7 downto 4),
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX4
     );
 
 HX5: entity work.Seg_Decoder(rtl)
     port map (
-        en => '1',
-        binary => volt_2(11 downto 8),
+        en => '0',
+        binary => "0000",
         dp => '0',
         hex => HEX5
     );

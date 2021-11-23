@@ -6,10 +6,16 @@ use ieee.std_logic_unsigned.all;
 entity Game is
 	port (
 		clk : in std_logic;
+		rst_n : in std_logic;
+		update : in std_logic;
+		paddle_1_y : in natural;
+		paddle_2_y : in natural;
 		ball_x_out : out natural;
 		ball_y_out : out natural;
-		rst_n : in std_logic;
-		update : in std_logic
+		goal_sound : out std_logic;
+		wall_sound : out std_logic;
+		object_sound : out std_logic;
+		paddle_sound : out std_logic
 	);
 end Game;
 
@@ -39,21 +45,61 @@ architecture behave of Game is
 	signal ball_y : natural;
 	signal y_dir : integer;
 	signal x_dir : integer;
+	-- collision side
 	signal south_collision : std_logic;
 	signal north_collision : std_logic;
 	signal east_collision : std_logic;
 	signal west_collision : std_logic;
+	-- boarder
+	signal south_boarder_collision : std_logic;
+	signal north_boarder_collision : std_logic;
+	signal east_boarder_collision : std_logic;
+	signal west_boarder_collision : std_logic;
+	-- object
+	signal south_object_collision : std_logic;
+	signal north_object_collision : std_logic;
+	signal east_object_collision : std_logic;
+	signal west_object_collision : std_logic;
+	-- paddle
+	signal south_paddle_collision : std_logic;
+	signal north_paddle_collision : std_logic;
+	signal east_paddle_collision : std_logic;
+	signal west_paddle_collision : std_logic;
+	-- goals
+	signal goal_left : std_logic;
+	signal goal_right : std_logic;
+
 
 begin
-	south_collision <= '1' when (ball_y + ball_width >= border_bottom_y) 
+	-- sounds
+	goal_sound <= goal_left or goal_right;
+	wall_sound <= south_boarder_collision or north_boarder_collision or west_boarder_collision or east_boarder_collision;
+	paddle_sound <= south_paddle_collision or north_paddle_collision or east_paddle_collision or west_paddle_collision;
+	object_sound <= south_object_collision or north_object_collision or east_object_collision or west_object_collision;
+
+	-- collisions
+	south_collision <= south_boarder_collision; -- or south_object_collision or south_paddle_collision;
+	north_collision <= north_boarder_collision; --  or north_object_collision or north_paddle_collision;
+	west_collision <= west_boarder_collision; --  or east_object_collision or east_paddle_collision;
+	east_collision <= east_boarder_collision; --  or west_object_collision or west_paddle_collision;
+
+	-- border bounce
+	south_boarder_collision <= '1' when (ball_y + ball_width >= border_bottom_y) 
 						else '0';
-	north_collision <= '1' when (ball_y <= border_top_y) 
+	north_boarder_collision <= '1' when (ball_y <= border_top_y) 
 						else '0';
-	west_collision <= '1' when ((ball_x <= border_left_x) and (ball_y <= border_goal_y or ball_y + ball_width >= border_goal_y + border_goal_height)) 
+	west_boarder_collision <= '1' when ((ball_x <= border_left_x) and (ball_y <= border_goal_y or ball_y + ball_width >= border_goal_y + border_goal_height)) 
 						else '0';
-	east_collision <= '1' when ((ball_x + ball_width >= border_right_x) and (ball_y <= border_goal_y or ball_y + ball_width >= border_goal_y + border_goal_height)) 
+	east_boarder_collision <= '1' when ((ball_x + ball_width >= border_right_x) and (ball_y <= border_goal_y or ball_y + ball_width >= border_goal_y + border_goal_height)) 
 						else '0';
 
+	-- object bounce
+
+	-- paddle bounce
+
+	-- goal
+	goal_left <= '1' when (ball_x < border_left_x) else '0';
+	goal_right <= '1' when (ball_x + ball_width > border_right_x) else '0';
 
 	p_game : process (clk, rst_n)
 	begin
