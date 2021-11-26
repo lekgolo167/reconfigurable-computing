@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(10M50DAF484) Path("D:/Matthew Crump/Documents/reconfigurable-computing/Final Project/synthesis/") File("Bumper_Pool.sof") MfrSpec(OpMask(1));
+		Device PartName(10M50DAF484) Path("C:/Users/nicho/Projects/reconfigurable_computing/reconfigurable-computing/Final Project/synthesis/") File("Bumper_Pool.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

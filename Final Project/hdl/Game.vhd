@@ -78,10 +78,10 @@ begin
 	object_sound <= south_object_collision or north_object_collision or east_object_collision or west_object_collision;
 
 	-- collisions
-	south_collision <= south_boarder_collision; -- or south_object_collision or south_paddle_collision;
-	north_collision <= north_boarder_collision; --  or north_object_collision or north_paddle_collision;
-	west_collision <= west_boarder_collision; --  or east_object_collision or east_paddle_collision;
-	east_collision <= east_boarder_collision; --  or west_object_collision or west_paddle_collision;
+	south_collision <= south_boarder_collision or south_object_collision or south_paddle_collision;
+	north_collision <= north_boarder_collision or north_object_collision or north_paddle_collision;
+	west_collision <= west_boarder_collision or west_object_collision or west_paddle_collision;
+	east_collision <= east_boarder_collision or east_object_collision or east_paddle_collision;
 
 	-- border bounce
 	south_boarder_collision <= '1' when (ball_y + ball_width >= border_bottom_y) 
@@ -94,8 +94,64 @@ begin
 						else '0';
 
 	-- object bounce
+	south_object_collision <= '1' when (((ball_y < objs_top_y and ball_y + ball_width >= objs_top_y) or             -- top row
+													 (ball_y < objs_bot_y and ball_y + ball_width >= objs_bot_y)) and           -- bottom row
+												   ((ball_x + ball_width > objs_r1_x and ball_x < objs_r1_x + obj_width) or    -- first object
+												    (ball_x + ball_width > objs_r2_x and ball_x < objs_r2_x + obj_width) or    -- second object
+												    (ball_x + ball_width > objs_r3_x and ball_x < objs_r3_x + obj_width) or    -- third object
+												    (ball_x + ball_width > objs_r4_x and ball_x < objs_r4_x + obj_width))) or  -- fourth object
+													((ball_y < obj_c_y and ball_y + ball_width >= obj_c_y) and                -- center row
+												    (ball_x + ball_width > obj_c_x and ball_x < obj_c_x + obj_width))        -- center column
+						else '0';
+	north_object_collision <= '1' when (((ball_y <= objs_top_y + obj_width and ball_y + ball_width > objs_top_y + obj_width) or    -- top row
+													 (ball_y <= objs_bot_y + obj_width and ball_y + ball_width > objs_bot_y + obj_width)) and  -- bottom row
+												   ((ball_x + ball_width > objs_r1_x and ball_x < objs_r1_x + obj_width) or                   -- first object
+												    (ball_x + ball_width > objs_r2_x and ball_x < objs_r2_x + obj_width) or                   -- second object
+												    (ball_x + ball_width > objs_r3_x and ball_x < objs_r3_x + obj_width) or                   -- third object
+												    (ball_x + ball_width > objs_r4_x and ball_x < objs_r4_x + obj_width))) or                 -- fourth object
+													((ball_y <= obj_c_y + obj_width and ball_y + ball_width > obj_c_y + obj_width) and       -- center row
+												    (ball_x + ball_width > obj_c_x and ball_x < obj_c_x + obj_width))                       -- center column
+						else '0';
+	east_object_collision <= '1' when (((ball_y < objs_top_y + obj_width and ball_y + ball_width > objs_top_y) or       -- top row
+													(ball_y < objs_bot_y + obj_width and ball_y + ball_width > objs_bot_y)) and     -- bottom row
+												  ((ball_x + ball_width >= objs_r1_x and ball_x < objs_r1_x) or                    -- first object
+												   (ball_x + ball_width >= objs_r2_x and ball_x < objs_r2_x) or                    -- second object
+												   (ball_x + ball_width >= objs_r3_x and ball_x < objs_r3_x) or                    -- third object
+												   (ball_x + ball_width >= objs_r4_x and ball_x < objs_r4_x))) or                  -- fourth object
+												  ((ball_y < obj_c_y + obj_width and ball_y + ball_width > obj_c_y) and          -- center row
+												   (ball_x + ball_width >= obj_c_x and ball_x < obj_c_x))                        -- center column
+						else '0';
+	west_object_collision <= '1' when (((ball_y < objs_top_y + obj_width and ball_y + ball_width > objs_top_y) or               -- top row
+													(ball_y < objs_bot_y + obj_width and ball_y + ball_width > objs_bot_y)) and             -- bottom row
+												  ((ball_x + ball_width > objs_r1_x + obj_width and ball_x <= objs_r1_x + obj_width) or    -- first object
+												   (ball_x + ball_width > objs_r2_x + obj_width and ball_x <= objs_r2_x + obj_width) or    -- second object
+												   (ball_x + ball_width > objs_r3_x + obj_width and ball_x <= objs_r3_x + obj_width) or    -- third object
+												   (ball_x + ball_width > objs_r4_x + obj_width and ball_x <= objs_r4_x + obj_width))) or  -- fourth object
+												  ((ball_y < obj_c_y + obj_width and ball_y + ball_width > obj_c_y) and                  -- center row
+												   (ball_x + ball_width > obj_c_x + obj_width and ball_x <= obj_c_x + obj_width))        -- center column
+						else '0';
 
 	-- paddle bounce
+	south_paddle_collision <= '1' when ((ball_y < paddle_1_y and ball_y + ball_width >= paddle_1_y) and
+												(ball_x + ball_width > paddle_1_x and ball_x < paddle_1_x + paddle_width))or
+											  ((ball_y < paddle_2_y and ball_y + ball_width >= paddle_2_y) and
+												(ball_x + ball_width > paddle_2_x and ball_x < paddle_1_x + paddle_width))
+						else '0';
+	north_paddle_collision <= '1' when ((ball_y <= paddle_1_y + paddle_height and ball_y + ball_width > paddle_1_y + paddle_height) and
+												(ball_x + ball_width > paddle_1_x and ball_x < paddle_1_x + paddle_width))or
+											  ((ball_y <= paddle_2_y + paddle_height and ball_y + ball_width > paddle_2_y + paddle_height) and
+												(ball_x + ball_width > paddle_2_x and ball_x < paddle_2_x + paddle_width))
+						else '0';
+	east_paddle_collision <= '1' when ((ball_y < paddle_1_y + paddle_height and ball_y + ball_width > paddle_1_y) and
+												  (ball_x < paddle_1_x and ball_x + ball_width >= paddle_1_x)) or
+												 ((ball_y < paddle_2_y + paddle_height and ball_y + ball_width > paddle_2_y) and
+												  (ball_x < paddle_2_x and ball_x + ball_width >= paddle_2_x))
+						else '0';
+	west_paddle_collision <= '1' when ((ball_y < paddle_1_y + paddle_height and ball_y + ball_width > paddle_1_y) and
+												  (ball_x <= paddle_1_x + paddle_width and ball_x + ball_width > paddle_1_x + paddle_width)) or
+												 ((ball_y < paddle_2_y + paddle_height and ball_y + ball_width > paddle_2_y) and
+												  (ball_x <= paddle_2_x + paddle_width and ball_x + ball_width > paddle_2_x + paddle_width))
+						else '0';
 
 	-- goal
 	goal_left <= '1' when (ball_x < border_left_x) else '0';
@@ -108,13 +164,13 @@ begin
 			y_dir <= 1;
 		elsif rising_edge(clk) then
 			if north_collision = '1' then
-				y_dir <= 1;
+				y_dir <= 4;
 			elsif south_collision = '1' then
-				y_dir <= -1;
+				y_dir <= -4;
 			elsif east_collision = '1' then
-				x_dir <= -1;
+				x_dir <= -5;
 			elsif west_collision = '1' then
-				x_dir <= 1;
+				x_dir <= 5;
 			else
 				x_dir <= x_dir;
 				y_dir <= y_dir;
