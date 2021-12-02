@@ -35,7 +35,7 @@ architecture behave of Graphics is
 	constant objs_top_y : natural := 90;
 	constant objs_bot_y : natural := 250;
 	constant objs_r1_x : natural := 190;
-	constant objs_r2_x : natural := 260;
+	constant objs_r2_x : natural := 270;
 	constant objs_r3_x : natural := 350;
 	constant objs_r4_x : natural := 430;
 	constant obj_c_x : natural := 310;

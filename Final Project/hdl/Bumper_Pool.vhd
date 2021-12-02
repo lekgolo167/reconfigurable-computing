@@ -47,7 +47,8 @@ architecture behave of Bumper_Pool is
 	signal wall_sound : std_logic;
 	signal object_sound : std_logic;
 	signal paddle_sound : std_logic;
-
+	signal score_1 : std_logic_vector(3 downto 0);
+	signal score_2 : std_logic_vector(3 downto 0);
 begin
 
 	p_btn : process (vga_clk)
@@ -71,6 +72,9 @@ GAM: entity work.Game(behave)
 		clk => vga_clk,
 		rst_n => rstn_btn,
 		update => update,
+		new_ball => new_ball_pulse,
+		score_1_out => score_1,
+		score_2_out => score_2,
 		paddle_1_y => paddle_1_y,
 		paddle_2_y => paddle_2_y,
 		ball_x_out => ball_x,
@@ -88,8 +92,8 @@ GPH: entity work.Graphics(behave)
 			ball_y => ball_y,
 			paddle_1_y => paddle_1_y,
 			paddle_2_y => paddle_2_y,
-			score_1 => "00000" & SW(9 downto 6),
-			score_2 => "00000" & SW(5 downto 2),
+			score_1 => "00000" & score_1,
+			score_2 => "00000" & score_2,
 			vga_red => VGA_R,
 			vga_green => VGA_G,
 			vga_blue => VGA_B,

@@ -10,12 +10,15 @@ entity Game is
 		update : in std_logic;
 		paddle_1_y : in natural;
 		paddle_2_y : in natural;
+		new_ball : in std_logic;
 		ball_x_out : out natural;
 		ball_y_out : out natural;
 		goal_sound : out std_logic;
 		wall_sound : out std_logic;
 		object_sound : out std_logic;
-		paddle_sound : out std_logic
+		paddle_sound : out std_logic;
+		score_1_out : out std_logic_vector(3 downto 0);
+	   score_2_out : out std_logic_vector(3 downto 0)
 	);
 end Game;
 
@@ -31,7 +34,7 @@ architecture behave of Game is
 	constant objs_top_y : natural := 90;
 	constant objs_bot_y : natural := 250;
 	constant objs_r1_x : natural := 190;
-	constant objs_r2_x : natural := 260;
+	constant objs_r2_x : natural := 270;
 	constant objs_r3_x : natural := 350;
 	constant objs_r4_x : natural := 430;
 	constant obj_c_x : natural := 310;
@@ -45,6 +48,7 @@ architecture behave of Game is
 	signal ball_y : natural;
 	signal y_dir : integer;
 	signal x_dir : integer;
+	signal x_dir_init : integer;
 	-- collision side
 	signal south_collision : std_logic;
 	signal north_collision : std_logic;
@@ -68,6 +72,12 @@ architecture behave of Game is
 	-- goals
 	signal goal_left : std_logic;
 	signal goal_right : std_logic;
+	
+	-- game play
+	type state_type is (INIT, PLAY, HOLD, OVER);
+	signal game_state : state_type;
+	signal score_1 : std_logic_vector(3 downto 0);
+	signal score_2 : std_logic_vector(3 downto 0);
 
 
 begin
@@ -154,13 +164,13 @@ begin
 						else '0';
 
 	-- goal
-	goal_left <= '1' when (ball_x < border_left_x) else '0';
-	goal_right <= '1' when (ball_x + ball_width > border_right_x) else '0';
+	goal_left <= '1' when ((ball_x < (border_left_x)) and (west_boarder_collision = '0')) else '0';
+	goal_right <= '1' when ((ball_x + ball_width > (border_right_x)) and (east_boarder_collision = '0')) else '0';
 
-	p_game : process (clk, rst_n)
+	p_game : process (clk, rst_n, new_ball)
 	begin
-		if rst_n = '0' then
-			x_dir <= 1;
+		if new_ball = '1' then
+			x_dir <= x_dir_init;
 			y_dir <= 1;
 		elsif rising_edge(clk) then
 			if north_collision = '1' then
@@ -178,20 +188,75 @@ begin
 		end if;
 	end process;
 	
-	p_ball : process (clk, rst_n)
+	p_ball : process (clk, new_ball)
 	begin
-		if rst_n = '0' then
+		if new_ball = '1' then
 			ball_x <= 315;
-			ball_y <= 150;
+			ball_y <= 50;
 		elsif rising_edge(clk) then
 			if update = '1' then
-				ball_x <= ball_x + x_dir;
-				ball_y <= ball_y + y_dir;
+				if game_state = HOLD or game_state = OVER then
+					ball_x <= 800;
+					ball_y <= 525;
+				elsif game_state = INIT then
+					ball_x <= 315;
+					ball_y <= 50;
+				else	
+					ball_x <= ball_x + x_dir;
+					ball_y <= ball_y + y_dir;
+				end if;
 			end if;
+		end if;
+	end process;
+	
+	game_play : process (clk, rst_n)
+	begin
+		if rst_n = '0' then
+			game_state <= INIT;
+			score_1 <= "0000";
+			score_2 <= "0000";
+			x_dir_init <= 1;
+		elsif rising_edge(clk) then
+			case game_state is
+				when INIT =>
+					score_1 <= "0000";      -- not sure how to set the score to zero
+					score_2 <= "0000";
+					if new_ball = '1' then
+						game_state <= PLAY;
+					end if;
+				when PLAY =>
+					if goal_right = '1' then
+						game_state <= HOLD;
+						score_1 <= score_1 + "0001";
+						x_dir_init <= -1;
+					elsif goal_left = '1' then
+						game_state <= HOLD;
+						score_2 <= score_2 + "0001";
+						x_dir_init <= 1;
+					else
+						game_state <= PLAY;
+					end if;
+				when HOLD =>
+					if score_1 = "0101" then
+						game_state <= OVER;
+					elsif score_2 = "0101" then
+						game_state <= OVER;
+					elsif new_ball = '1' then
+						game_state <= PLAY;
+					else
+						game_state <= HOLD;
+					end if;
+				when OVER =>
+					game_state <= OVER;
+				when others =>
+					game_state <= INIT;
+			end case;
 		end if;
 	end process;
 	
 	ball_x_out <= ball_x;
 	ball_y_out <= ball_y;
+	score_1_out <= score_1;
+	score_2_out <= score_2;
 
 end behave;
