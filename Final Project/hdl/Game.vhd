@@ -171,12 +171,12 @@ begin
 	begin
 		if new_ball = '1' then
 			x_dir <= x_dir_init;
-			y_dir <= 1;
+			y_dir <= 3;
 		elsif rising_edge(clk) then
 			if north_collision = '1' then
-				y_dir <= 4;
+				y_dir <= 3;
 			elsif south_collision = '1' then
-				y_dir <= -4;
+				y_dir <= -3;
 			elsif east_collision = '1' then
 				x_dir <= -5;
 			elsif west_collision = '1' then
@@ -188,23 +188,24 @@ begin
 		end if;
 	end process;
 	
-	p_ball : process (clk, new_ball)
+	p_ball : process (clk)
 	begin
-		if new_ball = '1' then
-			ball_x <= 315;
-			ball_y <= 50;
-		elsif rising_edge(clk) then
-			if update = '1' then
-				if game_state = HOLD or game_state = OVER then
-					ball_x <= 800;
-					ball_y <= 525;
-				elsif game_state = INIT then
-					ball_x <= 315;
-					ball_y <= 50;
-				else	
-					ball_x <= ball_x + x_dir;
-					ball_y <= ball_y + y_dir;
-				end if;
+		if rising_edge(clk) then
+			if game_state = OVER then
+				ball_x <= 800;
+				ball_y <= 525;
+			elsif new_ball = '1' then
+				ball_x <= 315;
+				ball_y <= 50;
+			elsif game_state = HOLD then
+				ball_x <= 800;
+				ball_y <= 525;
+			elsif game_state = INIT then
+				ball_x <= 315;
+				ball_y <= 50;
+		elsif update = '1' then
+			ball_x <= ball_x + x_dir;
+			ball_y <= ball_y + y_dir;
 			end if;
 		end if;
 	end process;
@@ -215,7 +216,7 @@ begin
 			game_state <= INIT;
 			score_1 <= "0000";
 			score_2 <= "0000";
-			x_dir_init <= 1;
+			x_dir_init <= 3;
 		elsif rising_edge(clk) then
 			case game_state is
 				when INIT =>
@@ -228,11 +229,11 @@ begin
 					if goal_right = '1' then
 						game_state <= HOLD;
 						score_1 <= score_1 + "0001";
-						x_dir_init <= -1;
+						x_dir_init <= 5;
 					elsif goal_left = '1' then
 						game_state <= HOLD;
 						score_2 <= score_2 + "0001";
-						x_dir_init <= 1;
+						x_dir_init <= -5;
 					else
 						game_state <= PLAY;
 					end if;
