@@ -119,9 +119,9 @@ SND: entity work.Sound(behave)
 		clk => vga_clk,
 		rstn => rstn_btn,
 		goal => goal_sound,
-		obstacle => '0',
+		obstacle => object_sound,
 		wall => wall_sound,
-		paddle => '0',
+		paddle => paddle_sound,
 		speaker => ARDUINO_IO(0)
 	);
 

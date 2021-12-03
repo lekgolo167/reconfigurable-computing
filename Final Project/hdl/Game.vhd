@@ -72,7 +72,7 @@ architecture behave of Game is
 	-- goals
 	signal goal_left : std_logic;
 	signal goal_right : std_logic;
-	
+	signal wall : std_logic;
 	-- game play
 	type state_type is (INIT, PLAY, HOLD, OVER);
 	signal game_state : state_type;
@@ -81,9 +81,10 @@ architecture behave of Game is
 
 
 begin
-	-- sounds
-	goal_sound <= goal_left or goal_right;
-	wall_sound <= south_boarder_collision or north_boarder_collision or west_boarder_collision or east_boarder_collision;
+	-- sound
+	wall <= '1' when game_state = PLAY else '0';
+	-- goal_sound set in state machine
+	wall_sound <= (south_boarder_collision or north_boarder_collision or west_boarder_collision or east_boarder_collision) and wall;
 	paddle_sound <= south_paddle_collision or north_paddle_collision or east_paddle_collision or west_paddle_collision;
 	object_sound <= south_object_collision or north_object_collision or east_object_collision or west_object_collision;
 
@@ -230,14 +231,17 @@ begin
 						game_state <= HOLD;
 						score_1 <= score_1 + "0001";
 						x_dir_init <= 5;
+						goal_sound <= '1';
 					elsif goal_left = '1' then
 						game_state <= HOLD;
 						score_2 <= score_2 + "0001";
 						x_dir_init <= -5;
+						goal_sound <= '1';
 					else
 						game_state <= PLAY;
 					end if;
 				when HOLD =>
+					goal_sound <= '0';
 					if score_1 = "0101" then
 						game_state <= OVER;
 					elsif score_2 = "0101" then
