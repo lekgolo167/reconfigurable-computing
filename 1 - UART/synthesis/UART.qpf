@@ -1,0 +1,6 @@
+DATE = "21:23:18 January 10, 2022"
+QUARTUS_VERSION = "16.0.0"
+
+# Revisions
+
+PROJECT_REVISION = "UART"
