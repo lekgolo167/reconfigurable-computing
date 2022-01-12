@@ -2,6 +2,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
 
 entity top is
 	
@@ -15,11 +16,16 @@ entity top is
 end top;
 
 architecture behave of top is
+	type state_type is (s_IDLE, s_SEND);
+	signal convert_state : state_type;
 	signal rx_pin : std_logic;
 	signal tx_pin : std_logic;
-	signal data_valid : std_logic;
+	signal rx_data_valid : std_logic;
+	signal tx_data_valid : std_logic;
 	signal tx_busy : std_logic;
-	signal byte : std_logic_vector(7 downto 0);
+	signal saved_byte : std_logic_vector(7 downto 0);
+	signal received_byte : std_logic_vector(7 downto 0);
+
 begin
 
 	UART1: entity work.uart(rtl)
@@ -32,14 +38,41 @@ begin
 			clk => MAX10_CLK1_50,
 			-- rx
 			rx_serial => rx_pin,
-			rx_data_valid => data_valid,
-			rx_byte => byte,
+			rx_data_valid => rx_data_valid,
+			rx_byte => received_byte,
 			-- tx
 			tx_serial => tx_pin,
-			tx_data_valid => data_valid,
-			tx_byte => byte,
+			tx_data_valid =>tx_data_valid,
+			tx_byte => saved_byte,
 			tx_busy => tx_busy
 		);
+
+	p_TRANSLATE : process (MAX10_CLK1_50)
+	begin
+		if rising_edge(MAX10_CLK1_50) then
+			case convert_state is
+				when s_IDLE =>
+					if rx_data_valid = '1' then
+						convert_state <= s_SEND;
+						tx_data_valid <= '1';
+
+						if received_byte >= "01000001" and received_byte <= "01011010" then
+							saved_byte <= received_byte + "00100000";
+						elsif received_byte >= "01100001" and received_byte <= "01111010" then
+							saved_byte <= received_byte - "00100000";
+						else
+							saved_byte <= "01000101";
+						end if;
+					end if;
+
+				when s_SEND =>
+					tx_data_valid <= '0';
+					if tx_busy = '0' then
+						convert_state <= s_IDLE;
+					end if;
+			end case;
+		end if;
+	end process;
 
 	rx_pin <= GPIO(0);
 	GPIO(1) <= tx_pin;
