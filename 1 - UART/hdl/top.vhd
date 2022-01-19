@@ -10,6 +10,7 @@ entity top is
 		ADC_CLK_10 : in std_logic;
 		MAX10_CLK1_50 : in std_logic;
 		MAX10_CLK2_50 : in std_logic;
+		rstn : in std_logic;
 		GPIO : inout std_logic_vector(35 downto 0);
 		LEDR : out std_logic_vector(9 downto 0)
 	);
@@ -49,7 +50,9 @@ begin
 
 	p_TRANSLATE : process (MAX10_CLK1_50)
 	begin
-		if rising_edge(MAX10_CLK1_50) then
+		if rstn = '0' then
+			convert_state <= s_IDLE;
+		elsif rising_edge(MAX10_CLK1_50) then
 			case convert_state is
 				when s_IDLE =>
 					if rx_data_valid = '1' then
@@ -63,6 +66,8 @@ begin
 						else
 							saved_byte <= "01000101";
 						end if;
+					else
+						tx_data_valid <= '0';
 					end if;
 
 				when s_SEND =>

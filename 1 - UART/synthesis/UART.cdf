@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(10M50DAF484) Path("D:/Matthew Crump/Documents/reconfigurable-computing/1 - UART/synthesis/") File("UART.sof") MfrSpec(OpMask(1));
+		Device PartName(10M50DAF484) Path("C:/Users/nicho/Projects/reconfigurable_computing/reconfigurable-computing/1 - UART/synthesis/") File("UART.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

@@ -46,6 +46,8 @@ set_location_assignment PIN_B11 -to LEDR[9]
 #============================================================
 # GPIO, GPIO connect to GPIO Default
 #============================================================
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to rstn
+set_location_assignment PIN_B8 -to rstn
 set_location_assignment PIN_V10 -to GPIO[0]
 set_location_assignment PIN_W10 -to GPIO[1]
 set_location_assignment PIN_V9 -to GPIO[2]
