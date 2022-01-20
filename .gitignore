@@ -72,5 +72,6 @@ PLLJ_PLLSPE_INFO.txt
 output.txt
 *.out
 *.exe
+*.pyc
 .vscode/
 data/
