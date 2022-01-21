@@ -54,12 +54,24 @@ class InvalidSyntaxError(Error):
 
 class InvalidInstructionError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
-		super().__init__(pos_start, pos_end, 'Invalid Instruction: Expected a valid instruction but got ->', details)		
+		super().__init__(pos_start, pos_end, 'Invalid Instruction: Expected a valid DLX instruction but got ->', details)		
 
 class InvalidRegisterError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
-		super().__init__(pos_start, pos_end, 'Invalid Register: Expected a Register from 0-3 but got ->', details)
+		super().__init__(pos_start, pos_end, f'Invalid Register: Expected a Register from 0-{MAX_REGISTERS-1} but got ->', details)
 
 class InvalidLoadValueError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
-		super().__init__(pos_start, pos_end, 'Invalid Register: Expected a load value from 0-15 but got ->', details)
+		super().__init__(pos_start, pos_end, f'Invalid Register: Expected a load value from {IMM_MIN_SIGNED} to {IMM_MAX_UNSIGNED} but got ->', details)
+
+class ExpectedRegisterError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, f'Expected Register: Expected a register value but got ->', details)
+
+class InvalidJumpOperandError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, f'Invalid Jump Instruction: Expected a register value or label but got ->', details)
+
+class ExpectedVariableError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, f'Expected Variable: Expected a variable or array value but got ->', details)
