@@ -6,18 +6,15 @@
 import re
 import argparse
 import sys
+from token import OP
 
 from dlx_constants import *
 from dlx_utilities import *
 
-REG_DICT = {'R0': '00', 'R1': '01', 'R2': '10', 'R3': '11'}
-INST_DICT = {'LOAD': '00XXYYYY', 'STORE': '01XX0000', 'MOVE': '10XXYY00',
-	'ADD': '11XXYY00', 'SUB': '11XXYY01', 'AND': '11XXYY10', 'NOT': '11XXYY11'}
 
 #######################################
 # POSITION
 #######################################
-
 
 class Position:
 	def __init__(self, idx, ln, col, fn, ftxt):
@@ -53,23 +50,6 @@ TT_LABEL = 'LABEL'
 TT_VARIABLE = 'VARIABLE'
 TT_INVALID = 'INVALID'
 TT_EOF = 'EOF'
-
-UNI_OPS = [
-	'NOT',
-	'STORE',
-]
-
-BIN_OPS = [
-	'MOVE',
-	'ADD',
-	'SUB',
-	'AND',
-]
-
-DATA_OPS = [
-	'LOAD'
-]
-
 
 class Token:
 	def __init__(self, type_, value=None, pos_start=None, pos_end=None):
@@ -133,7 +113,7 @@ class Lexer:
 					return [], InvalidRegisterError(pos_start, self.pos, reg_tok.value)
 			elif self.current_char in LETTERS:
 				tokens.append(self.make_identifier())
-			elif self.current_char in DIGITS:
+			elif self.current_char in DIGITS or self.current_char == '-':
 				tokens.append(self.make_number())
 			else:
 				pos_start = self.pos.copy()
@@ -146,8 +126,9 @@ class Lexer:
 		return tokens, None
 
 	def make_number(self):
-		num_str = ''
+		num_str = self.current_char
 		pos_start = self.pos.copy()
+		self.advance()
 
 		while self.current_char != None and self.current_char in DIGITS:
 			num_str += self.current_char
@@ -256,7 +237,7 @@ class Parser:
 				error = self.memory_op()
 			elif self.current_tok.value in NO_OPS:
 				error = self.no_op()
-			elif self.current_tok.type == TT_LABEL:
+			elif self.current_tok.type == TT_LABEL and not self.current_tok.value.isupper():
 				self.parsed_text_tokens.append([self.current_tok])
 				self.advance()
 			else:
@@ -341,7 +322,6 @@ class Parser:
 		
 		inst.append(self.current_tok)
 		self.advance()
-		
 
 		if self.current_tok.type == TT_REGISTER:
 			if self.current_tok.value in REGISTERS:
@@ -435,36 +415,49 @@ class Assembler():
 	def __init__(self):
 		self.binary_strings = []
 	
-	def build_binary(self, ast):
-		inst_str = ''
-		for expr in ast:
-			inst_str = INST_DICT[expr[0].value]
+	def build_data_mif(self, data):
+		mif_text = MIF_PREAMBLE
+		address = 0
+		for array in data:
+			var_name = array[0].value
+			for index in range(1, len(array)):
+				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
+				value_str = format(array[index].value, 'X').zfill(WORD_PAD_SIZE)
+				mif_text += f'{addr_str} : {value_str}; --{var_name}[{index-1}]\n'
 
-			if expr[0].value == 'LOAD':
-				inst_str = inst_str.replace('XX', REG_DICT[expr[1].value])
-				inst_str = inst_str.replace('YYYY', bin(expr[2].value)[2:].zfill(4))
-				inst_str += '; // ' + expr[0].value + ' ' + expr[1].value + ' ' + str(expr[2].value)
-			elif expr[0].value in ['NOT', 'STORE']:
-				inst_str = inst_str.replace('XX', REG_DICT[expr[1].value])
-				inst_str += '; // ' + expr[0].value + ' ' + expr[1].value
+				address += 1
+		
+		mif_text += MIF_EPILOGUE
+
+		return mif_text
+
+	def build_code_mif(self, code):
+		mif_text = MIF_PREAMBLE
+		address = 0
+		for instruction in code:
+			inst_name = instruction[0].value
+			if instruction[0].type == TT_INSTRUCTION:
+				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
+				op_code = OP_CODES_DICT[inst_name]
+				inst_str = format(op_code, 'X').zfill(WORD_PAD_SIZE)
+				comment_str = '\t\t'
+
+				for index in range(1, len(instruction)-1):
+					comment_str += str(instruction[index].value) + ', '
+				comment_str += str(instruction[-1].value) + '\n'
+				
+				mif_text += f'{addr_str} : {inst_str}; --{inst_name}' + comment_str
+
+				address += 1
 			else:
-				inst_str = inst_str.replace('XX', REG_DICT[expr[1].value])
-				inst_str = inst_str.replace('YY', REG_DICT[expr[2].value])
-				inst_str += '; // ' + expr[0].value + ' ' + expr[1].value + ' ' + expr[2].value
+				mif_text += f'{inst_name}:{address}\n'
+		
+		mif_text += MIF_EPILOGUE
 
-			self.binary_strings.append(inst_str)
+		return mif_text
 
-	def write_verilog(self):
-		verilog = f'limit = {len(self.binary_strings)};\ncase(count)\n'
-		count = 1
-		for instruction in self.binary_strings:
-			verilog += f"\t{count}: inst = 8'b{instruction}\n\n"
-			count += 1
-
-		verilog += "\tdefault: inst = 8'b00000000;\nendcase"
-
-		return verilog
-
+	def resolve_label_addresses(self):
+		pass
 		
 #######################################
 # RUN
@@ -487,30 +480,20 @@ def run(fn, text):
 	print(parser.parsed_data_tokens)
 	print('\nTEXT SEGMENT')
 	print(parser.parsed_text_tokens)
-	data = 1
-	code = 1
-	# Generate verilog
-# =============================================================================
-#     assembler = Assembler()
-#     assembler.build_binary(parser.parsed_tokens)
-#     v = assembler.write_verilog()
-# =============================================================================
+
+	# Generate mifs
+	assembler = Assembler()
+	data = assembler.build_data_mif(parser.parsed_data_tokens)
+	code = assembler.build_code_mif(parser.parsed_text_tokens)
+
 	return data, code, None
 
 
 if __name__ == '__main__':
 
-# =============================================================================
-#     parser = argparse.ArgumentParser()
-# =============================================================================
-	
-# =============================================================================
-#     parser.add_argument('-i', type=str, required=True, help="file input name for assembly code")
-#     parser.add_argument('-o', type=str, required=False, help="file output name for verilog code")
-#     args = parser.parse_args()
-# =============================================================================
 	datafile = None
 	codefile = None
+
 	if len(sys.argv) <= 1 or len(sys.argv) > 4 or len(sys.argv) == 3:
 		sys.exit("Error: invalid command line entry")
 	elif len(sys.argv) == 2:
