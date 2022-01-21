@@ -34,6 +34,50 @@ INSTRUCTIONS = ['NOP', # NO OPERATION
 				'J', 'JR', 'JAL', 'JALR' # JUMP
 			]
 
+NO_OPS = [
+			'NOP' # NO OPERATION
+		]
+
+MEMORY_OPS = [
+				'LW', 'SW' # LOAD STORE
+			]
+
+BRANCH_OPS = [
+				'BEQZ', 'BNEZ' # BRANCH
+			]
+
+JUMP_OPS = [
+				'J', 'JR', 'JAL', 'JALR' # JUMP
+			]
+
+REGISTER_OPS = [
+				'ADD', 'ADDU', # ADDITION
+				'SUB', 'SUBU', # SUBTRACTION
+				'AND', # AND
+				'OR', # OR
+				'XOR', # XOR
+				'SLL', 'SRL', 'SRA', # SHIFT OPERATIONS
+				'SLT', 'SLTU', # LESS THAN
+				'SGT', 'SGTU', # GREATER THAN
+				'SLE', 'SLEU', # LESS THAN OR EQUAL
+				'SGE', 'SGEU', # GREATER THAN OR EQUAL
+				'SEQ', 'SNE' # EQUAL NOT EQUAL
+			]
+
+IMMEDIATE_OPS = [
+				'ADDI', 'ADDUI', # ADDITION
+				'SUBI', 'SUBUI', # SUBTRACTION
+				'ANDI', # AND
+				'ORI', # OR
+				'XORI', # XOR
+				'SLLI', 'SRLI', 'SRAI', # SHIFT OPERATIONS
+				'SLTI', 'SLTUI', # LESS THAN
+				'SGTI', 'SGTUI', # GREATER THAN
+				'SLEI','SLEUI', # LESS THAN OR EQUAL
+				'SGEI', 'SGEUI', # GREATER THAN OR EQUAL
+				'SEQI', 'SNEI' # EQUAL NOT EQUAL
+			]
+
 MIF_PREAMBLE = '''
 DEPTH = 1024;
 WIDTH = 32;
