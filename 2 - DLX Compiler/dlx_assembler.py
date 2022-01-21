@@ -125,7 +125,12 @@ class Lexer:
 				self.advance()
 				tokens.append(self.make_segment())
 			elif self.current_char == 'R':
-				tokens.append(self.make_register())
+				pos_start = self.pos.copy()
+				reg_tok = self.make_register()
+				if reg_tok.type:
+					tokens.append(reg_tok)
+				else:
+					return [], InvalidRegisterError(pos_start, self.pos, reg_tok.value)
 			elif self.current_char in LETTERS:
 				tokens.append(self.make_identifier())
 			elif self.current_char in DIGITS:
@@ -193,7 +198,11 @@ class Lexer:
 			reg_str += self.current_char
 			self.advance()
 
-		tok_type = TT_REGISTER
+		tok_type = None
+
+		if reg_str in REGISTERS:
+			tok_type = TT_REGISTER
+
 		return Token(tok_type, reg_str, pos_start, self.pos)
 
 #######################################
@@ -204,7 +213,8 @@ class Lexer:
 class Parser:
 	def __init__(self, tokens):
 		self.tokens = tokens
-		self.parsed_tokens = []
+		self.parsed_data_tokens = []
+		self.parsed_text_tokens = []
 		self.tok_idx = -1
 		self.advance()
 
@@ -216,7 +226,9 @@ class Parser:
 
 	def parse(self):
 		error = None
-		if self.current_tok.type == TT_SEGMENT and self.current_tok.value == DATA_SEGMENT:
+
+		# parse data section
+		if self.current_tok.value == DATA_SEGMENT:
 			self.advance()
 			while self.current_tok.type != TT_EOF and not error:
 				if self.current_tok.type == TT_SEGMENT:
@@ -224,10 +236,13 @@ class Parser:
 						self.advance()
 						break
 					else:
-						print("ERROR")
-						break
-				self.advance()
+						error = UnexpectedSegmentError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+				else:
+					error = self.parse_var()
+		else:
+			error = NoDataSectionFoundError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 
+		# parse text section
 		while self.current_tok.type != TT_EOF and not error:
 			if self.current_tok.value in REGISTER_OPS:
 				error = self.regs_op()
@@ -241,13 +256,40 @@ class Parser:
 				error = self.memory_op()
 			elif self.current_tok.value in NO_OPS:
 				error = self.no_op()
-			elif self.current_tok.type == TT_SEGMENT or self.current_tok.type == TT_LABEL:
+			elif self.current_tok.type == TT_LABEL:
+				self.parsed_text_tokens.append([self.current_tok])
 				self.advance()
 			else:
 				error = InvalidInstructionError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 
 		return error
 	
+	def parse_var(self):
+		variable = []
+		
+		if self.current_tok.type == TT_VARIABLE:
+			variable.append(self.current_tok)
+			self.advance()
+		else:
+			return ExpectedVariableError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+		
+		size = 0
+		if self.current_tok.type == TT_INT:
+			size = self.current_tok.value
+			self.advance()
+		else:
+			return ExpectedVariableSizeError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+		
+		for i in range(size):
+			if self.current_tok.type == TT_INT:
+				variable.append(self.current_tok)
+				self.advance()
+			else:
+				return UnexpectedEndOfArrayError(self.current_tok.pos_start, self.current_tok.pos_end, size, i, self.current_tok.value)
+	
+		self.parsed_data_tokens.append(variable)
+		return None
+
 	def regs_op(self):
 		inst = []
 		
@@ -256,14 +298,11 @@ class Parser:
 		
 		for i in range(3):
 			if self.current_tok.type == TT_REGISTER:
-				if self.current_tok.value in REGISTERS:
-					inst.append(self.current_tok)
-					self.advance()
-				else:
-					return InvalidRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+				inst.append(self.current_tok)
+				self.advance()
 			else:
 				return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
-		self.parsed_tokens.append(inst)
+		self.parsed_text_tokens.append(inst)
 		return None
 	
 	def imm_op(self):
@@ -274,11 +313,8 @@ class Parser:
 		
 		for i in range(2):
 			if self.current_tok.type == TT_REGISTER:
-				if self.current_tok.value in REGISTERS:
-					inst.append(self.current_tok)
-					self.advance()
-				else:
-					return InvalidRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+				inst.append(self.current_tok)
+				self.advance()
 			else:
 				return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		
@@ -295,8 +331,9 @@ class Parser:
 					return InvalidLoadValueError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		else:
 			return ExpectedIntegerError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+		
 		self.advance()
-		self.parsed_tokens.append(inst)
+		self.parsed_text_tokens.append(inst)
 		return None
 	
 	def jump_op(self):
@@ -318,9 +355,8 @@ class Parser:
 		else:
 			return InvalidJumpOperandError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		
-		self.parsed_tokens.append(inst)
+		self.parsed_text_tokens.append(inst)
 		return None
-		
 	
 	def branch_op(self):
 		inst = []
@@ -329,11 +365,8 @@ class Parser:
 		self.advance()  
 
 		if self.current_tok.type == TT_REGISTER:
-			if self.current_tok.value in REGISTERS:
-					inst.append(self.current_tok)
-					self.advance()
-			else:
-				return InvalidRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+				inst.append(self.current_tok)
+				self.advance()
 		else:
 			return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		
@@ -343,7 +376,7 @@ class Parser:
 		else:
 			return ExpectedLabelError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		
-		self.parsed_tokens.append(inst)
+		self.parsed_text_tokens.append(inst)
 		return None
 	
 	def memory_op(self):
@@ -382,7 +415,7 @@ class Parser:
 		else:
 			return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		
-		self.parsed_tokens.append(inst)
+		self.parsed_text_tokens.append(inst)
 		return None
 	
 	def no_op(self):
@@ -390,6 +423,9 @@ class Parser:
 		
 		inst.append(self.current_tok)
 		self.advance()
+
+		self.parsed_text_tokens.append(inst)
+		return None
 
 #######################################
 # ASSEMBLER
@@ -441,12 +477,16 @@ def run(fn, text):
 	if error:
 		return None, None, error
 	print(tokens)
+	print('\n======\n')
 	# Generate AST
 	parser = Parser(tokens)
 	error = parser.parse()
 	if error: return None, None, error
 	
-	print(parser.parsed_tokens)
+	print('\nDATA SEGMENT')
+	print(parser.parsed_data_tokens)
+	print('\nTEXT SEGMENT')
+	print(parser.parsed_text_tokens)
 	data = 1
 	code = 1
 	# Generate verilog
