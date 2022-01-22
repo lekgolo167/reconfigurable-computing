@@ -472,15 +472,24 @@ class Assembler():
 		#build the mif file
 		for instruction in code:
 			# get the each instruction
+			#############################
+			#
+			# Instead of doing format(var, 'X').zfill(SOME_SIZE)
+			# use the 'b' for binary
+			# Then at the end after all the bits have been combines
+			# use 'H' to turn from binary to hex
+			#
 			inst_name = instruction[0].value
 			addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
 			op_code = OP_CODES_DICT[inst_name]
 			inst_str = format(op_code, 'X').zfill(WORD_PAD_SIZE)
+			
 			comment_str = '\t\t'
-
 			# start at offset 1 these are the operands, offset 0 ins the instruction name
+			# this is for generating the comment at the end of each line
 			for index in range(1, len(instruction)-1):
 				comment_str += str(instruction[index].value) + ', '
+			# get the last operand but without a ','
 			comment_str += str(instruction[-1].value) + '\n'
 			
 			mif_text += f'{addr_str} : {inst_str}; --{inst_name}' + comment_str
