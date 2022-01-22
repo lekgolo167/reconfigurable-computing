@@ -113,3 +113,11 @@ class VariableRedeclarationError(Error):
 class LabelRedeclarationError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
 		super().__init__(pos_start, pos_end, 'Label Redeclaration: The following label has been declared more than once ->', details)
+
+class LabelReferencedButNotDeclaredError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, 'Undeclared Label Reference: The following label has been referenced but not declared ->', details)
+
+class VariableReferencedButNotDeclaredError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, 'Undeclared Variable Reference: The following variable has been referenced but not declared ->', details)

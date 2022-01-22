@@ -422,6 +422,16 @@ class Assembler():
 		address = 0
 		for line in code:
 			if line[0].type == TT_INSTRUCTION:
+				if line[0].value == 'LW':
+					base = line[2]
+					offset = line[3]
+					line[2] = offset
+					line[3] = base
+				elif line[0].value == 'SW':
+					base = line[1]
+					data = line[3]
+					line[1] = data
+					line[3] = base
 				address += 1
 			else:
 				label_name = line[0].value
@@ -472,27 +482,63 @@ class Assembler():
 		#build the mif file
 		for instruction in code:
 			# get the each instruction
-			#############################
-			#
-			# Instead of doing format(var, 'X').zfill(SOME_SIZE)
-			# use the 'b' for binary
-			# Then at the end after all the bits have been combines
-			# use 'H' to turn from binary to hex
-			#
 			inst_name = instruction[0].value
 			addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
 			op_code = OP_CODES_DICT[inst_name]
-			inst_str = format(op_code, 'X').zfill(WORD_PAD_SIZE)
+			op_code_bin = format(op_code, 'b').zfill(OP_CODE_PAD_SIZE)
+			inst_binary = ''
+			for operand in instruction[1:]:
+				if operand.type == TT_REGISTER:
+					reg_number = REGISTERS.index(operand.value)
+					if inst_name in JUMP_OPS:
+						inst_binary += format(reg_number, 'b').zfill(ABS_ADDR_PAD_SIZE)
+					else:
+						inst_binary += format(reg_number, 'b').zfill(REG_PAD_SIZE)
+				elif operand.type == TT_LABEL:
+					label_addr = 0
+					if operand.value in self.label_addrs:
+						label_addr = self.label_addrs[operand.value]
+					else:
+						index = instruction.index(operand)
+						return None, LabelReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
+
+					if inst_name in BRANCH_OPS:
+						inst_binary += format(label_addr, 'b').zfill(BR_ADDR_PAD_SIZE)
+					else:
+						inst_binary += format(label_addr, 'b').zfill(ABS_ADDR_PAD_SIZE)
+				elif operand.type == TT_INT:
+					inst_binary += format(operand.value, 'b').zfill(IMM_PAD_SIZE)
+				elif operand.type == TT_VARIABLE:
+					var_addr = 0
+					if operand.value in self.variable_addrs:
+						var_addr = self.variable_addrs[operand.value]
+					else:
+						index = instruction.index(operand)
+						return None, VariableReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
+					
+					inst_binary += format(var_addr, 'b').zfill(IMM_PAD_SIZE)
+
+			if inst_name in REGISTER_OPS:
+				inst_binary += '0' * UNUSED_PAD_SIZE
+			elif inst_name in NO_OPS:
+				inst_binary += '0' * ABS_ADDR_PAD_SIZE
 			
+			inst_binary = op_code_bin + inst_binary
+
 			comment_str = '\t\t'
 			# start at offset 1 these are the operands, offset 0 ins the instruction name
 			# this is for generating the comment at the end of each line
 			for index in range(1, len(instruction)-1):
 				comment_str += str(instruction[index].value) + ', '
 			# get the last operand but without a ','
-			comment_str += str(instruction[-1].value) + '\n'
 			
-			mif_text += f'{addr_str} : {inst_str}; --{inst_name}' + comment_str
+			if self.label_addrs.get(instruction[-1].value):
+				comment_str += instruction[-1].value + ': 0x' + format(self.label_addrs.get(instruction[-1].value), 'X').zfill(ADDR_PAD_SIZE) + '\n'
+			else:
+				comment_str += str(instruction[-1].value) + '\n'
+
+			hex_inst = format(int(inst_binary, 2), 'X').zfill(WORD_PAD_SIZE)
+			mif_text += f'{addr_str} : {hex_inst}; --{inst_name}' + comment_str
 
 			address += 1
 		
@@ -512,17 +558,11 @@ def run(fn, text):
 	tokens, error = lexer.make_tokens()
 	if error:
 		return None, None, error
-	print(tokens)
-	print('\n======\n')
+
 	# Generate AST
 	parser = Parser(tokens)
 	error = parser.parse()
 	if error: return None, None, error
-	
-	print('\nDATA SEGMENT')
-	print(parser.parsed_data_tokens)
-	print('\nTEXT SEGMENT')
-	print(parser.parsed_text_tokens)
 
 	# Generate mifs
 	assembler = Assembler()
