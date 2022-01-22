@@ -3,12 +3,8 @@
 # IMPORTS
 #######################################
 
-from audioop import add
-from cProfile import label
-import re
-import argparse
+
 import sys
-from token import OP
 
 from dlx_constants import *
 from dlx_utilities import *
@@ -93,6 +89,14 @@ class Lexer:
 		self.pos.advance(self.current_char)
 		self.current_char = self.text[self.pos.idx] if self.pos.idx < len(
 			self.text) else None
+	
+	def nextCharIs(self, char):
+		idx = self.pos.idx
+
+		while idx < len(self.text) and self.text[idx] not in STOP_CHARS:
+			idx += 1
+
+		return self.text[idx] == char
 
 	def make_tokens(self):
 		tokens = []
@@ -163,12 +167,12 @@ class Lexer:
 			self.advance()
 
 		tok_type = TT_LABEL
-		if id_str in INSTRUCTIONS:
+		if id_str in INSTRUCTIONS or id_str.isupper():
 			tok_type = TT_INSTRUCTION
 		elif self.in_data_segment:
 			tok_type = TT_VARIABLE
 			self.variable_names.append(id_str)
-		elif id_str in self.variable_names:
+		elif id_str in self.variable_names or self.nextCharIs('('):
 			tok_type = TT_VARIABLE
 
 		return Token(tok_type, id_str, pos_start, self.pos)

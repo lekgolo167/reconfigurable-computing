@@ -10,6 +10,7 @@ UPPER_LETTERS = string.ascii_uppercase
 LETTERS = string.ascii_letters
 LETTERS_DIGITS = LETTERS + DIGITS
 LABEL_CHARS = LETTERS + '_'
+STOP_CHARS = LETTERS_DIGITS + '\n\r(),_'
 
 MEM_DEPTH = 1024
 WORD_WIDTH = 32
