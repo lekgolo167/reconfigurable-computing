@@ -4,6 +4,7 @@
 #######################################
 
 from audioop import add
+from cProfile import label
 import re
 import argparse
 import sys
@@ -426,10 +427,14 @@ class Assembler():
 				label_name = line[0].value
 				if label_name not in self.label_addrs:
 					self.label_addrs[label_name] = address
-					code.remove(line)
 				else:
+					print("ERROR")
 					return LabelRedeclarationError(line[0].pos_start, line[0].pos_end, label_name)
 		
+		for item in code:
+			if item[0].type == TT_LABEL:
+				code.remove(item)
+
 		return None
 
 	def build_data_mif(self, data):
