@@ -105,3 +105,11 @@ class NoDataSectionFoundError(Error):
 class UnexpectedSegmentError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
 		super().__init__(pos_start, pos_end, f'Unexpected Segment: Expected a {TEXT_SEGMENT} segment but found ->', details)
+
+class VariableRedeclarationError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, 'Variable Redeclaration: The following variable has been declared more than once ->', details)
+
+class LabelRedeclarationError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, 'Label Redeclaration: The following label has been declared more than once ->', details)

@@ -3,6 +3,7 @@
 # IMPORTS
 #######################################
 
+from audioop import add
 import re
 import argparse
 import sys
@@ -413,13 +414,35 @@ class Parser:
 
 class Assembler():
 	def __init__(self):
-		self.binary_strings = []
+		self.variable_addrs = {}
+		self.label_addrs = {}
 	
+	def resolve_label_addresses(self, code):
+		address = 0
+		for line in code:
+			if line[0].type == TT_INSTRUCTION:
+				address += 1
+			else:
+				label_name = line[0].value
+				if label_name not in self.label_addrs:
+					self.label_addrs[label_name] = address
+					code.remove(line)
+				else:
+					return LabelRedeclarationError(line[0].pos_start, line[0].pos_end, label_name)
+		
+		return None
+
 	def build_data_mif(self, data):
 		mif_text = MIF_PREAMBLE
 		address = 0
 		for array in data:
 			var_name = array[0].value
+
+			if var_name not in self.variable_addrs:
+				self.variable_addrs[var_name] = address
+			else:
+				return None, VariableRedeclarationError(array[0].pos_start, array[0].pos_end, var_name)
+			
 			for index in range(1, len(array)):
 				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
 				value_str = format(array[index].value, 'X').zfill(WORD_PAD_SIZE)
@@ -429,39 +452,45 @@ class Assembler():
 		
 		mif_text += MIF_EPILOGUE
 
-		return mif_text
+		return mif_text, None
 
 	def build_code_mif(self, code):
+		error = None
 		mif_text = MIF_PREAMBLE
 		address = 0
+
+		# find the addresses of all labels
+		error = self.resolve_label_addresses(code)
+		if error:
+			return None, error
+
+		#build the mif file
 		for instruction in code:
+			# get the each instruction
 			inst_name = instruction[0].value
-			if instruction[0].type == TT_INSTRUCTION:
-				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
-				op_code = OP_CODES_DICT[inst_name]
-				inst_str = format(op_code, 'X').zfill(WORD_PAD_SIZE)
-				comment_str = '\t\t'
+			addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
+			op_code = OP_CODES_DICT[inst_name]
+			inst_str = format(op_code, 'X').zfill(WORD_PAD_SIZE)
+			comment_str = '\t\t'
 
-				for index in range(1, len(instruction)-1):
-					comment_str += str(instruction[index].value) + ', '
-				comment_str += str(instruction[-1].value) + '\n'
-				
-				mif_text += f'{addr_str} : {inst_str}; --{inst_name}' + comment_str
+			# start at offset 1 these are the operands, offset 0 ins the instruction name
+			for index in range(1, len(instruction)-1):
+				comment_str += str(instruction[index].value) + ', '
+			comment_str += str(instruction[-1].value) + '\n'
+			
+			mif_text += f'{addr_str} : {inst_str}; --{inst_name}' + comment_str
 
-				address += 1
-			else:
-				mif_text += f'{inst_name}:{address}\n'
+			address += 1
 		
 		mif_text += MIF_EPILOGUE
 
-		return mif_text
+		return mif_text, None
 
-	def resolve_label_addresses(self):
-		pass
 		
 #######################################
 # RUN
 #######################################
+
 
 def run(fn, text):
 	# Generate tokens
@@ -483,8 +512,12 @@ def run(fn, text):
 
 	# Generate mifs
 	assembler = Assembler()
-	data = assembler.build_data_mif(parser.parsed_data_tokens)
-	code = assembler.build_code_mif(parser.parsed_text_tokens)
+
+	data, error = assembler.build_data_mif(parser.parsed_data_tokens)
+	if error: return None, None, error
+
+	code, error = assembler.build_code_mif(parser.parsed_text_tokens)
+	if error: return None, None, error
 
 	return data, code, None
 
