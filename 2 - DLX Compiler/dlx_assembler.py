@@ -442,7 +442,6 @@ class Assembler():
 				if label_name not in self.label_addrs:
 					self.label_addrs[label_name] = address
 				else:
-					print("ERROR")
 					return LabelRedeclarationError(line[0].pos_start, line[0].pos_end, label_name)
 		
 		for item in code:
@@ -450,6 +449,9 @@ class Assembler():
 				code.remove(item)
 
 		return None
+
+	def build_data_binary(self, data):
+		pass
 
 	def build_data_mif(self, data):
 		mif_text = MIF_PREAMBLE
@@ -473,6 +475,54 @@ class Assembler():
 
 		return mif_text, None
 
+	def instruction_to_binary_str(self, instruction):
+		inst_name = instruction[0].value
+		op_code = OP_CODES_DICT[inst_name]
+		op_code_bin = format(op_code, 'b').zfill(OP_CODE_PAD_SIZE)
+		inst_binary = ''
+		for operand in instruction[1:]:
+			if operand.type == TT_REGISTER:
+				reg_number = REGISTERS.index(operand.value)
+				if inst_name in JUMP_OPS:
+					inst_binary += format(reg_number, 'b').zfill(ABS_ADDR_PAD_SIZE)
+				else:
+					inst_binary += format(reg_number, 'b').zfill(REG_PAD_SIZE)
+			elif operand.type == TT_LABEL:
+				label_addr = 0
+				if operand.value in self.label_addrs:
+					label_addr = self.label_addrs[operand.value]
+				else:
+					index = instruction.index(operand)
+					return None, LabelReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
+
+				if inst_name in BRANCH_OPS:
+					inst_binary += format(label_addr, 'b').zfill(BR_ADDR_PAD_SIZE)
+				else:
+					inst_binary += format(label_addr, 'b').zfill(ABS_ADDR_PAD_SIZE)
+			elif operand.type == TT_INT:
+				inst_binary += format(operand.value, 'b').zfill(IMM_PAD_SIZE)
+			elif operand.type == TT_VARIABLE:
+				var_addr = 0
+				if operand.value in self.variable_addrs:
+					var_addr = self.variable_addrs[operand.value]
+				else:
+					index = instruction.index(operand)
+					return None, VariableReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
+				
+				inst_binary += format(var_addr, 'b').zfill(IMM_PAD_SIZE)
+
+		if inst_name in REGISTER_OPS:
+			inst_binary += '0' * UNUSED_PAD_SIZE
+		elif inst_name in NO_OPS:
+			inst_binary += '0' * ABS_ADDR_PAD_SIZE
+		
+		inst_binary = op_code_bin + inst_binary
+
+		return inst_binary, None
+
+	def build_code_binary(self, code):
+		pass
+
 	def build_code_mif(self, code):
 		error = None
 		mif_text = MIF_PREAMBLE
@@ -480,54 +530,15 @@ class Assembler():
 
 		# find the addresses of all labels
 		error = self.resolve_label_addresses(code)
-		if error:
-			return None, error
+		if error: return None, error
 
 		#build the mif file
 		for instruction in code:
-			# get the each instruction
 			inst_name = instruction[0].value
 			addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
-			op_code = OP_CODES_DICT[inst_name]
-			op_code_bin = format(op_code, 'b').zfill(OP_CODE_PAD_SIZE)
-			inst_binary = ''
-			for operand in instruction[1:]:
-				if operand.type == TT_REGISTER:
-					reg_number = REGISTERS.index(operand.value)
-					if inst_name in JUMP_OPS:
-						inst_binary += format(reg_number, 'b').zfill(ABS_ADDR_PAD_SIZE)
-					else:
-						inst_binary += format(reg_number, 'b').zfill(REG_PAD_SIZE)
-				elif operand.type == TT_LABEL:
-					label_addr = 0
-					if operand.value in self.label_addrs:
-						label_addr = self.label_addrs[operand.value]
-					else:
-						index = instruction.index(operand)
-						return None, LabelReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
-
-					if inst_name in BRANCH_OPS:
-						inst_binary += format(label_addr, 'b').zfill(BR_ADDR_PAD_SIZE)
-					else:
-						inst_binary += format(label_addr, 'b').zfill(ABS_ADDR_PAD_SIZE)
-				elif operand.type == TT_INT:
-					inst_binary += format(operand.value, 'b').zfill(IMM_PAD_SIZE)
-				elif operand.type == TT_VARIABLE:
-					var_addr = 0
-					if operand.value in self.variable_addrs:
-						var_addr = self.variable_addrs[operand.value]
-					else:
-						index = instruction.index(operand)
-						return None, VariableReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
-					
-					inst_binary += format(var_addr, 'b').zfill(IMM_PAD_SIZE)
-
-			if inst_name in REGISTER_OPS:
-				inst_binary += '0' * UNUSED_PAD_SIZE
-			elif inst_name in NO_OPS:
-				inst_binary += '0' * ABS_ADDR_PAD_SIZE
-			
-			inst_binary = op_code_bin + inst_binary
+			# get the each instruction
+			inst_binary, error = self.instruction_to_binary_str(instruction)
+			if error: return None, error
 
 			comment_str = '\t\t'
 			# start at offset 1 these are the operands, offset 0 ins the instruction name
@@ -605,9 +616,11 @@ if __name__ == '__main__':
 			if datafile:
 				with open(datafile, 'w') as out:
 					out.writelines(data)
+			else:
+				print(data)
+
 			if codefile:
 				with open(codefile, 'w') as out:
 					out.writelines(code)
 			else:
-				print(data)
 				print(code)
