@@ -4,7 +4,8 @@
 #######################################
 
 
-import sys
+from stat import filemode
+import sys, argparse
 
 from dlx_constants import *
 from dlx_utilities import *
@@ -451,7 +452,21 @@ class Assembler():
 		return None
 
 	def build_data_binary(self, data):
-		pass
+		byte_array = bytearray()
+		address = 0
+		for array in data:
+			var_name = array[0].value
+
+			if var_name not in self.variable_addrs:
+				self.variable_addrs[var_name] = address
+			else:
+				return None, VariableRedeclarationError(array[0].pos_start, array[0].pos_end, var_name)
+			
+			for variable in array[1:]:
+				byte_array += variable.value.to_bytes(WORD_WIDTH//8, byteorder='little')
+				address += 1
+
+		return byte_array, None
 
 	def build_data_mif(self, data):
 		mif_text = MIF_PREAMBLE
@@ -521,7 +536,22 @@ class Assembler():
 		return inst_binary, None
 
 	def build_code_binary(self, code):
-		pass
+		error = None
+		byte_array = bytearray()
+
+		# find the addresses of all labels
+		error = self.resolve_label_addresses(code)
+		if error: return None, error
+
+		#build the mif file
+		for instruction in code:
+			# get the each instruction
+			inst_binary, error = self.instruction_to_binary_str(instruction)
+			if error: return None, error
+
+			byte_array += int(inst_binary, 2).to_bytes(WORD_WIDTH//8, byteorder='little')
+
+		return byte_array, None
 
 	def build_code_mif(self, code):
 		error = None
@@ -543,10 +573,10 @@ class Assembler():
 			comment_str = '\t\t'
 			# start at offset 1 these are the operands, offset 0 ins the instruction name
 			# this is for generating the comment at the end of each line
-			for index in range(1, len(instruction)-1):
-				comment_str += str(instruction[index].value) + ', '
-			# get the last operand but without a ','
+			for token in instruction[1:-1]:
+				comment_str += str(token.value) + ', '
 			
+			# get the last operand but without a ','
 			if self.label_addrs.get(instruction[-1].value):
 				comment_str += instruction[-1].value + ': 0x' + format(self.label_addrs.get(instruction[-1].value), 'X').zfill(ADDR_PAD_SIZE) + '\n'
 			else:
@@ -567,7 +597,7 @@ class Assembler():
 #######################################
 
 
-def run(fn, text):
+def run(fn, text, build_binary_flag):
 	# Generate tokens
 	lexer = Lexer(fn, text)
 	tokens, error = lexer.make_tokens()
@@ -581,46 +611,72 @@ def run(fn, text):
 
 	# Generate mifs
 	assembler = Assembler()
+	data = None
+	code = None
 
-	data, error = assembler.build_data_mif(parser.parsed_data_tokens)
-	if error: return None, None, error
+	if build_binary_flag:
+		data, error = assembler.build_data_binary(parser.parsed_data_tokens)
+		if error: return None, None, error
 
-	code, error = assembler.build_code_mif(parser.parsed_text_tokens)
-	if error: return None, None, error
+		code, error = assembler.build_code_binary(parser.parsed_text_tokens)
+		if error: return None, None, error
+	else:
+		data, error = assembler.build_data_mif(parser.parsed_data_tokens)
+		if error: return None, None, error
+
+		code, error = assembler.build_code_mif(parser.parsed_text_tokens)
+		if error: return None, None, error
 
 	return data, code, None
 
 
 if __name__ == '__main__':
 
+	compile_binary_flag = False
+	file_mode = 'w'
+	file_extension = '.mif'
+	infile = None
 	datafile = None
 	codefile = None
 
-	if len(sys.argv) <= 1 or len(sys.argv) > 4 or len(sys.argv) == 3:
-		sys.exit("Error: invalid command line entry")
-	elif len(sys.argv) == 2:
-		infile = sys.argv[1]
-	else:
-		infile  = sys.argv[1]
-		datafile = sys.argv[2]
-		codefile = sys.argv[3]
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-b', action='store_true')
+	parser.add_argument('infile', nargs='?')
+	parser.add_argument('datafile', nargs='?')
+	parser.add_argument('codefile', nargs='?')
+
+	argument = parser.parse_args()
+
+	compile_binary_flag = argument.b
+	infile = argument.infile
+	datafile = argument.datafile
+	codefile = argument.codefile
 	
+	if compile_binary_flag:
+		file_mode = 'wb'
+		file_extension = '.bin'
 
 	with open(infile, 'r') as file:
 		text = ''.join(file.readlines())
-		data, code, error = run(infile, text)
+		data, code, error = run(infile, text, compile_binary_flag)
 
 		if error:
 			print(error.as_string())
 		else:
 			if datafile:
-				with open(datafile, 'w') as out:
-					out.writelines(data)
+				if not datafile.endswith(file_extension):
+					datafile += file_extension
+
+				with open(datafile, file_mode) as out:
+					out.write(data)
 			else:
 				print(data)
 
 			if codefile:
-				with open(codefile, 'w') as out:
-					out.writelines(code)
+				if not codefile.endswith(file_extension):
+					codefile += file_extension
+
+				with open(codefile, file_mode) as out:
+					out.write(code)
 			else:
 				print(code)
