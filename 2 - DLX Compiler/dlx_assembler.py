@@ -3,9 +3,7 @@
 # IMPORTS
 #######################################
 
-
-from stat import filemode
-import sys, argparse
+import argparse
 
 from dlx_constants import *
 from dlx_utilities import *
