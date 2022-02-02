@@ -36,14 +36,16 @@ begin
 			instruction => instruction
 		);
 			
-		p_TEST : process is
+		p_TEST : process(clk)
 		begin
-			wait for c_CLK_PERIOD*6;   -- wait for reset off
-			branch_taken <= '1';              -- reset off
-			wait for c_CLK_PERIOD;
-			branch_taken <= '0';
-			jump_addr <= jump_addr + '1';
-			wait for c_CLK_PERIOD*10;
+		if rising_edge(clk) then
+			if instruction(31 downto 26) = "101101" or instruction(31 downto 26) = "101011" or instruction(31 downto 26) = "101100" then
+				jump_addr(9 downto 0) <= instruction(9 downto 0);
+				branch_taken <= '1';
+			else
+				branch_taken <= '0';
+			end if;
+		end if;
 		end process;
 		
 end behave;
