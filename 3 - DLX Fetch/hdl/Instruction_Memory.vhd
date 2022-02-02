@@ -36,6 +36,7 @@
 
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 
 LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;

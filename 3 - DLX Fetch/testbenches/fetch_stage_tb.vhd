@@ -1,6 +1,7 @@
 library ieee, work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
 use work.dlx_package.all;
 
 entity fetch_stage_tb is
@@ -22,7 +23,7 @@ architecture behave of fetch_stage_tb is
 begin
 	-- generate clock
 	clk <= not clk after c_CLK_PERIOD/2;
-	reset <= '1' after c_CLK_PERIOD*2;
+	reset <= '1' after c_CLK_PERIOD*4;
 
 	-- device under test
 	dut: entity work.DLX_Fetch(rtl)
@@ -37,7 +38,7 @@ begin
 			
 		p_TEST : process is
 		begin
-			wait for c_CLK_PERIOD*3;   -- wait for reset off
+			wait for c_CLK_PERIOD*6;   -- wait for reset off
 			branch_taken <= '1';              -- reset off
 			wait for c_CLK_PERIOD;
 			branch_taken <= '0';
