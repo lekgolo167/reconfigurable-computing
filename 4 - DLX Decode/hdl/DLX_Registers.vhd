@@ -1,5 +1,6 @@
 library ieee, work;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.dlx_package.all;
 
 entity DLX_Registers is
@@ -9,8 +10,8 @@ entity DLX_Registers is
 		wr_en		: in std_logic;
 		wr_addr		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		wr_data		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		rd_addr_0	: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
-		rd_addr_1	: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
+		rd_addr_0	: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
+		rd_addr_1	: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		rd_data_0	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		rd_data_1	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
 	);

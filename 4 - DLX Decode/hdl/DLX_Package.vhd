@@ -1,3 +1,4 @@
+library ieee;
 use ieee.math_real.all;
 
 package dlx_package is

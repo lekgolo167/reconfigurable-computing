@@ -14,7 +14,7 @@ entity DLX_Decode is
 		operand_0	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		operand_1	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		immediate	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		inst_opcode	: out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
+		inst_opcode	: out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0)
 	);
 	
 end entity;
@@ -31,12 +31,12 @@ begin
 
 	p_SIGN_EXTEND : process(imm)
 	begin
-		if imm(c_DLX_IMM_WIDTH-1) == '1' then -- add signed instruction check
+		if imm(c_DLX_IMM_WIDTH-1) = '1' then -- add signed instruction check
 			imm_extended <= std_logic_vector(resize(signed(imm), c_DLX_WORD_WIDTH));
 		else
 			imm_extended <= std_logic_vector(resize(unsigned(imm), c_DLX_WORD_WIDTH));
 		end if;
-	end
+	end process;
 
 	p_PIPELINE_REGISTER : process(clk)
 	begin
@@ -46,11 +46,11 @@ begin
 			immediate <= imm_extended;
 			inst_opcode <= opcode;
 		end if;
-	end
+	end process;
 	
 	opcode <= instruction(31 downto 31-c_DLX_OPCODE_WIDTH+1);
 	rd_addr_0 <= instruction(25 downto 25-c_DLX_REG_ADDR_WIDTH+1);
-	rd_addr_1 <= instruction(20 downto 20-c_DLX_OPCODE_WIDTH+1);
+	rd_addr_1 <= instruction(20 downto 20-c_DLX_REG_ADDR_WIDTH+1);
 	imm <= instruction(15 downto 15-c_DLX_IMM_WIDTH+1);
 
 	REG: entity work.DLX_Registers(rtl)
@@ -60,7 +60,7 @@ begin
 			wr_addr => wr_addr,
 			wr_data => wr_data,
 			rd_addr_0 => rd_addr_0,
-			rd_addr_1 => rd_add_1,
+			rd_addr_1 => rd_addr_1,
 			rd_data_0 => rd_data_0,
 			rd_data_1 => rd_data_1
 		);
