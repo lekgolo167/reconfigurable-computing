@@ -7,7 +7,7 @@ import argparse
 
 from dlx_constants import *
 from dlx_utilities import *
-
+from dlx_instruction_set import *
 
 #######################################
 # POSITION
