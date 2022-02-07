@@ -1,7 +1,4 @@
-from cProfile import label
-import sys
 import argparse
-import openpyxl
 
 class Instruction:
 	def __init__(self, op_code=0, rd=0, rs1=0, rs2=0, imm=0, label=0, offset=0, base=0, r_data=0, r_comp=0):
@@ -314,13 +311,13 @@ class JR(Instruction):
 
 class JAL(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[31] = pc_counter+1
+		registers[31] = pc_counter + 1
 		return self.label
 
 class JALR(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[31] = pc_counter+1
-		return self.label
+		registers[31] = pc_counter + 1
+		return registers[self.label]
 
 inst_dict = {
 	0X0:NOP,
@@ -441,8 +438,10 @@ class DlxSimulator:
 
 	def show_results(self):
 		print('=== Memory Contents ===')
+		addr = 0
 		for data in self.data_memory:
-			print(data)
+			print(f'{hex(addr)} : {data}')
+			addr += 1
 
 		print('\n=== Register Contents ===')
 		for reg in range(self.reg_limit):
@@ -451,12 +450,18 @@ class DlxSimulator:
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--code', '-c', nargs='?', required=True)
-	parser.add_argument('--data', '-d', nargs='?', required=True)
-	parser.add_argument('--exit', '-e', nargs='?', required=True)
-	parser.add_argument('--max', '-m', nargs='?', default=1000)
-	parser.add_argument('--reg', '-r', nargs='?', default=32)
-	parser.add_argument('--step', '-s', action='store_true', default=False)
+	parser.add_argument('--code', '-c', nargs='?', required=True,
+						help='The code .mif file ')
+	parser.add_argument('--data', '-d', nargs='?', required=True,
+						help='The data .mif file')
+	parser.add_argument('--exit', '-e', nargs='?', required=True,
+						help='The exit/done address of the program in hex')
+	parser.add_argument('--max', '-m', nargs='?', default=1000,
+						help='Max iterations through the program loop')
+	parser.add_argument('--reg', '-r', nargs='?', default=32,
+						help='Limit the number of registers shown from 0-r')
+	parser.add_argument('--step', '-s', action='store_true', default=False,
+						help='Enables stepping through the program')
 
 	argument = parser.parse_args()
 
