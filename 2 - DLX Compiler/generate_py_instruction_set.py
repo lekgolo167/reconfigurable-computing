@@ -142,7 +142,7 @@ def build_dlx_package_vhd_file():
 			else:
 				inst += '\t\t'
 
-			line = f'\tconstant c_DLX_{inst}: std_logic_vector(6 downto 0) := "{format(op_code, "b").zfill(6)}";\n'
+			line = f'\tconstant c_DLX_{inst}: std_logic_vector(5 downto 0) := "{format(op_code, "b").zfill(6)}";\n'
 			outfile.write(line)
 
 		outfile.write('\n')

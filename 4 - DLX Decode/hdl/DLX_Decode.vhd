@@ -11,10 +11,12 @@ entity DLX_Decode is
 		wr_en		: in std_logic;
 		wr_addr		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		wr_data		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		pc_counter  : in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		operand_0	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		operand_1	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		immediate	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		inst_opcode	: out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0)
+		inst_opcode	: out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
+		pc_counter_padded : out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
 	);
 	
 end entity;
@@ -45,6 +47,7 @@ begin
 			operand_1 <= rd_data_1;
 			immediate <= imm_extended;
 			inst_opcode <= opcode;
+			pc_counter_padded <= std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
 		end if;
 	end process;
 	

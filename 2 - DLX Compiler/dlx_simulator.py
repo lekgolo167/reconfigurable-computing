@@ -435,6 +435,8 @@ class DlxSimulator:
 		self.show_results()
 		if iterations == self.max_iterations:
 			print('Max loop iterations reached')
+		else:
+			print(f'Finished in {iterations} iterations')
 
 	def show_results(self):
 		print('=== Memory Contents ===')
