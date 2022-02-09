@@ -26,6 +26,10 @@ architecture behave of Decode is
 	signal d3 : std_logic_vector(31 downto 0);
 	signal d4 : std_logic_vector(31 downto 0);
 	signal sel : std_logic_vector(1 downto 0);
+	signal sel_immediate : std_logic;
+	signal sel_pc : std_logic;
+	signal wr_addr_out : std_logic_vector(4 downto 0);
+	signal pc_counter : std_logic_vector(9 downto 0);
 begin
 
 	FTCH: entity work.DLX_Fetch(rtl)
@@ -36,7 +40,7 @@ begin
 			jump_addr => inst(9 downto 0),
 			branch_taken => SW(0),
 			-- outputs
-			pc_counter => LEDR,
+			pc_counter => pc_counter,
 			instruction => inst
 		);
 
@@ -50,6 +54,11 @@ begin
 			operand_0 => d1,
 			operand_1 => d2,
 			immediate => d3,
+			sel_immediate => sel_immediate,
+			pc_counter => pc_counter,
+			pc_counter_padded => open,
+			sel_pc => sel_pc,
+			wr_addr_out => wr_addr_out,
 			inst_opcode => d4(5 downto 0)
 		);
 

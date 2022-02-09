@@ -1,5 +1,6 @@
 library ieee;
 use ieee.math_real.all;
+use ieee.std_logic_1164.all;
 
 package dlx_package is
 
