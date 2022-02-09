@@ -41,6 +41,7 @@ begin
 			pc_counter => pc_counter,
 			instruction => instruction
 		);
+	I was here
 			
 		-- Compute 3 factorial
 		p_TEST : process(clk)
