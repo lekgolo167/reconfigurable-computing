@@ -121,3 +121,7 @@ class LabelReferencedButNotDeclaredError(Error):
 class VariableReferencedButNotDeclaredError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
 		super().__init__(pos_start, pos_end, 'Undeclared Variable Reference: The following variable has been referenced but not declared ->', details)
+
+class InvalidDestinationRegisterError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, 'Invalid Destination Register: The destination register can never be R0 as it is read-only ->', details)

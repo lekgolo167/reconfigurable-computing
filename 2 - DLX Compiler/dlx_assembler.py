@@ -282,7 +282,16 @@ class Parser:
 		inst.append(self.current_tok)
 		self.advance()
 		
-		for i in range(3):
+		if self.current_tok.type == TT_REGISTER:
+			if self.current_tok.value != READ_ONLY_REG:
+				inst.append(self.current_tok)
+				self.advance()
+			else:
+				return InvalidDestinationRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+		else:
+			return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+
+		for _ in range(2):
 			if self.current_tok.type == TT_REGISTER:
 				inst.append(self.current_tok)
 				self.advance()
@@ -297,12 +306,20 @@ class Parser:
 		inst.append(self.current_tok)
 		self.advance()
 		
-		for i in range(2):
-			if self.current_tok.type == TT_REGISTER:
+		if self.current_tok.type == TT_REGISTER:
+			if self.current_tok.value != READ_ONLY_REG:
 				inst.append(self.current_tok)
 				self.advance()
 			else:
-				return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+				return InvalidDestinationRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+		else:
+			return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+
+		if self.current_tok.type == TT_REGISTER:
+			inst.append(self.current_tok)
+			self.advance()
+		else:
+			return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 		
 		if self.current_tok.type == TT_INT:
 			if self.current_tok.value < 0:
@@ -384,8 +401,11 @@ class Parser:
 		else:
 			self.advance()
 			if self.current_tok.type == TT_REGISTER:
-				inst.append(self.current_tok)
-				self.advance()
+				if self.current_tok.value != READ_ONLY_REG:
+					inst.append(self.current_tok)
+					self.advance()
+				else:
+					return InvalidDestinationRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 			else:
 				return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 			if self.current_tok.type == TT_VARIABLE:
@@ -497,7 +517,7 @@ class Assembler():
 			if operand.type == TT_REGISTER:
 				reg_number = REGISTERS.index(operand.value)
 				if inst_name in JUMP_OPS:
-					inst_binary += format(reg_number, 'b').zfill(ABS_ADDR_PAD_SIZE)
+					inst_binary += format(LINK_REGISTER, 'b').zfill(REG_PAD_SIZE) + format(reg_number, 'b').zfill(BR_ADDR_PAD_SIZE)
 				else:
 					inst_binary += format(reg_number, 'b').zfill(REG_PAD_SIZE)
 			elif operand.type == TT_LABEL:
