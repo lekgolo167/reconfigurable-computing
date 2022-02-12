@@ -531,7 +531,7 @@ class Assembler():
 				if inst_name in BRANCH_OPS:
 					inst_binary += format(label_addr, 'b').zfill(BR_ADDR_PAD_SIZE)
 				else:
-					inst_binary += format(label_addr, 'b').zfill(ABS_ADDR_PAD_SIZE)
+					inst_binary += format(LINK_REGISTER, 'b').zfill(REG_PAD_SIZE) + format(label_addr, 'b').zfill(BR_ADDR_PAD_SIZE)
 			elif operand.type == TT_INT:
 				inst_binary += format(operand.value, 'b').zfill(IMM_PAD_SIZE)
 			elif operand.type == TT_VARIABLE:

@@ -47,7 +47,8 @@ begin
 	signed_inst_received <= '1' when (opcode = c_DLX_ADD or opcode = c_DLX_ADDI or opcode = c_DLX_SUB or opcode = c_DLX_SUBI or 
 												opcode = c_DLX_SLT or opcode = c_DLX_SLTI or opcode = c_DLX_SGT or opcode = c_DLX_SGTI or 
 												opcode = c_DLX_SLE or opcode = c_DLX_SLEI or opcode = c_DLX_SGE or opcode = c_DLX_SGEI) else '0';
-	is_write_back <= '1' when (opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI) or (opcode = c_DLX_LW) else '0';
+	is_write_back <= '1' when (opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI) or (opcode = c_DLX_LW) or (opcode >= c_DLX_JAL) else '0';
+		
 	p_SIGN_EXTEND : process(imm)
 	begin
 		if (imm(c_DLX_IMM_WIDTH-1) = '1') and (signed_inst_received = '1') then -- add signed instruction check
