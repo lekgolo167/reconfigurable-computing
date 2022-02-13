@@ -4,7 +4,7 @@
 
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
-set_global_assignment -name TOP_LEVEL_ENTITY Decode
+set_global_assignment -name TOP_LEVEL_ENTITY Execute
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.0.0
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:15:04 JANUARY 28,2022"
@@ -111,9 +111,11 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name VHDL_FILE ../hdl/Execute.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Execute.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_ALU.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Registers.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Decode.vhd
-set_global_assignment -name VHDL_FILE ../hdl/Decode.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Package.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Fetch.vhd
 set_global_assignment -name SDC_FILE Fetch.SDC
