@@ -25,7 +25,7 @@ architecture rtl of DLX_Registers is
 	type memory_t is array(c_NUM_OF_REGISTERS-1 downto 0) of word_t;
 	
 	-- Declare the RAM signal.
-	signal ram : memory_t;
+	signal ram : memory_t := (others => (others => '0'));
 
 begin
 

@@ -69,7 +69,7 @@ begin
 			pc_counter_padded => pc_counter_padded
 		);
 
-		EXC: entity work.DLX_Execute(rtl)
+	EXC: entity work.DLX_Execute(rtl)
 		port map (
 			clk => MAX10_CLK1_50,
 			opcode => opcode,

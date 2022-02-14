@@ -40,7 +40,7 @@ architecture rtl of DLX_Decode is
 begin
 	save_pc <= '1' when (opcode >= c_DLX_JAL) else '0';
 	
-	label_detected <= '1' when ((opcode >= c_DLX_LW and opcode <= c_DLX_SW) or (opcode >= c_DLX_BEQZ)) else '0';
+	label_detected <= '1' when ((opcode >= c_DLX_LW and opcode <= c_DLX_SW) or (opcode >= c_DLX_BEQZ and (opcode /= c_DLX_JR and opcode /= c_DLX_JALR))) else '0';
 
 	imm_detected <= '1' when ((opcode >= c_DLX_ADDI and opcode <= c_DLX_SNEI) and (opcode(0) = '0')) else '0';
 
@@ -72,8 +72,8 @@ begin
 	end process;
 	
 	opcode <= instruction(31 downto 31-c_DLX_OPCODE_WIDTH+1);
-	rd_addr_0 <= instruction(20 downto 20-c_DLX_REG_ADDR_WIDTH+1);
-	rd_addr_1 <= instruction(15 downto 15-c_DLX_REG_ADDR_WIDTH+1) when opcode /= c_DLX_SW else rd_reg;
+	rd_addr_0 <= instruction(20 downto 20-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_BEQZ and opcode /= c_DLX_BNEZ ) else rd_reg;
+	rd_addr_1 <= instruction(15 downto 15-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_SW and opcode < c_DLX_J) else rd_reg;
 	imm <= instruction(15 downto 15-c_DLX_IMM_WIDTH+1);
 	rd_reg <= instruction(25 downto 25-c_DLX_REG_ADDR_WIDTH+1);
 
