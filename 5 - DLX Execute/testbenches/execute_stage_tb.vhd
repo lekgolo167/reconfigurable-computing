@@ -24,6 +24,9 @@ architecture behave of execute_stage_tb is
 	signal wr_addr_1 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 	-- outputs for fetch/ inputs for decode
 	signal pc_to_decode : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+	signal pc_to_memory : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+	signal pc_to_writeback : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+
 	signal instruction : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	
 	-- outputs for decode/ inputs for execute
@@ -31,13 +34,17 @@ architecture behave of execute_stage_tb is
 	signal operand_1 : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal immediate : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal sel_immediate : std_logic;
-	signal sel_pc : std_logic;
+	--signal sel_pc : std_logic;
+	signal sel_jump_link : std_logic;
+	signal sel_jump_link_1 : std_logic;
+
 	signal inst_opcode : std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 	signal wr_back_en : std_logic;
 	signal wr_back_addr : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
-	signal pc_to_execute : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal pc_to_execute : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 	signal data_out : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal alu_out : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal tmp : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal write_back_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal mem_wr_en : std_logic;
 	signal mem_sel : std_logic;
@@ -80,7 +87,7 @@ begin
 			operand_1 => operand_1,
 			immediate => immediate,
 			sel_immediate => sel_immediate,
-			sel_pc => sel_pc,
+			--sel_pc => sel_pc,
 			inst_opcode => inst_opcode,
 			wr_back_en => wr_back_en,
 			wr_back_addr => wr_back_addr,
@@ -93,7 +100,7 @@ begin
 			opcode => inst_opcode,
 			wr_en => wr_back_en,
 			wr_addr => wr_back_addr,
-			sel_pc => sel_pc,
+			--sel_pc => sel_pc,
 			pc_counter => pc_to_execute,
 			operand_0 => operand_0,
 			sel_immediate => sel_immediate,
@@ -105,6 +112,8 @@ begin
 			wr_back_en => wr_en_1,
 			wr_back_addr => wr_addr_1,
 			branch_taken => branch_taken,
+			sel_jump_link => sel_jump_link,
+			pc_counter_out => pc_to_memory,
 			data_out => alu_out
 		);
 
@@ -129,9 +138,12 @@ begin
 		mem <= mem_data_out;
 		wr_en <= wr_en_1;
 		wr_addr <= wr_addr_1;
+		sel_jump_link_1 <= sel_jump_link;
+		pc_to_writeback <= pc_to_memory;
 	end if;
 	end process;
 
-	write_back_data <= mem when sel_mem_alu = '1' else data_out;
+	tmp <= mem when sel_mem_alu = '1' else data_out;
+	write_back_data <= "0000000000000000000000" & pc_to_writeback when sel_jump_link_1 = '1' else tmp;
 
 end behave;
