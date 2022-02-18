@@ -441,6 +441,9 @@ class Assembler():
 		self.variable_addrs = {}
 		self.label_addrs = {}
 	
+	def tohex(self, val, nbits):
+		return format((val + (1 << nbits)) % (1 << nbits), 'X')
+
 	def resolve_label_addresses(self, code):
 		address = 0
 		for line in code:
@@ -499,7 +502,7 @@ class Assembler():
 			
 			for index in range(1, len(array)):
 				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
-				value_str = format(array[index].value, 'X').zfill(WORD_PAD_SIZE)
+				value_str = self.tohex(array[index].value, WORD_WIDTH).zfill(WORD_PAD_SIZE)
 				mif_text += f'{addr_str} : {value_str}; --{var_name}[{index-1}]\n'
 
 				address += 1
@@ -533,7 +536,8 @@ class Assembler():
 				else:
 					inst_binary += format(LINK_REGISTER, 'b').zfill(REG_PAD_SIZE) + format(label_addr, 'b').zfill(BR_ADDR_PAD_SIZE)
 			elif operand.type == TT_INT:
-				inst_binary += format(operand.value, 'b').zfill(IMM_PAD_SIZE)
+				imm = int(self.tohex(operand.value, IMM_PAD_SIZE), 16)
+				inst_binary += format(imm, 'b').zfill(IMM_PAD_SIZE)
 			elif operand.type == TT_VARIABLE:
 				var_addr = 0
 				if operand.value in self.variable_addrs:
