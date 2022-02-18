@@ -1,0 +1,40 @@
+	.data
+	
+n		1	10
+result	1	0
+
+	.text
+	
+	ADDI	R1, R0, 31
+    NOP
+    NOP
+    NOP
+    NOP
+	ADDI	R2, R0, 2
+    NOP
+    NOP
+    NOP
+    NOP
+
+    ; Try the different shift operations
+    SLL     R3, R1, R2
+    SLLI    R4, R1, 2
+    SRL     R5, R1, R2
+    SRLI    R6, R1, 2
+    SRA     R7, R1, R2
+    SRAI    R8, R1, 2
+
+    ; Try the different bitwise operations
+    AND     R9, R1, R2
+    ANDI    R10, R1, 2
+    OR      R11, R1, R2
+    ORI     R12, R1, 2
+    XOR     R13, R1, R2
+    XORI    R14, R1, 2
+	
+done
+	J		done
+    NOP
+    NOP
+    NOP
+    NOP
