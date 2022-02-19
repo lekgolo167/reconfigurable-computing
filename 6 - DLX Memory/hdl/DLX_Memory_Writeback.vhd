@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.dlx_package.all;
 
-entity DLX_Memory is
+entity DLX_Memory_Writeback is
 	port
 	(
 		clk				: in std_logic;
@@ -18,16 +18,17 @@ entity DLX_Memory is
 		-- Outputs
 		wr_back_en		: out std_logic;
 		wr_back_addr	: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
-		wr_back_data	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		wr_back_data	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
 		);
 		
 	end entity;
 	
-	architecture rtl of DLX_Memory is
+	architecture rtl of DLX_Memory_Writeback is
 		signal mem_addr	: std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		signal tmp	: std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		signal data	: std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		signal loaded_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		signal pc_to_writeback : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		signal mem_sel : std_logic;
 		signal link_sel : std_logic;
 begin
@@ -49,8 +50,8 @@ begin
 		port map (
 			clock => clk,
 			address => mem_addr,
-			we => mem_wr_en,
-			d => mem_data,
+			wren => mem_wr_en,
+			data => mem_data,
 			q => loaded_data
 		);
 
@@ -58,4 +59,4 @@ begin
 	tmp <= loaded_data when mem_sel = '1' else data;
 	wr_back_data <= std_logic_vector(resize(unsigned(pc_to_writeback), c_DLX_WORD_WIDTH)) when link_sel = '1' else tmp;
 
-end rtl
+end rtl;

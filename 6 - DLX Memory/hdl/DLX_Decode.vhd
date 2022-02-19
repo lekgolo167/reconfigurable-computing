@@ -49,7 +49,7 @@ begin
 												opcode = c_DLX_SLE or opcode = c_DLX_SLEI or opcode = c_DLX_SGE or opcode = c_DLX_SGEI) else '0';
 	is_write_back <= '1' when (opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI) or (opcode = c_DLX_LW) or (opcode >= c_DLX_JAL) else '0';
 		
-	p_SIGN_EXTEND : process(imm)
+	p_SIGN_EXTEND : process(imm, signed_inst_received)
 	begin
 		if (imm(c_DLX_IMM_WIDTH-1) = '1') and (signed_inst_received = '1') then -- add signed instruction check
 			imm_extended <= std_logic_vector(resize(signed(imm), c_DLX_WORD_WIDTH));
