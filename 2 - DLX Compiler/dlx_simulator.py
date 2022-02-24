@@ -1,5 +1,8 @@
 import argparse
 
+def rshift(val, n):
+	return (val % 0x100000000) >> n
+
 class Instruction:
 	def __init__(self, op_code=0, rd=0, rs1=0, rs2=0, imm=0, label=0, offset=0, base=0, r_data=0, r_comp=0):
 		self.op_code = op_code
@@ -99,32 +102,32 @@ class XORI(Instruction):
 
 class SLL(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] << self.rs2
+		registers[self.rd] = (registers[self.rs1] << registers[self.rs2]) & 0xFFFFFFFF
 		return pc_counter + 1
 
 class SLLI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] << self.imm
+		registers[self.rd] = (registers[self.rs1] << self.imm) & 0xFFFFFFFF
 		return pc_counter + 1
 
 class SRL(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] >> self.rs2
+		registers[self.rd] = rshift(registers[self.rs1], registers[self.rs2])
 		return pc_counter + 1
 
 class SRLI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] >> self.imm
+		registers[self.rd] = rshift(registers[self.rs1], self.imm)
 		return pc_counter + 1
 
 class SRA(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		#TODO
+		registers[self.rd] = registers[self.rs1] >> registers[self.rs2]
 		return pc_counter + 1
 
 class SRAI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		#TODO
+		registers[self.rd] = registers[self.rs1] >> self.imm
 		return pc_counter + 1
 
 class SLT(Instruction):
