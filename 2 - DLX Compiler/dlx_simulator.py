@@ -22,12 +22,12 @@ class NOP(Instruction):
 
 class LW(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.r_data] = memory[self.base + self.offset]
+		registers[self.r_data] = memory[self.base + registers[self.offset]]
 		return pc_counter + 1
 
 class SW(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		memory[self.base + self.offset] = registers[self.r_data]
+		memory[self.base + registers[self.offset]] = registers[self.r_data]
 		return pc_counter + 1
 
 class ADD(Instruction):
