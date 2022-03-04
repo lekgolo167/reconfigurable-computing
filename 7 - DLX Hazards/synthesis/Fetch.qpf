@@ -1,0 +1,6 @@
+DATE = "21:15:04 January 28, 2022"
+QUARTUS_VERSION = "16.0.0"
+
+# Revisions
+
+PROJECT_REVISION = "Fetch"
