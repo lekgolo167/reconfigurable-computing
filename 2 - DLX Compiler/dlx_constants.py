@@ -9,7 +9,7 @@ LOWER_LETTERS = string.ascii_lowercase
 UPPER_LETTERS = string.ascii_uppercase
 LETTERS = string.ascii_letters
 LETTERS_DIGITS = LETTERS + DIGITS
-LABEL_CHARS = LETTERS + '_'
+LABEL_CHARS = LETTERS + '_' + DIGITS
 STOP_CHARS = LETTERS_DIGITS + '\n\r(),_'
 
 MEM_DEPTH = 1024

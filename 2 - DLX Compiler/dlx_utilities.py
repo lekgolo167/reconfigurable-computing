@@ -4,6 +4,24 @@
 
 from dlx_constants import *
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    # Background colors:
+    GREYBG = '\033[100m'
+    REDBG = '\033[101m'
+    GREENBG = '\033[102m'
+    YELLOWBG = '\033[103m'
+    BLUEBG = '\033[104m'
+    PINKBG = '\033[105m'
+    CYANBG = '\033[106m'
+
 def string_with_arrows(text, pos_start, pos_end):
 	result = ''
 
@@ -32,14 +50,18 @@ def string_with_arrows(text, pos_start, pos_end):
 	return result.strip().replace('\t', '  ')
 
 class Error:
-	def __init__(self, pos_start, pos_end, error_name, details):
+	def __init__(self, pos_start, pos_end, error_name, details, color=bcolors.FAIL):
 		self.pos_start = pos_start
 		self.pos_end = pos_end
 		self.error_name = error_name
 		self.details = details
+		self.color = color
+
+	def __repr__(self) -> str:
+		return f'{self.color}{self.error_name}{bcolors.ENDC}: {self.details}\n'
 
 	def as_string(self):
-		result = f'{self.error_name}: {self.details}\n'
+		result = f'{self.color}{self.error_name}{bcolors.ENDC}: {self.details}\n'
 		result += f'File {self.pos_start.fn}, line {self.pos_start.ln + 1}'
 		result += '\n\n' + \
 			string_with_arrows(self.pos_start.ftxt,
@@ -125,3 +147,7 @@ class VariableReferencedButNotDeclaredError(Error):
 class InvalidDestinationRegisterError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
 		super().__init__(pos_start, pos_end, 'Invalid Destination Register: The destination register can never be R0 as it is read-only ->', details)
+
+class UnusedVariableWarning(Error):
+	def __init__(self, details=''):
+		super().__init__(-1, -1, 'Warning: The following variable was declared but not referenced ->', details, bcolors.WARNING)

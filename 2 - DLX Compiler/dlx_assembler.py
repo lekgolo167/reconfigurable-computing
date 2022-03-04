@@ -444,6 +444,11 @@ class Assembler():
 	def tohex(self, val, nbits):
 		return format((val + (1 << nbits)) % (1 << nbits), 'X')
 
+	def report_unused_vars(self):
+		for key in self.variable_addrs:
+			if not self.variable_addrs[key][1]:
+				print(UnusedVariableWarning(key))
+
 	def resolve_label_addresses(self, code):
 		address = 0
 		for line in code:
@@ -479,7 +484,7 @@ class Assembler():
 			var_name = array[0].value
 
 			if var_name not in self.variable_addrs:
-				self.variable_addrs[var_name] = address
+				self.variable_addrs[var_name] = [address, False]
 			else:
 				return None, VariableRedeclarationError(array[0].pos_start, array[0].pos_end, var_name)
 			
@@ -496,7 +501,7 @@ class Assembler():
 			var_name = array[0].value
 
 			if var_name not in self.variable_addrs:
-				self.variable_addrs[var_name] = address
+				self.variable_addrs[var_name] = [address, False]
 			else:
 				return None, VariableRedeclarationError(array[0].pos_start, array[0].pos_end, var_name)
 			
@@ -541,7 +546,8 @@ class Assembler():
 			elif operand.type == TT_VARIABLE:
 				var_addr = 0
 				if operand.value in self.variable_addrs:
-					var_addr = self.variable_addrs[operand.value]
+					var_addr = self.variable_addrs[operand.value][0]
+					self.variable_addrs[operand.value][1] = True
 				else:
 					index = instruction.index(operand)
 					return None, VariableReferencedButNotDeclaredError(instruction[index].pos_start, instruction[index].pos_end, operand.value)
@@ -610,7 +616,7 @@ class Assembler():
 			address += 1
 		
 		mif_text += MIF_EPILOGUE
-
+		self.report_unused_vars()
 		return mif_text, None
 
 		
@@ -621,12 +627,14 @@ class Assembler():
 
 def run(fn, text, build_binary_flag):
 	# Generate tokens
+	print(f'{bcolors.OKGREEN}Info: Starting...{bcolors.ENDC}')
 	lexer = Lexer(fn, text)
 	tokens, error = lexer.make_tokens()
 	if error:
 		return None, None, error
 
 	# Generate AST
+	print(f'{bcolors.OKGREEN}Info: Parsing...{bcolors.ENDC}')
 	parser = Parser(tokens)
 	error = parser.parse()
 	if error: return None, None, error
@@ -635,6 +643,7 @@ def run(fn, text, build_binary_flag):
 	assembler = Assembler()
 	data = None
 	code = None
+	print(f'{bcolors.OKGREEN}Info: Assembling...{bcolors.ENDC}')
 
 	if build_binary_flag:
 		data, error = assembler.build_data_binary(parser.parsed_data_tokens)
@@ -649,6 +658,7 @@ def run(fn, text, build_binary_flag):
 		code, error = assembler.build_code_mif(parser.parsed_text_tokens)
 		if error: return None, None, error
 
+	print(f'{bcolors.OKGREEN}Info: Done{bcolors.ENDC}')
 	return data, code, None
 
 
