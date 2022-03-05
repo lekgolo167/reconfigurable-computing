@@ -645,6 +645,9 @@ def run(fn, text, build_binary_flag):
 	code = None
 	print(f'{bcolors.OKGREEN}Info: Assembling...{bcolors.ENDC}')
 
+	# insert NOP as first instruction for CPU reset allowing all zeros to flush through the pipeline
+	parser.parsed_text_tokens.insert(0, [Token(TT_INSTRUCTION, "NOP", None, None)])
+	
 	if build_binary_flag:
 		data, error = assembler.build_data_binary(parser.parsed_data_tokens)
 		if error: return None, None, error

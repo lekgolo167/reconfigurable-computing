@@ -21,7 +21,7 @@ begin
 	reset <= '1' after c_CLK_PERIOD*40;
 
 	-- device under test
-	FTCH: entity work.DLX_Wrapper(behave)
+	DLX: entity work.DLX_Wrapper(behave)
 		port map (
 			clk => clk,
 			rstn => reset,

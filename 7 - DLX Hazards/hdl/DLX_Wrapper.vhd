@@ -27,6 +27,8 @@ architecture behave of DLX_Wrapper is
 	signal wr_back_en : std_logic;
 	signal wr_back_addr : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 	signal wr_back_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	--signal lw_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	--signal is_load : std_logic;
 	signal rs1 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 	signal rs2 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 
@@ -93,6 +95,8 @@ begin
 		rs2 => rs2,
 		rd_mem => wr_back_addr,
 		rd_mem_data => wr_back_data,
+		--lw_data => lw_data,
+		--is_load => is_load,
 		operand_0 => operand_0,
 		operand_1 => operand_1,
 		sel_immediate => sel_immediate,
@@ -121,6 +125,8 @@ begin
 		alu_data => alu_out,
 		wr_back_en => wr_back_en,
 		wr_back_addr => wr_back_addr,
+		--lw_data => lw_data,
+		--is_load => is_load,
 		wr_back_data => wr_back_data
 	);
 	

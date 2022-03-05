@@ -18,7 +18,9 @@ entity DLX_Memory_Writeback is
 		-- Outputs
 		wr_back_en		: out std_logic;
 		wr_back_addr	: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
-		wr_back_data	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
+		wr_back_data	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)--;
+		--lw_data			: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		--is_load			: out std_logic
 		);
 		
 	end entity;
@@ -56,6 +58,8 @@ begin
 		);
 
 	-- writeback stage
+	--is_load <= mem_sel;
+	--lw_data <= loaded_data;
 	tmp <= loaded_data when mem_sel = '1' else data;
 	wr_back_data <= std_logic_vector(resize(unsigned(pc_to_writeback), c_DLX_WORD_WIDTH)) when link_sel = '1' else tmp;
 

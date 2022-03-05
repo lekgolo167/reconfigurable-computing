@@ -26,9 +26,14 @@ architecture rtl of DLX_Registers is
 	
 	-- Declare the RAM signal.
 	signal ram : memory_t := (others => (others => '0'));
+	signal rd_0 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0) := (others => '0');
+	signal rd_1 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0) := (others => '0');
 
 begin
 
+	rd_data_0 <= ram(to_integer(unsigned(rd_0)));
+	rd_data_1 <= ram(to_integer(unsigned(rd_1)));
+	
 	process(clk)
 	begin
 		if(rising_edge(clk)) then
@@ -36,8 +41,8 @@ begin
 				ram(to_integer(unsigned(wr_addr))) <= wr_data;
 			end if;
 			
-			rd_data_0 <= ram(to_integer(unsigned(rd_addr_0)));
-			rd_data_1 <= ram(to_integer(unsigned(rd_addr_1)));
+			rd_0 <= rd_addr_0;
+			rd_1 <= rd_addr_1;
 		end if;
 	
 	end process;

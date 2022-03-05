@@ -14,6 +14,8 @@ entity DLX_Execute is
 		rs2				: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		rd_mem			: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		rd_mem_data		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		--is_load			: in std_logic;
+		--lw_data			: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		
 
 		-- ALU operand 0
@@ -51,21 +53,23 @@ architecture rtl of DLX_Execute is
 	signal data_hazard_0_0 : std_logic;
 	signal data_hazard_1_1 : std_logic;
 	signal rd : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
-	signal alu_piped_data	: std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal alu_piped_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal fast_forward_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 begin
 
 	is_zero <= '1' when ((operand_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
 						((operand_0 /= x"00000000") and (opcode = c_DLX_BNEZ)) or 
 						(opcode >= c_DLX_J) else '0';
+
 	data_hazard_0 <= '1' when rs1 = rd else '0';
 	data_hazard_1 <= '1' when rs2 = rd else '0';
 	data_hazard_0_0 <= '1' when rs1 = rd_mem else '0';
 	data_hazard_1_1 <= '1' when rs2 = rd_mem else '0';
-	
+	--fast_forward_data <= lw_data when is_load = '1' else rd_mem_data;
 	alu_in_0 <= operand_0 when data_hazard_0 = '0' and data_hazard_0_0 = '0' else alu_piped_data when data_hazard_0_0 = '0' else rd_mem_data;
 	alu_in_1 <= immediate when sel_immediate = '1' else operand_1 when data_hazard_1 = '0' and data_hazard_1_1 = '0' else alu_piped_data when data_hazard_1_1 = '0' else rd_mem_data;
 	mem_en <= '1' when opcode = c_DLX_SW else '0';
-	mem_sel <= '1' when opcode = c_DLX_SW or opcode = c_DLX_LW else '0';
+	mem_sel <= '1' when opcode = c_DLX_LW else '0';
 	link_sel <= '1' when opcode = c_DLX_JAL or opcode = c_DLX_JALR else '0';
 	wr_back_addr <= rd;
 	data_out <= alu_piped_data;
