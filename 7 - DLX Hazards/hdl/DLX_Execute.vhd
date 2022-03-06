@@ -54,17 +54,20 @@ architecture rtl of DLX_Execute is
 	signal mem_en : std_logic;
 	signal mem_sel : std_logic;
 	signal link_sel : std_logic;
+	signal stalling : std_logic;
 	signal reg_to_reg_alu : std_logic;
 	signal data_hazard_0 : std_logic;
 	signal data_hazard_1 : std_logic;
 	signal data_hazard_0_0 : std_logic;
 	signal data_hazard_1_1 : std_logic;
+	signal data_hazard_0_0_0 : std_logic;
+	signal data_hazard_1_1_1 : std_logic;
 	signal alu_piped_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal fast_forward_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 begin
 
-	is_zero <= '1' when ((operand_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
-						((operand_0 /= x"00000000") and (opcode = c_DLX_BNEZ)) or 
+	is_zero <= '1' when ((alu_in_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
+						((alu_in_0 /= x"00000000") and (opcode = c_DLX_BNEZ)) or 
 						(opcode >= c_DLX_J) else '0';
 
 	reg_to_reg_alu <= '1' when sel_immediate = '0' and opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI else '0';
@@ -72,41 +75,67 @@ begin
 	data_hazard_1 <= '1' when id_ex_rs2 = ex_mem_rd and reg_to_reg_alu = '1' else '0';
 	data_hazard_0_0 <= '1' when id_ex_rs1 = mem_wb_rd and opcode /= "000000" else '0';
 	data_hazard_1_1 <= '1' when id_ex_rs2 = mem_wb_rd and reg_to_reg_alu = '1' else '0';
-	stall <= '1' when (data_hazard_0_0 = '1' or data_hazard_1_1 = '1') and is_load = '1' and reg_to_reg_alu = '1' else '0';
-	--fast_forward_data <= lw_data when is_load = '1' else rd_mem_data;
-	alu_in_0 <= operand_0 when data_hazard_0 = '0' and data_hazard_0_0 = '0' else alu_piped_data when data_hazard_0_0 = '0' else rd_mem_data;
-	alu_in_1 <= immediate when sel_immediate = '1' else operand_1 when data_hazard_1 = '0' and data_hazard_1_1 = '0' else alu_piped_data when data_hazard_1_1 = '0' else rd_mem_data;
-	
+	data_hazard_0_0_0 <= '1' when id_ex_rs1 = ex_mem_rd and ex_mem_opcode /= "000000"else '0';
+	data_hazard_1_1_1 <= '1' when id_ex_rs2 = ex_mem_rd and ex_mem_opcode >= c_DLX_ADD and ex_mem_opcode <= c_DLX_SNEI else '0';
+	stall <= '1' when (data_hazard_0_0_0 = '1' or data_hazard_1_1_1 = '1') and stalling = '1' else '0';
+
 	mem_en <= '1' when opcode = c_DLX_SW else '0';
 	mem_sel <= '1' when opcode = c_DLX_LW else '0';
 	link_sel <= '1' when opcode = c_DLX_JAL or opcode = c_DLX_JALR else '0';
 	data_out <= alu_piped_data;
 
+	p_UPPER_ALU_MUX : process(all)
+	begin
+		if data_hazard_0 = '0' and data_hazard_0_0 = '0' then
+			alu_in_0 <= operand_0;
+		elsif data_hazard_0_0 = '0' then
+			alu_in_0 <= alu_piped_data;
+		else
+			alu_in_0 <= rd_mem_data;
+		end if;
+	end process;
+
+	p_LOWER_ALU_MUX : process(all)
+	begin
+		if sel_immediate = '1' then
+			alu_in_1 <= immediate;
+		elsif data_hazard_1 = '0' and data_hazard_1_1 = '0' then
+			alu_in_1 <= operand_1;
+		elsif data_hazard_1_1 = '0' then
+			alu_in_1 <= alu_piped_data;
+		else
+			alu_in_1 <= rd_mem_data;
+		end if;
+	end process;
+
 	p_PIPELINE_REGISTER : process(clk)
 		begin
 			if rising_edge(clk) then
-				-- if stalls = '1' then
-				-- 	branch_taken <= branch_taken;
-				-- 	alu_piped_data <= alu_piped_data;
-				-- 	mem_wr_en <= mem_wr_en;
-				-- 	mem_data <= mem_data;
-				-- 	wr_back_en <= wr_back_en;
-				-- 	rd <= rd;
-				-- 	sel_mem_alu <= '0';
-				-- 	sel_jump_link <= sel_jump_link;
-				-- 	pc_counter_out <= pc_counter_out;
-				-- else
-					branch_taken <= is_zero;
-					alu_piped_data <= alu_out;
-					mem_wr_en <= mem_en;
-					mem_data <= operand_1;
-					ex_mem_rd_en <= id_ex_rd_en;
-					ex_mem_rd <= id_ex_rd;
-					sel_mem_alu <= mem_sel;
-					sel_jump_link <= link_sel;
-					pc_counter_out <= pc_counter;
-					ex_mem_opcode <= opcode;
-				-- end if;
+				if stall = '1' then
+					-- branch_taken <= branch_taken;
+					-- alu_piped_data <= alu_piped_data;
+					-- mem_wr_en <= mem_wr_en;
+					-- mem_data <= mem_data;
+					-- ex_mem_rd_en <= ex_mem_rd_en;
+					-- ex_mem_rd <= ex_mem_rd;
+					-- sel_mem_alu <= sel_mem_alu;
+					-- sel_jump_link <= sel_jump_link;
+					-- pc_counter_out <= pc_counter_out;
+					-- ex_mem_opcode <= ex_mem_opcode;
+					stalling <= '0';
+				else
+					stalling <= mem_sel;
+				end if;
+				branch_taken <= is_zero;
+				alu_piped_data <= alu_out;
+				mem_wr_en <= mem_en;
+				mem_data <= operand_1;
+				ex_mem_rd_en <= id_ex_rd_en;
+				ex_mem_rd <= id_ex_rd;
+				sel_mem_alu <= mem_sel;
+				sel_jump_link <= link_sel;
+				pc_counter_out <= pc_counter;
+				ex_mem_opcode <= opcode;
 			end if;
 		end process;	
 

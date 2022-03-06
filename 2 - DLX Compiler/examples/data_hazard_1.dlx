@@ -4,14 +4,13 @@ n		1	117
 
 	.text
 	
-	;LW  	R1, n(R0)
-    ADDI    R1, R0, 4
-    ;ADDI    R7, R9, 9
-    NOP
-	ADDI   	R2, R1, 1
+    ADDI    R7, R9, 9
+	LW  	R1, n(R0)
+	ADDI    R2, R1, 1
     ADD     R3, R2, R2
-    ADD     R4, R3, R2
-    ADD     R5, R3, R2
+    ADDU    R4, R3, R2
+    ADDUI   R5, R3, 5
+    ADDI    R6, R0, 256
 	
 done
 	J		done

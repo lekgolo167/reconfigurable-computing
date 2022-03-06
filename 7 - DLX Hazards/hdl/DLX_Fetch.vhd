@@ -20,12 +20,16 @@ end DLX_Fetch;
 architecture rtl of DLX_Fetch is
 	signal r_pc_counter : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 	signal next_pc_count : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+	signal address : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+
 begin
 
 	p_2_TO_2_MUX : process (branch_taken, r_pc_counter, next_pc_count, jump_addr)
 	begin
 		if branch_taken = '1' then
 			next_pc_count <= jump_addr;
+		elsif stall = '1' then
+			next_pc_count <= r_pc_counter;
 		else
 			next_pc_count <= r_pc_counter + '1';
 		end if;
@@ -47,13 +51,19 @@ begin
 	p_PIPELINE_REGISTER : process(clk)
 	begin
 		if rising_edge(clk) then
-			pc_counter <= next_pc_count;
+			-- if stall = '1' then
+			-- 	pc_counter <= pc_counter;
+			-- else
+				pc_counter <= next_pc_count;
+			--end if;
 		end if;
 	end process;
 
+	address <= r_pc_counter when stall = '0' else r_pc_counter-'1';
+
 	ROM: entity work.Instruction_Memory(SYN)
 		port map (
-			address => r_pc_counter,
+			address => address,
 			clock => clk,
 			q => instruction
 		);

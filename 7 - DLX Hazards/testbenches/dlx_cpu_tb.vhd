@@ -18,7 +18,7 @@ architecture behave of dlx_cpu_tb is
 begin
 	-- generate clock
 	clk <= not clk after c_CLK_PERIOD/2;
-	reset <= '1' after c_CLK_PERIOD*40;
+	reset <= '1' after c_CLK_PERIOD*10;
 
 	-- device under test
 	DLX: entity work.DLX_Wrapper(behave)

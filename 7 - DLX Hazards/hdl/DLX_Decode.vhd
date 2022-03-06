@@ -80,10 +80,10 @@ begin
 				--sel_pc <= save_pc;
 				inst_opcode <= opcode;
 				pc_counter_padded <= pc_counter;--std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
-				wr_back_addr <= rd_reg;
-				wr_back_en <= is_write_back;
 				rs1 <= rd_addr_0;
 				rs2 <= rd_addr_1;
+				wr_back_addr <= rd_reg;
+				wr_back_en <= is_write_back;
 			end if;
 		end if;
 	end process;

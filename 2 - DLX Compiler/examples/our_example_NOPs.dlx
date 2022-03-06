@@ -1,34 +1,20 @@
 	.data
 	
-n		1	10
+n		1	5
 f		1	0
 
 	.text
 
 	LW		R5, n(R0)  ;load n into R5
-	NOP
-	NOP
-	NOP
-	NOP
-
 	ADDU	R6, R5, R0  ;set R6 to R5
-
 m_loop	
-	SGTUI	R1, R5, 2
-	NOP
-	NOP
-	NOP
-	NOP
-	BEQZ	R1, done  ; go to done if original value is zero
+	SGTUI	R18, R5, 2
+	BEQZ	R18, done  ; go to done if original value is zero
 	NOP
 	NOP
 	NOP
 	NOP
 	SUBUI	R5, R5, 1  ; subtract one from R5
-	NOP
-	NOP
-	NOP
-	NOP
 	JAL		func_mult  ; multiply R5 and R6
 	NOP
 	NOP
@@ -42,10 +28,6 @@ m_loop
 
 done
 	SW		f(R0), R6  ;store R6 into f
-	NOP
-	NOP
-	NOP
-	NOP
 	J		done
 	NOP
 	NOP
@@ -54,27 +36,11 @@ done
 
 func_mult
 	SUBUI	R7, R5, 1  ; R7 is the loop counter
-	NOP
-	NOP
-	NOP
-	NOP
 	ADDU	R8, R6, R0  ; set R8 equal to R6
-	NOP
-	NOP
-	NOP
-	NOP
 
 f_loop
 	ADDU	R6, R6, R8  ; add
-	NOP
-	NOP
-	NOP
-	NOP
 	SUBUI	R7, R7, 1  ; decrement R7 by 1
-	NOP
-	NOP
-	NOP
-	NOP
 	BNEZ	R7, f_loop  ; loop back if R7 is not zero
 	NOP
 	NOP
