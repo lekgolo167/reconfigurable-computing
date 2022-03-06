@@ -9,6 +9,7 @@ entity DLX_Fetch is
 	port (
 		clk : in std_logic;
 		rstn : in std_logic;
+		stall : in std_logic;
 		branch_taken : in std_logic;
 		jump_addr : in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		pc_counter : out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
@@ -35,6 +36,8 @@ begin
 		if rising_edge(clk) then
 			if rstn = '0' then
 				r_pc_counter <= (others => '0');
+			elsif stall = '1' then
+				r_pc_counter <= r_pc_counter;
 			else
 				r_pc_counter <= next_pc_count;
 			end if;

@@ -7,6 +7,7 @@ entity DLX_Decode is
 	port
 	(
 		clk				: in std_logic;
+		stall			: in std_logic;
 		instruction		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		wr_en			: in std_logic;
 		wr_addr			: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
@@ -63,15 +64,27 @@ begin
 	p_PIPELINE_REGISTER : process(clk)
 	begin
 		if rising_edge(clk) then
-			immediate <= imm_extended;
-			sel_immediate <= imm_detected or label_detected;
-			--sel_pc <= save_pc;
-			inst_opcode <= opcode;
-			pc_counter_padded <= pc_counter;--std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
-			wr_back_addr <= rd_reg;
-			wr_back_en <= is_write_back;
-			rs1 <= rd_addr_0;
-			rs2 <= rd_addr_1;
+			if stall = '1' then
+				immediate <= immediate;
+				sel_immediate <= sel_immediate;
+				--sel_pc <= save_pc;
+				inst_opcode <= inst_opcode;
+				pc_counter_padded <= pc_counter_padded;--std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
+				wr_back_addr <= wr_back_addr;
+				wr_back_en <= wr_back_en;
+				rs1 <= rs1;
+				rs2 <= rs2;
+			else
+				immediate <= imm_extended;
+				sel_immediate <= imm_detected or label_detected;
+				--sel_pc <= save_pc;
+				inst_opcode <= opcode;
+				pc_counter_padded <= pc_counter;--std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
+				wr_back_addr <= rd_reg;
+				wr_back_en <= is_write_back;
+				rs1 <= rd_addr_0;
+				rs2 <= rd_addr_1;
+			end if;
 		end if;
 	end process;
 	

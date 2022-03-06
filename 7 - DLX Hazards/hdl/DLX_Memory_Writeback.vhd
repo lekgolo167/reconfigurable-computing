@@ -8,6 +8,7 @@ entity DLX_Memory_Writeback is
 	(
 		clk				: in std_logic;
 		pc_counter		: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		ex_mem_opcode   : in std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		sel_mem_alu		: in std_logic;
 		sel_jump_link 	: in std_logic;
 		mem_wr_en		: in std_logic;
@@ -16,11 +17,12 @@ entity DLX_Memory_Writeback is
 		wr_addr			: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		alu_data		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		-- Outputs
+		mem_wb_opcode   : out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		wr_back_en		: out std_logic;
 		wr_back_addr	: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
-		wr_back_data	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)--;
-		--lw_data			: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		--is_load			: out std_logic
+		wr_back_data	: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		lw_data			: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+		is_load			: out std_logic
 		);
 		
 	end entity;
@@ -45,6 +47,7 @@ begin
 				mem_sel <= sel_mem_alu;
 				link_sel <= sel_jump_link;
 				pc_to_writeback <= pc_counter;
+				mem_wb_opcode <= ex_mem_opcode;
 			end if;
 		end process;	
 
@@ -58,8 +61,8 @@ begin
 		);
 
 	-- writeback stage
-	--is_load <= mem_sel;
-	--lw_data <= loaded_data;
+	is_load <= mem_sel;
+	lw_data <= loaded_data;
 	tmp <= loaded_data when mem_sel = '1' else data;
 	wr_back_data <= std_logic_vector(resize(unsigned(pc_to_writeback), c_DLX_WORD_WIDTH)) when link_sel = '1' else tmp;
 
