@@ -7,6 +7,7 @@ entity DLX_Execute is
 	port
 	(
 		clk				: in std_logic;
+		id_ex_invalid	: in std_logic;
 		opcode			: in std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		id_ex_rd_en		: in std_logic;
 		id_ex_rd		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
@@ -31,6 +32,7 @@ entity DLX_Execute is
 		immediate		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		operand_1		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		-- Outputs
+		ex_mem_invalid	: out std_logic;
 		ex_mem_opcode	: out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		stall			: out std_logic;
 		sel_mem_alu		: out std_logic;
@@ -66,9 +68,9 @@ architecture rtl of DLX_Execute is
 	signal fast_forward_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 begin
 
-	is_zero <= '1' when ((alu_in_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
+	is_zero <= '1' when (((alu_in_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
 						((alu_in_0 /= x"00000000") and (opcode = c_DLX_BNEZ)) or 
-						(opcode >= c_DLX_J) else '0';
+						(opcode >= c_DLX_J)) and id_ex_invalid = '0' else '0';
 
 	reg_to_reg_alu <= '1' when sel_immediate = '0' and opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI else '0';
 	data_hazard_0 <= '1' when id_ex_rs1 = ex_mem_rd and opcode /= "000000" else '0';
@@ -112,32 +114,39 @@ begin
 		begin
 			if rising_edge(clk) then
 				if stall = '1' then
-					-- branch_taken <= branch_taken;
-					-- alu_piped_data <= alu_piped_data;
-					-- mem_wr_en <= mem_wr_en;
-					-- mem_data <= mem_data;
-					-- ex_mem_rd_en <= ex_mem_rd_en;
-					-- ex_mem_rd <= ex_mem_rd;
-					-- sel_mem_alu <= sel_mem_alu;
-					-- sel_jump_link <= sel_jump_link;
-					-- pc_counter_out <= pc_counter_out;
-					-- ex_mem_opcode <= ex_mem_opcode;
+					branch_taken <= branch_taken;
+					alu_piped_data <= alu_piped_data;
+					mem_wr_en <= mem_wr_en;
+					mem_data <= mem_data;
+					ex_mem_rd_en <= ex_mem_rd_en;
+					ex_mem_rd <= ex_mem_rd;
+					sel_mem_alu <= sel_mem_alu;
+					sel_jump_link <= sel_jump_link;
+					pc_counter_out <= pc_counter_out;
+					ex_mem_opcode <= ex_mem_opcode;
 					stalling <= '0';
 				else
 					stalling <= mem_sel;
+					branch_taken <= is_zero;
+					alu_piped_data <= alu_out;
+					mem_wr_en <= mem_en;
+					mem_data <= operand_1;
+					ex_mem_rd_en <= id_ex_rd_en;
+					ex_mem_rd <= id_ex_rd;
+					sel_mem_alu <= mem_sel;
+					sel_jump_link <= link_sel;
+					pc_counter_out <= pc_counter;
+					ex_mem_opcode <= opcode;
 				end if;
-				branch_taken <= is_zero;
-				alu_piped_data <= alu_out;
-				mem_wr_en <= mem_en;
-				mem_data <= operand_1;
-				ex_mem_rd_en <= id_ex_rd_en;
-				ex_mem_rd <= id_ex_rd;
-				sel_mem_alu <= mem_sel;
-				sel_jump_link <= link_sel;
-				pc_counter_out <= pc_counter;
-				ex_mem_opcode <= opcode;
 			end if;
-		end process;	
+		end process;
+
+		p_JUMP_STALL : process(clk)
+		begin
+			if rising_edge(clk) then
+				ex_mem_invalid <= id_ex_invalid;
+			end if;
+		end process;
 
 	REG: entity work.DLX_ALU(rtl)
 		port map (

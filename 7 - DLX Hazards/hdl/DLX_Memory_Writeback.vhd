@@ -7,6 +7,7 @@ entity DLX_Memory_Writeback is
 	port
 	(
 		clk				: in std_logic;
+		ex_mem_invalid  : in std_logic;
 		pc_counter		: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		ex_mem_opcode   : in std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		sel_mem_alu		: in std_logic;
@@ -35,14 +36,18 @@ entity DLX_Memory_Writeback is
 		signal pc_to_writeback : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		signal mem_sel : std_logic;
 		signal link_sel : std_logic;
+		signal mem_en_valid : std_logic;
+		signal wr_back_valid : std_logic;
 begin
 	mem_addr <= alu_data(c_DLX_PC_WIDTH-1 downto 0);
+	mem_en_valid <= mem_wr_en and not ex_mem_invalid;
+	wr_back_valid <= wr_en and not ex_mem_invalid;
 
 	p_PIPELINE_REGISTER : process(clk)
 		begin
 			if rising_edge(clk) then
 				data <= alu_data;
-				wr_back_en <= wr_en;
+				wr_back_en <= wr_back_valid;
 				wr_back_addr <= wr_addr;
 				mem_sel <= sel_mem_alu;
 				link_sel <= sel_jump_link;
@@ -55,7 +60,7 @@ begin
 		port map (
 			clock => clk,
 			address => mem_addr,
-			wren => mem_wr_en,
+			wren => mem_en_valid,
 			data => mem_data,
 			q => loaded_data
 		);

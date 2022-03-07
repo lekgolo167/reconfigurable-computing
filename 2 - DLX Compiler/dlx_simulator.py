@@ -15,6 +15,8 @@ class Instruction:
 		self.base = base
 		self.r_data = r_data
 		self.r_comp = r_comp
+		self.branch_taken = 0
+		self.branch_not_taken = 0
 
 class NOP(Instruction):
 	def execute(self, registers, memory, pc_counter):
@@ -293,15 +295,19 @@ class SNEI(Instruction):
 class BEQZ(Instruction):
 	def execute(self, registers, memory, pc_counter):
 		if registers[self.r_comp] == 0:
+			self.branch_taken += 1
 			return self.label
 		else:
+			self.branch_not_taken += 1
 			return pc_counter + 1
 
 class BNEZ(Instruction):
 	def execute(self, registers, memory, pc_counter):
 		if registers[self.r_comp] != 0:
+			self.branch_taken += 1
 			return self.label
 		else:
+			self.branch_not_taken += 1
 			return pc_counter + 1
 
 class J(Instruction):
@@ -440,6 +446,8 @@ class DlxSimulator:
 			print('Max loop iterations reached')
 		else:
 			print(f'Finished in {iterations} iterations')
+		
+		#self.branch_analysis()
 
 	def show_results(self):
 		print('=== Memory Contents ===')
@@ -452,6 +460,11 @@ class DlxSimulator:
 		for reg in range(self.reg_limit):
 			print(f'R{reg}:{self.registers[reg]}')
 		print(f'R{31}:{self.registers[31]}')
+
+	def branch_analysis(self):
+		for inst in self.instruction_memory:
+			if isinstance(inst,BEQZ) or isinstance(inst, BNEZ):
+				print(f'Taken: {inst.branch_taken}, Not Taken: {inst.branch_not_taken}')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()

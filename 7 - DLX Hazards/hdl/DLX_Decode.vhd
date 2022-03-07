@@ -7,12 +7,14 @@ entity DLX_Decode is
 	port
 	(
 		clk				: in std_logic;
+		clear			: in std_logic;
 		stall			: in std_logic;
 		instruction		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		wr_en			: in std_logic;
 		wr_addr			: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		wr_data			: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		pc_counter  	: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		invalid			: out std_logic := '0';
 		operand_0		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		operand_1		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		immediate		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
@@ -40,8 +42,9 @@ architecture rtl of DLX_Decode is
 	signal save_pc : std_logic;
 	signal signed_inst_received : std_logic;
 	signal is_write_back : std_logic;
+	signal is_jump : std_logic;
 begin
-	--save_pc <= '1' when (opcode >= c_DLX_JAL) else '0';
+	is_jump <= '1' when (inst_opcode >= c_DLX_J) else '0';
 	
 	label_detected <= '1' when ((opcode >= c_DLX_LW and opcode <= c_DLX_SW) or (opcode >= c_DLX_BEQZ and (opcode /= c_DLX_JR and opcode /= c_DLX_JALR))) else '0';
 
@@ -88,6 +91,17 @@ begin
 		end if;
 	end process;
 	
+	p_JUMP_STALL : process(clk)
+	begin
+		if rising_edge(clk) then
+			if clear = '1' then
+				invalid <= '0';
+			elsif is_jump = '1' then
+				invalid <= '1';
+			end if;
+		end if;
+	end process;
+
 	opcode <= instruction(31 downto 31-c_DLX_OPCODE_WIDTH+1);
 	rd_addr_0 <= instruction(20 downto 20-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_BEQZ and opcode /= c_DLX_BNEZ ) else rd_reg;
 	rd_addr_1 <= instruction(15 downto 15-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_SW and opcode < c_DLX_J) else rd_reg;

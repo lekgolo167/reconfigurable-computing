@@ -31,6 +31,10 @@ architecture behave of DLX_Wrapper is
 	signal wr_back_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal lw_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal is_load : std_logic;
+	signal clear : std_logic;
+	signal invalid : std_logic;
+	signal ex_mem_invalid : std_logic;
+
 	signal rs1 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 	signal rs2 : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 
@@ -64,6 +68,7 @@ begin
 		stall => stall,
 		branch_taken => branch_taken,
 		jump_addr => jump_addr,
+		clear => clear,
 		pc_counter => pc_to_decode,
 		instruction => instruction
 	);
@@ -71,12 +76,14 @@ begin
 	DCD: entity work.DLX_Decode(rtl)
 	port map (
 		clk => clk,
+		clear => clear,
 		stall => stall,
 		instruction => instruction,
 		wr_en => wr_back_en,
 		wr_addr => wr_back_addr,
 		wr_data => wr_back_data,
 		pc_counter => pc_to_decode,
+		invalid => invalid,
 		rs1 => rs1,
 		rs2 => rs2,
 		operand_0 => operand_0,
@@ -92,6 +99,7 @@ begin
 	EXC: entity work.DLX_Execute(rtl)
 	port map (
 		clk => clk,
+		id_ex_invalid => invalid,
 		opcode => inst_opcode,
 		id_ex_rd_en => wr_en_to_execute,
 		id_ex_rd => wr_addr_to_execute,
@@ -108,6 +116,7 @@ begin
 		sel_immediate => sel_immediate,
 		immediate => immediate,
 		stall => stall,
+		ex_mem_invalid => ex_mem_invalid,
 		ex_mem_opcode => ex_mem_opcode,
 		sel_mem_alu => sel_mem_alu,
 		mem_wr_en => mem_wr_en,
@@ -123,6 +132,7 @@ begin
 	MEM: entity work.DLX_Memory_Writeback(rtl)
 	port map (
 		clk => clk,
+		ex_mem_invalid => ex_mem_invalid,
 		pc_counter => pc_to_memory,
 		ex_mem_opcode => ex_mem_opcode,
 		sel_mem_alu => sel_mem_alu,

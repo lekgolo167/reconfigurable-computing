@@ -12,6 +12,7 @@ entity DLX_Fetch is
 		stall : in std_logic;
 		branch_taken : in std_logic;
 		jump_addr : in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		clear : out std_logic;
 		pc_counter : out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		instruction : out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
 	);
@@ -21,7 +22,7 @@ architecture rtl of DLX_Fetch is
 	signal r_pc_counter : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 	signal next_pc_count : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 	signal address : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
-
+	signal br_taken_dly : std_logic;
 begin
 
 	p_2_TO_2_MUX : process (branch_taken, r_pc_counter, next_pc_count, jump_addr)
@@ -51,11 +52,15 @@ begin
 	p_PIPELINE_REGISTER : process(clk)
 	begin
 		if rising_edge(clk) then
-			-- if stall = '1' then
-			-- 	pc_counter <= pc_counter;
-			-- else
 				pc_counter <= next_pc_count;
-			--end if;
+		end if;
+	end process;
+
+	p_JUMP_STALL : process(clk)
+	begin
+		if rising_edge(clk) then
+			br_taken_dly <= branch_taken;
+			clear <= br_taken_dly;
 		end if;
 	end process;
 
