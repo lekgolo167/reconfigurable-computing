@@ -53,6 +53,12 @@ architecture rtl of DLX_Execute is
 	signal alu_in_0	: std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal alu_in_1	: std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal is_zero : std_logic;
+	signal br_taken : std_logic;
+	signal br : std_logic;
+	signal branch_taken_dly : std_logic;
+	signal br_taken_0 : std_logic;
+	signal br_taken_1 : std_logic;
+	signal br_taken_2 : std_logic;
 	signal mem_en : std_logic;
 	signal mem_sel : std_logic;
 	signal link_sel : std_logic;
@@ -70,7 +76,7 @@ begin
 
 	is_zero <= '1' when (((alu_in_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
 						((alu_in_0 /= x"00000000") and (opcode = c_DLX_BNEZ)) or 
-						(opcode >= c_DLX_J)) and id_ex_invalid = '0' else '0';
+						(opcode >= c_DLX_J)) and (id_ex_invalid = '0' and br_taken = '0') else '0';
 
 	reg_to_reg_alu <= '1' when sel_immediate = '0' and opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI else '0';
 	data_hazard_0 <= '1' when id_ex_rs1 = ex_mem_rd and opcode /= "000000" else '0';
@@ -141,10 +147,16 @@ begin
 			end if;
 		end process;
 
+		br <= '1' when ex_mem_opcode = c_DLX_BEQZ or ex_mem_opcode = c_DLX_BNEZ else '0';
+		br_taken <= br_taken_0 or br_taken_1 or (branch_taken and br);
 		p_JUMP_STALL : process(clk)
 		begin
 			if rising_edge(clk) then
-				ex_mem_invalid <= id_ex_invalid;
+				ex_mem_invalid <= id_ex_invalid or br_taken;
+				--branch_taken_dly <= branch_taken and br;
+				br_taken_0 <=  branch_taken and br;
+				br_taken_1 <= br_taken_0;
+				br_taken_2 <= br_taken_1;
 			end if;
 		end process;
 

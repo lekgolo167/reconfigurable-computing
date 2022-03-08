@@ -11,10 +11,7 @@ f		1	0
 m_loop
 	SGTUI	R18, R5, 2
 	BEQZ	R18, done  ; go to done if original value is zero
-	NOP
-	NOP
-	NOP
-	NOP
+
 	SUBUI	R5, R5, 1  ; subtract one from R5
 	JAL		func_mult  ; multiply R5 and R6
 	J		m_loop
@@ -31,9 +28,6 @@ f_loop
 	ADDU	R6, R6, R8  ; add
 	SUBUI	R7, R7, 1  ; decrement R7 by 1
 	BNEZ	R7, f_loop  ; loop back if R7 is not zero
-	NOP
-	NOP
-	NOP
-	NOP
+
 ;loop_done
 	JR		R31
