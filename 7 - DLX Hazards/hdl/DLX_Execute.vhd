@@ -13,18 +13,14 @@ entity DLX_Execute is
 		id_ex_rd		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 
 		-- data hazards
-		mem_wb_opcode	: in std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		id_ex_rs1		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		id_ex_rs2		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 
 		mem_wb_rd		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		rd_mem_data		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		lw_data		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		is_load			: in std_logic;
 		
 		-- ALU operand 0
-		-- sel_pc      	: in std_logic;
-		pc_counter		: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		id_ex_pc		: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		operand_0		: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		
 		-- ALU operand 1
@@ -42,7 +38,7 @@ entity DLX_Execute is
 		mem_data		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		branch_taken 	: out std_logic;
 		sel_jump_link 	: out std_logic;
-		pc_counter_out	: out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		ex_mem_pc		: out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		data_out		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
 	);
 	
@@ -55,10 +51,8 @@ architecture rtl of DLX_Execute is
 	signal is_zero : std_logic;
 	signal br_taken : std_logic;
 	signal br : std_logic;
-	signal branch_taken_dly : std_logic;
 	signal br_taken_0 : std_logic;
 	signal br_taken_1 : std_logic;
-	signal br_taken_2 : std_logic;
 	signal mem_en : std_logic;
 	signal mem_sel : std_logic;
 	signal link_sel : std_logic;
@@ -71,7 +65,7 @@ architecture rtl of DLX_Execute is
 	signal data_hazard_0_0_0 : std_logic;
 	signal data_hazard_1_1_1 : std_logic;
 	signal alu_piped_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-	signal fast_forward_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+
 begin
 
 	is_zero <= '1' when (((alu_in_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
@@ -128,7 +122,7 @@ begin
 					ex_mem_rd <= ex_mem_rd;
 					sel_mem_alu <= sel_mem_alu;
 					sel_jump_link <= sel_jump_link;
-					pc_counter_out <= pc_counter_out;
+					ex_mem_pc <= ex_mem_pc;
 					ex_mem_opcode <= ex_mem_opcode;
 					stalling <= '0';
 				else
@@ -141,7 +135,7 @@ begin
 					ex_mem_rd <= id_ex_rd;
 					sel_mem_alu <= mem_sel;
 					sel_jump_link <= link_sel;
-					pc_counter_out <= pc_counter;
+					ex_mem_pc <= id_ex_pc;
 					ex_mem_opcode <= opcode;
 				end if;
 			end if;
@@ -153,10 +147,8 @@ begin
 		begin
 			if rising_edge(clk) then
 				ex_mem_invalid <= id_ex_invalid or br_taken;
-				--branch_taken_dly <= branch_taken and br;
 				br_taken_0 <=  branch_taken and br;
 				br_taken_1 <= br_taken_0;
-				br_taken_2 <= br_taken_1;
 			end if;
 		end process;
 

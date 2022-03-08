@@ -13,17 +13,16 @@ entity DLX_Decode is
 		wr_en			: in std_logic;
 		wr_addr			: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		wr_data			: in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-		pc_counter  	: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		if_id_pc	  	: in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		invalid			: out std_logic := '0';
 		operand_0		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		operand_1		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		immediate		: out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		sel_immediate	: out std_logic;
-		--sel_pc      	: out std_logic;
 		inst_opcode		: out std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		wr_back_addr	: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		wr_back_en 		: out std_logic;
-		pc_counter_padded : out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		id_ex_pc		 : out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		rs1				: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 		rs2				: out std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0)
 	);
@@ -39,7 +38,6 @@ architecture rtl of DLX_Decode is
 	signal rd_reg : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
 	signal imm_detected : std_logic;
 	signal label_detected : std_logic;
-	signal save_pc : std_logic;
 	signal signed_inst_received : std_logic;
 	signal is_write_back : std_logic;
 	signal is_jump : std_logic;
@@ -57,7 +55,7 @@ begin
 		
 	p_SIGN_EXTEND : process(imm, signed_inst_received)
 	begin
-		if (imm(c_DLX_IMM_WIDTH-1) = '1') and (signed_inst_received = '1') then -- add signed instruction check
+		if (imm(c_DLX_IMM_WIDTH-1) = '1') and (signed_inst_received = '1') then
 			imm_extended <= std_logic_vector(resize(signed(imm), c_DLX_WORD_WIDTH));
 		else
 			imm_extended <= std_logic_vector(resize(unsigned(imm), c_DLX_WORD_WIDTH));
@@ -70,9 +68,8 @@ begin
 			if stall = '1' then
 				immediate <= immediate;
 				sel_immediate <= sel_immediate;
-				--sel_pc <= save_pc;
 				inst_opcode <= inst_opcode;
-				pc_counter_padded <= pc_counter_padded;--std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
+				id_ex_pc <= id_ex_pc;
 				wr_back_addr <= wr_back_addr;
 				wr_back_en <= wr_back_en;
 				rs1 <= rs1;
@@ -80,9 +77,8 @@ begin
 			else
 				immediate <= imm_extended;
 				sel_immediate <= imm_detected or label_detected;
-				--sel_pc <= save_pc;
 				inst_opcode <= opcode;
-				pc_counter_padded <= pc_counter;--std_logic_vector(resize(unsigned(pc_counter), c_DLX_WORD_WIDTH));
+				id_ex_pc <= if_id_pc;
 				rs1 <= rd_addr_0;
 				rs2 <= rd_addr_1;
 				wr_back_addr <= rd_reg;

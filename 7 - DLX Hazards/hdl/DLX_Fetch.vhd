@@ -13,7 +13,7 @@ entity DLX_Fetch is
 		branch_taken : in std_logic;
 		jump_addr : in std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		clear : out std_logic;
-		pc_counter : out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
+		if_id_pc : out std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 		instruction : out std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0)
 	);
 end DLX_Fetch;
@@ -52,7 +52,7 @@ begin
 	p_PIPELINE_REGISTER : process(clk)
 	begin
 		if rising_edge(clk) then
-				pc_counter <= next_pc_count;
+			if_id_pc <= next_pc_count;
 		end if;
 	end process;
 

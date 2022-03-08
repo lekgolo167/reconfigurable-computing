@@ -24,7 +24,7 @@ architecture behave of Memory is
 
 begin
 
-	FTCH: entity work.DLX_Wrapper(behave)
+	DLX: entity work.DLX_Wrapper(behave)
 		port map (
 			clk => MAX10_CLK1_50,
 			rstn => rstn_btn,
