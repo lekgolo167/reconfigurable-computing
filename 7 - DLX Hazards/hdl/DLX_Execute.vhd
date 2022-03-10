@@ -78,7 +78,7 @@ begin
 	data_hazard_0_0 <= '1' when id_ex_rs1 = mem_wb_rd and opcode /= "000000" else '0';
 	data_hazard_1_1 <= '1' when id_ex_rs2 = mem_wb_rd and reg_to_reg_alu = '1' else '0';
 	data_hazard_0_0_0 <= '1' when id_ex_rs1 = ex_mem_rd and ex_mem_opcode /= "000000"else '0';
-	data_hazard_1_1_1 <= '1' when id_ex_rs2 = ex_mem_rd and ex_mem_opcode >= c_DLX_ADD and ex_mem_opcode <= c_DLX_SNEI else '0';
+	data_hazard_1_1_1 <= '1' when id_ex_rs2 = ex_mem_rd and (reg_to_reg_alu = '1' and ex_mem_opcode = c_DLX_LW) else '0';
 	stall <= '1' when (data_hazard_0_0_0 = '1' or data_hazard_1_1_1 = '1') and stalling = '1' else '0';
 
 	mem_en <= '1' when opcode = c_DLX_SW else '0';
