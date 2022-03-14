@@ -447,7 +447,7 @@ class DlxSimulator:
 		else:
 			print(f'Finished in {iterations} iterations')
 		
-		#self.branch_analysis()
+		self.branch_analysis()
 
 	def show_results(self):
 		print('=== Memory Contents ===')
@@ -462,9 +462,11 @@ class DlxSimulator:
 		print(f'R{31}:{self.registers[31]}')
 
 	def branch_analysis(self):
+		addr = 0
 		for inst in self.instruction_memory:
 			if isinstance(inst,BEQZ) or isinstance(inst, BNEZ):
-				print(f'Taken: {inst.branch_taken}, Not Taken: {inst.branch_not_taken}')
+				print(f'0x{format(addr, "X").zfill(3)} - Taken: {inst.branch_taken}, Not Taken: {inst.branch_not_taken}')
+			addr += 1
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
