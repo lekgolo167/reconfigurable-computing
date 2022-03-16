@@ -63,6 +63,9 @@ package dlx_package is
 	constant c_DLX_JR		: std_logic_vector(5 downto 0) := "101110";
 	constant c_DLX_JAL		: std_logic_vector(5 downto 0) := "101111";
 	constant c_DLX_JALR		: std_logic_vector(5 downto 0) := "110000";
+	constant c_DLX_PCH		: std_logic_vector(5 downto 0) := "110001";
+	constant c_DLX_PD			: std_logic_vector(5 downto 0) := "110010";
+	constant c_DLX_PDU		: std_logic_vector(5 downto 0) := "110011";
 
 end package dlx_package;
 
