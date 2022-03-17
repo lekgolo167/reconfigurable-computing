@@ -1,0 +1,21 @@
+.data
+
+	n		1	10
+	result	1	0
+
+.const
+
+	s1		16	"Your output is: "
+
+.text
+
+	ADDI	R1, R0, 1
+	LW		R4, s1(R1)
+	PCH		R4
+	LW		R5, n(R0)
+	PDU		R5
+	SUBI	R5, R5, 11
+	PD		R5
+done
+	J		done
+	

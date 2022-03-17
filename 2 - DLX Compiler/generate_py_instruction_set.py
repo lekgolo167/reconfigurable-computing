@@ -30,6 +30,8 @@ _OP_CODES = []
 
 NO_OPS = []
 
+IO_OPS = []
+
 MEMORY_OPS = []
 
 BRANCH_OPS = []
@@ -54,13 +56,13 @@ for row in _sheet.iter_rows(2, _sheet.max_row):
 	if inst not in INSTRUCTIONS:
 		INSTRUCTIONS.append(inst)
 	else:
-		print(f"Duplicate Instruction Found In Instruction Set Document at row {_row_count}")
+		print(f"Duplicate Instruction Found In Instruction. See Document at row {_row_count}")
 		sys.exit()
 	if op_code not in _OP_CODES:
 		_OP_CODES.append(op_code)
 		OP_CODES_DICT[inst] = op_code
 	else:
-		print(f"Duplicate OP-Code Found In Instruction Set Document at row {_row_count}")
+		print(f"Duplicate OP-Code Found In Instruction. See Document at row {_row_count}")
 		sys.exit()
 	if typ == 'Register':
 		REGISTER_OPS.append(inst)
@@ -74,8 +76,10 @@ for row in _sheet.iter_rows(2, _sheet.max_row):
 		MEMORY_OPS.append(inst)
 	elif typ == 'NOP':
 		NO_OPS.append(inst)
+	elif typ == 'IO':
+		IO_OPS.append(inst)
 	else:
-		print(f"Unknown Instrucion Type Found In Instruction Set Document at row {_row_count}")
+		print(f"Unknown Instrucion Type Found In Instruction. See Document at row {_row_count}")
 		sys.exit()
 
 _wb_obj.close()
@@ -92,6 +96,12 @@ def build_python_register_file():
 		outfile.write('NO_OPS = [\n')
 
 		for inst in NO_OPS:
+			outfile.write(f'\t\t"{inst}",\n')
+		outfile.write(']\n\n')
+
+		outfile.write('IO_OPS = [\n')
+
+		for inst in IO_OPS:
 			outfile.write(f'\t\t"{inst}",\n')
 		outfile.write(']\n\n')
 

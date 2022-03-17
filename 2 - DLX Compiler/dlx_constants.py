@@ -24,6 +24,7 @@ ADDR_PAD_SIZE = len(format(MEM_DEPTH-1, 'X'))
 WORD_PAD_SIZE = len(format((2 ** WORD_WIDTH)-1, 'X'))
 TEXT_SEGMENT = 'text'
 DATA_SEGMENT = 'data'
+CONST_SEGMENT = 'const'
 
 MAX_REGISTERS = 32
 REGISTERS = [ 'R' + str(i) for i in range(MAX_REGISTERS)]

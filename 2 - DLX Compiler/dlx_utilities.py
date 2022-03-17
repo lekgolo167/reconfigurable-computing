@@ -84,6 +84,10 @@ class InvalidRegisterError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
 		super().__init__(pos_start, pos_end, f'Invalid Register: Expected a Register from 0-{MAX_REGISTERS-1} but got ->', details)
 
+class InvalidStringError(Error):
+	def __init__(self, pos_start, pos_end, details=''):
+		super().__init__(pos_start, pos_end, f'Invalid String: Expected a closing (") character', '')
+
 class InvalidLoadValueError(Error):
 	def __init__(self, pos_start, pos_end, details=''):
 		super().__init__(pos_start, pos_end, f'Invalid Register: Expected a load value from {IMM_MIN_SIGNED} to {IMM_MAX_UNSIGNED} but got ->', details)

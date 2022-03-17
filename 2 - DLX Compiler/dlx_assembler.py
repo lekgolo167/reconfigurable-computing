@@ -45,6 +45,7 @@ TT_INSTRUCTION = 'INSTRUCTION'
 TT_REGISTER = 'REGISTER'
 TT_LABEL = 'LABEL'
 TT_VARIABLE = 'VARIABLE'
+TT_STRING = 'STRING'
 TT_INVALID = 'INVALID'
 TT_EOF = 'EOF'
 
@@ -94,7 +95,8 @@ class Lexer:
 
 		while idx < len(self.text) and self.text[idx] not in STOP_CHARS:
 			idx += 1
-
+		if idx == len(self.text):
+			idx -= 1
 		return self.text[idx] == char
 
 	def make_tokens(self):
@@ -120,6 +122,13 @@ class Lexer:
 				tokens.append(self.make_identifier())
 			elif self.current_char in DIGITS or self.current_char == '-':
 				tokens.append(self.make_number())
+			elif self.current_char == '"':
+				pos_start = self.pos.copy()
+				str_tok = self.make_string()
+				if str_tok.type:
+					tokens.append(str_tok)
+				else:
+					return [], InvalidStringError(pos_start, self.pos, str_tok.value)
 			else:
 				pos_start = self.pos.copy()
 				char = self.current_char
@@ -129,6 +138,23 @@ class Lexer:
 		tokens.append(Token(TT_EOF, pos_start=self.pos))
 
 		return tokens, None
+
+	def make_string(self):
+		pos_start = self.pos.copy()
+		self.advance()
+		char_array = ""
+
+		while self.current_char != None and self.current_char not in '"\n\r':
+			char_array += self.current_char
+			self.advance()
+		
+		tok_type = None
+
+		if self.current_char == '"':
+			self.advance()
+			tok_type = TT_STRING
+
+		return Token(tok_type, char_array, pos_start, self.pos)
 
 	def make_number(self):
 		num_str = self.current_char
@@ -149,7 +175,7 @@ class Lexer:
 			segment_name += self.current_char
 			self.advance()
 
-		if segment_name == DATA_SEGMENT:
+		if segment_name == DATA_SEGMENT or segment_name == CONST_SEGMENT:
 			self.in_data_segment = True
 		else:
 			self.in_data_segment = False
@@ -221,6 +247,8 @@ class Parser:
 					if self.current_tok.value == TEXT_SEGMENT:
 						self.advance()
 						break
+					elif self.current_tok.value == CONST_SEGMENT:
+						self.advance()
 					else:
 						error = UnexpectedSegmentError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
 				else:
@@ -240,6 +268,8 @@ class Parser:
 				error = self.branch_op()
 			elif self.current_tok.value in MEMORY_OPS:
 				error = self.memory_op()
+			elif self.current_tok.value in IO_OPS:
+				error = self.io_op()
 			elif self.current_tok.value in NO_OPS:
 				error = self.no_op()
 			elif self.current_tok.type == TT_LABEL and not self.current_tok.value.isupper():
@@ -270,6 +300,10 @@ class Parser:
 			if self.current_tok.type == TT_INT:
 				variable.append(self.current_tok)
 				self.advance()
+			elif self.current_tok.type == TT_STRING:
+				variable.append(self.current_tok)
+				self.advance()
+				break
 			else:
 				return UnexpectedEndOfArrayError(self.current_tok.pos_start, self.current_tok.pos_end, size, i, self.current_tok.value)
 	
@@ -423,6 +457,24 @@ class Parser:
 		self.parsed_text_tokens.append(inst)
 		return None
 	
+	def io_op(self):
+		inst = []
+		
+		inst.append(self.current_tok)
+		self.advance()
+		
+		if self.current_tok.type == TT_REGISTER:
+			if self.current_tok.value != READ_ONLY_REG:
+				inst.append(self.current_tok)
+				self.advance()
+			else:
+				return InvalidDestinationRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+		else:
+			return ExpectedRegisterError(self.current_tok.pos_start, self.current_tok.pos_end, self.current_tok.value)
+
+		self.parsed_text_tokens.append(inst)
+		return None
+
 	def no_op(self):
 		inst =[]
 		
@@ -505,12 +557,25 @@ class Assembler():
 			else:
 				return None, VariableRedeclarationError(array[0].pos_start, array[0].pos_end, var_name)
 			
-			for index in range(1, len(array)):
-				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
-				value_str = self.tohex(array[index].value, WORD_WIDTH).zfill(WORD_PAD_SIZE)
-				mif_text += f'{addr_str} : {value_str}; --{var_name}[{index-1}]\n'
+			if array[1].type == TT_INT:
+				for index in range(1, len(array)):
+					addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
+					value_str = self.tohex(array[index].value, WORD_WIDTH).zfill(WORD_PAD_SIZE)
+					mif_text += f'{addr_str} : {value_str}; --{var_name}[{index-1}]\n'
 
+					address += 1
+			else:
+				addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
+				value_str = self.tohex(len(array[1].value), WORD_WIDTH).zfill(WORD_PAD_SIZE)
+				mif_text += f'{addr_str} : {value_str}; --{var_name}({len(array[1].value)})\n'
 				address += 1
+
+				for char in array[1].value:
+					addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
+					value_str = self.tohex(ord(char), WORD_WIDTH).zfill(WORD_PAD_SIZE)
+					mif_text += f"{addr_str} : {value_str}; --'{char}'\n"
+
+					address += 1
 		
 		mif_text += MIF_EPILOGUE
 
@@ -556,6 +621,8 @@ class Assembler():
 
 		if inst_name in REGISTER_OPS:
 			inst_binary += '0' * UNUSED_PAD_SIZE
+		elif inst_name in IO_OPS:
+			inst_binary += '0' * BR_ADDR_PAD_SIZE
 		elif inst_name in NO_OPS:
 			inst_binary += '0' * ABS_ADDR_PAD_SIZE
 		

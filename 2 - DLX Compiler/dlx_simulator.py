@@ -1,10 +1,11 @@
 import argparse
+import ctypes
 
 def rshift(val, n):
 	return (val % 0x100000000) >> n
 
 class Instruction:
-	def __init__(self, op_code=0, rd=0, rs1=0, rs2=0, imm=0, label=0, offset=0, base=0, r_data=0, r_comp=0):
+	def __init__(self, op_code=0, rd=0, rs1=0, rs2=0, imm=0, label=0, offset=0, base=0, r_destination=0, r_comp=0):
 		self.op_code = op_code
 		self.rd = rd
 		self.rs1 = rs1
@@ -13,7 +14,7 @@ class Instruction:
 		self.label = label
 		self.offset = offset
 		self.base = base
-		self.r_data = r_data
+		self.r_destination = r_destination
 		self.r_comp = r_comp
 		self.branch_taken = 0
 		self.branch_not_taken = 0
@@ -24,12 +25,12 @@ class NOP(Instruction):
 
 class LW(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.r_data] = memory[self.base + registers[self.offset]]
+		registers[self.r_destination] = memory[self.base + registers[self.offset]]
 		return pc_counter + 1
 
 class SW(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		memory[self.base + registers[self.offset]] = registers[self.r_data]
+		memory[self.base + registers[self.offset]] = registers[self.r_destination]
 		return pc_counter + 1
 
 class ADD(Instruction):
@@ -44,12 +45,12 @@ class ADDI(Instruction):
 
 class ADDU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] + registers[self.rs2]
+		registers[self.rd] = ctypes.c_ulong(registers[self.rs1] + registers[self.rs2]).value
 		return pc_counter + 1
 
 class ADDUI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] + self.imm
+		registers[self.rd] = ctypes.c_ulong(registers[self.rs1] + self.imm).value
 		return pc_counter + 1
 
 class SUB(Instruction):
@@ -64,12 +65,12 @@ class SUBI(Instruction):
 
 class SUBU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] - registers[self.rs2]
+		registers[self.rd] = ctypes.c_ulong(registers[self.rs1] - registers[self.rs2]).value
 		return pc_counter + 1
 
 class SUBUI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		registers[self.rd] = registers[self.rs1] - self.imm
+		registers[self.rd] = ctypes.c_ulong(registers[self.rs1] - self.imm).value
 		return pc_counter + 1
 
 class AND(Instruction):
@@ -150,7 +151,7 @@ class SLTI(Instruction):
 
 class SLTU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] < registers[self.rs2]:
+		if ctypes.c_ulong(registers[self.rs1]).value < ctypes.c_ulong(registers[self.rs2]).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -158,7 +159,7 @@ class SLTU(Instruction):
 
 class SLTUI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] < self.imm:
+		if ctypes.c_ulong(registers[self.rs1]).value < ctypes.c_ulong(self.imm).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -182,7 +183,7 @@ class SGTI(Instruction):
 
 class SGTU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] > registers[self.rs2]:
+		if ctypes.c_ulong(registers[self.rs1]).value > ctypes.c_ulong(registers[self.rs2]).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -190,7 +191,7 @@ class SGTU(Instruction):
 
 class SGTUI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] > self.imm:
+		if ctypes.c_ulong(registers[self.rs1]).value > ctypes.c_ulong(self.imm).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -214,7 +215,7 @@ class SLEI(Instruction):
 
 class SLEU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] <= registers[self.rs2]:
+		if ctypes.c_ulong(registers[self.rs1]).value <= ctypes.c_ulong(registers[self.rs2]).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -222,7 +223,7 @@ class SLEU(Instruction):
 
 class SLEUI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] <= self.imm:
+		if ctypes.c_ulong(registers[self.rs1]).value <= ctypes.c_ulong(self.imm).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -246,7 +247,7 @@ class SGEI(Instruction):
 
 class SGEU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] >= registers[self.rs2]:
+		if ctypes.c_ulong(registers[self.rs1]).value >= ctypes.c_ulong(registers[self.rs2]).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -254,7 +255,7 @@ class SGEU(Instruction):
 
 class SGEUI(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		if registers[self.rs1] >= self.imm:
+		if ctypes.c_ulong(registers[self.rs1]).value >= ctypes.c_ulong(self.imm).value:
 			registers[self.rd] = 1
 		else:
 			registers[self.rd] = 0
@@ -328,6 +329,21 @@ class JALR(Instruction):
 		registers[31] = pc_counter + 1
 		return registers[self.label]
 
+class PCH(Instruction):
+	def execute(self, registers, memory, pc_counter):
+		print("PCH -> " + chr(registers[self.r_destination] & 0xFF))
+		return pc_counter + 1
+
+class PD(Instruction):
+	def execute(self, registers, memory, pc_counter):
+		print("PD -> " + str(registers[self.r_destination]))
+		return pc_counter + 1
+
+class PDU(Instruction):
+	def execute(self, registers, memory, pc_counter):
+		print("PDU -> " + str(ctypes.c_ulong(registers[self.r_destination]).value))
+		return pc_counter + 1
+
 inst_dict = {
 	0X0:NOP,
 	0X1:LW,
@@ -377,7 +393,10 @@ inst_dict = {
 	0X2D:J,
 	0X2E:JR,
 	0X2F:JAL,
-	0X30:JALR
+	0X30:JALR,
+	0x31:PCH,
+	0x32:PD,
+	0x33:PDU
 }
 
 class DlxSimulator:
@@ -424,7 +443,7 @@ class DlxSimulator:
 				imm = int(binary[16:32], 2)
 				label = int(binary[11:32], 2)
 
-				obj = inst_dict[op_code](rd=rd, rs1=rs1, rs2=rs2, imm=imm, label=label, offset=rs1, base=imm, r_data=rd, r_comp=rd)
+				obj = inst_dict[op_code](rd=rd, rs1=rs1, rs2=rs2, imm=imm, label=label, offset=rs1, base=imm, r_destination=rd, r_comp=rd)
 				self.instruction_memory.append(obj)
 
 	def run_program(self):
@@ -443,10 +462,10 @@ class DlxSimulator:
 		
 		self.show_results()
 		if iterations == self.max_iterations:
-			print('Max loop iterations reached')
+			print('Max loop iterations reached!')
 		else:
 			print(f'Finished in {iterations} iterations')
-		
+
 		self.branch_analysis()
 
 	def show_results(self):

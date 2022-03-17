@@ -49,10 +49,19 @@ INSTRUCTIONS = [
 		"JR",
 		"JAL",
 		"JALR",
+		"PCH",
+		"PD",
+		"PDU",
 ]
 
 NO_OPS = [
 		"NOP",
+]
+
+IO_OPS = [
+		"PCH",
+		"PD",
+		"PDU",
 ]
 
 MEMORY_OPS = [
@@ -168,5 +177,8 @@ OP_CODES_DICT = {
 		"JR":46,
 		"JAL":47,
 		"JALR":48,
+		"PCH":49,
+		"PD":50,
+		"PDU":51,
 }
 
