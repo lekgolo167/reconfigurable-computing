@@ -11,7 +11,7 @@ package dlx_package is
 	constant c_DLX_REG_ADDR_WIDTH : integer := integer(ceil(log2(real(c_NUM_OF_REGISTERS))));
 	constant c_DLX_IMM_WIDTH : integer := 16;
 	constant c_DLX_OPCODE_WIDTH : integer := 6;
-	
+
 	-- Instructions
 
 	constant c_DLX_NOP		: std_logic_vector(5 downto 0) := "000000";
@@ -64,7 +64,7 @@ package dlx_package is
 	constant c_DLX_JAL		: std_logic_vector(5 downto 0) := "101111";
 	constant c_DLX_JALR		: std_logic_vector(5 downto 0) := "110000";
 	constant c_DLX_PCH		: std_logic_vector(5 downto 0) := "110001";
-	constant c_DLX_PD			: std_logic_vector(5 downto 0) := "110010";
+	constant c_DLX_PD		: std_logic_vector(5 downto 0) := "110010";
 	constant c_DLX_PDU		: std_logic_vector(5 downto 0) := "110011";
 
 end package dlx_package;

@@ -4,7 +4,7 @@
 
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
-set_global_assignment -name TOP_LEVEL_ENTITY Memory
+set_global_assignment -name TOP_LEVEL_ENTITY DLX_Top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.0.0
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.1 Lite Edition"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:15:04 JANUARY 28,2022"
@@ -111,6 +111,21 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Top.vhd
+set_global_assignment -name VHDL_FILE ../hdl/uart.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Wrapper.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Memory_Writeback.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Execute.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_ALU.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Registers.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Decode.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Package.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Fetch.vhd
+set_global_assignment -name SDC_FILE Fetch.SDC
+set_global_assignment -name QIP_FILE ../hdl/Instruction_Memory.qip
+set_global_assignment -name QIP_FILE ../hdl/Data_memory.qip
+set_global_assignment -name VHDL_INPUT_VERSION VHDL_2008
+set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
@@ -176,17 +191,3 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[33]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[34]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[35]
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Top.vhd
-set_global_assignment -name VHDL_FILE ../hdl/uart.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Wrapper.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Memory_Writeback.vhd
-set_global_assignment -name VHDL_FILE ../hdl/Memory.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Execute.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_ALU.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Registers.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Decode.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Package.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Fetch.vhd
-set_global_assignment -name SDC_FILE Fetch.SDC
-set_global_assignment -name QIP_FILE ../hdl/Instruction_Memory.qip
-set_global_assignment -name QIP_FILE ../hdl/Data_memory.qip
