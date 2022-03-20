@@ -55,12 +55,6 @@ architecture behave of DLX_Wrapper is
 	
 	signal alu_out : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 
-	-- UART
-	signal rx_data_valid : std_logic;
-	signal tx_data_valid : std_logic;
-	signal saved_byte : std_logic_vector(7 downto 0);
-	signal received_byte : std_logic_vector(7 downto 0);
-
 begin
 
 	jump_addr <= alu_out(c_DLX_PC_WIDTH-1 downto 0);
@@ -146,23 +140,13 @@ begin
 		wr_back_data => wr_back_data
 	);
 	
-	UART1: entity work.uart(rtl)
-		generic map (
-			-- clk_freq / BAUD = clks_per_bit
-			-- 50MHz / 19200 = 2604
-			clks_per_bit => 2604
-		)
-		port map (
-			clk => clk,
-			-- rx
-			rx_serial => uart_rx,
-			rx_data_valid => rx_data_valid,
-			rx_byte => received_byte,
-			-- tx
-			tx_serial => uart_tx,
-			tx_data_valid =>tx_data_valid,
-			tx_byte => saved_byte,
-			tx_busy => tx_busy
-		);
+	PRT: entity work.DLX_Print_Scan(rtl)
+	port map (
+		clk => clk,
+		rstn => rstn,
+		rx_serial => uart_rx,
+		tx_serial => uart_tx,
+		tx_busy => tx_busy
+	);
 	
 end behave;
