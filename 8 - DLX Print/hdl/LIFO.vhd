@@ -6,8 +6,8 @@ use work.dlx_package.all;
 entity LIFO is
 	generic (
 		g_WIDTH : natural := 8;
-		g_DEPTH : natural := 16;
-	)
+		g_DEPTH : natural := 16
+	);
 	port
 	(
 		clk			: in std_logic;
@@ -49,7 +49,7 @@ begin
 			if wr_en = '1' and full /= '1' then
 				ram(stack_pointer) <= wr_data;
 				stack_pointer <= stack_pointer + 1;
-			else if rd_en = '1' and empty /= '1' then
+			elsif rd_en = '1' and empty /= '1' then
 				data <= ram(stack_pointer-1);
 				stack_pointer <= stack_pointer - 1;
 			end if;

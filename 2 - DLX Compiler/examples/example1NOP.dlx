@@ -1,0 +1,76 @@
+;This is a comment
+;Comments always consume entire lines
+	
+	.data
+	
+n		1	10
+result	1	0
+
+	.text
+	
+	ADDI	R1, R0, 0
+    NOP
+    NOP
+    NOP
+    NOP
+	ADDI	R2, R0, 1
+    NOP
+    NOP
+    NOP
+    NOP
+	LW		R10, n(R0)
+    NOP
+    NOP
+    NOP
+    NOP
+	
+top
+	SLEI	R11, R10, 1
+    NOP
+    NOP
+    NOP
+    NOP
+	BNEZ	R11, exit
+    NOP
+    NOP
+    NOP
+    NOP
+	ADD		R3, R1, R2
+    NOP
+    NOP
+    NOP
+    NOP
+	ADDI	R1, R2, 0
+    NOP
+    NOP
+    NOP
+    NOP
+	ADDI	R2, R3, 0
+    NOP
+    NOP
+    NOP
+    NOP
+	SUBI	R10, R10, 1
+    NOP
+    NOP
+    NOP
+    NOP
+	J		top
+    NOP
+    NOP
+    NOP
+    NOP
+	
+exit
+	SW		result(R0), R3
+    NOP
+    NOP
+    NOP
+    NOP
+	
+done
+	J		done
+    NOP
+    NOP
+    NOP
+    NOP

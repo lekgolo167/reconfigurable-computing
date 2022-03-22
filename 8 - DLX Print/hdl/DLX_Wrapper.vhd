@@ -144,9 +144,11 @@ begin
 	port map (
 		clk => clk,
 		rstn => rstn,
-		rx_serial => uart_rx,
-		tx_serial => uart_tx,
-		tx_busy => tx_busy
+		uart_rx => uart_rx,
+		uart_tx => uart_tx,
+		tx_busy => tx_busy,
+		print_data => operand_0,
+		op_code => inst_opcode
 	);
 	
 end behave;

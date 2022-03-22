@@ -6,7 +6,7 @@ f		1	0
 .text
 
 	LW		R5, n(R0)  ;load n into R5
-	ADDU	R6, R5, R0  ;set R6 to R5
+	ADDU	R6, R0, R5  ;set R6 to R5
 
 m_loop
 	SGTUI	R18, R5, 2
@@ -22,10 +22,10 @@ done
 
 func_mult
 	SUBUI	R7, R5, 1  ; R7 is the loop counter
-	ADDU	R8, R6, R0  ; set R8 equal to R6
+	ADDU	R8, R0, R6  ; set R8 equal to R6
 
 f_loop
-	ADDU	R6, R6, R8  ; add
+	ADDU	R6, R8, R6  ; add
 	SUBUI	R7, R7, 1  ; decrement R7 by 1
 	BNEZ	R7, f_loop  ; loop back if R7 is not zero
 

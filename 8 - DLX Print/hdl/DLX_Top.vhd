@@ -32,9 +32,13 @@ begin
 		uart_tx => tx_pin
 	);
 	
-	rstn_btn <= GPIO(0);
-	GPIO(1) <= tx_pin;
+	rstn_btn <= KEY(0);
+	GPIO(1) <= tx_pin;  -- white pin
 	LEDR(0) <= tx_busy;
 	LEDR(9 downto 1) <= (others => '0');
+	
+	-- white on top far left
+	-- green on bottom far left
+	-- black 6 from left on top
 	
 end behave;

@@ -1,7 +1,18 @@
 	.data
-	
-n		1	10
-result	1	0
+
+a      1   0
+b      1   0
+c      1   0
+d      1   0
+e      1   0
+f      1   0	
+g		1	0
+h      1   0
+i      1   0
+j     1   0
+k     1   0
+l     1   0
+
 
 	.text
 	
@@ -31,6 +42,67 @@ result	1	0
     ORI     R12, R1, 2
     XOR     R13, R1, R2
     XORI    R14, R1, 2
+
+    SW      a(R0), R3
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      b(R0), R4
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      c(R0), R5
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      d(R0), R6 
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      e(R0), R7 
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      f(R0), R8 
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      g(R0), R9 
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      h(R0), R10
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      i(R0), R11
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      j(R0), R12
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      k(R0), R13
+    NOP
+    NOP
+    NOP
+    NOP
+    SW      l(R0), R14
+    NOP
+    NOP
+    NOP
+    NOP
 	
 done
 	J		done
