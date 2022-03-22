@@ -13,7 +13,8 @@ architecture behave of dlx_cpu_tb is
 
 	signal clk : std_logic := '0';
 	signal reset : std_logic := '0';
-	signal q : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal tx_busy : std_logic;
+	signal tx : std_logic;
 
 begin
 	-- generate clock
@@ -25,7 +26,9 @@ begin
 		port map (
 			clk => clk,
 			rstn => reset,
-			q => q
+			uart_rx => '1',
+			tx_busy => tx_busy,
+			uart_tx => tx
 		);
 
 end behave;

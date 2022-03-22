@@ -62,7 +62,7 @@ architecture rtl of FIFO is
    
 begin
  
-  p_CONTROL : process (clk) is
+  p_CONTROL : process (clk, rstn) is
   begin
 	if rstn = '0' then
 		r_FIFO_COUNT <= 0;

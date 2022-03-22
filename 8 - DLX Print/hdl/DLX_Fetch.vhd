@@ -25,7 +25,7 @@ architecture rtl of DLX_Fetch is
 	signal br_taken_dly : std_logic;
 begin
 
-	p_2_TO_2_MUX : process (branch_taken, r_pc_counter, next_pc_count, jump_addr)
+	p_2_TO_2_MUX : process (branch_taken, r_pc_counter, next_pc_count, jump_addr, stall)
 	begin
 		if branch_taken = '1' then
 			next_pc_count <= jump_addr;

@@ -9,13 +9,25 @@
 
 .text
 
-	ADDI	R1, R0, 1
-	LW		R4, s1(R1)
+loop
+	ADDI	R1, R0, 49
+	ADDI	R2, R0, 50
+	ADDI	R3, R0, 51
+	ADDI	R4, R0, 52
+	ADDI	R5, R0, 53
+	ADDI	R6, R0, -32321
+	ADDI	R7, R0, 6789
+	PCH		R1
+	PCH		R2
+	PCH		R3
 	PCH		R4
-	LW		R5, n(R0)
-	PDU		R5
-	SUBI	R5, R5, 11
-	PD		R5
+	PCH		R5
+	PD		R6
+	PDU		R7
+	NOP
+	NOP
+	NOP
+	NOP
 done
 	J		done
 	

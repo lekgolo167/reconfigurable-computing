@@ -15,7 +15,7 @@ entity LIFO is
 		-- write
 		full		: out std_logic;
 		wr_en		: in std_logic;
-		wr_data		: out std_logic_vector(g_WIDTH-1 downto 0);
+		wr_data		: in std_logic_vector(g_WIDTH-1 downto 0);
 		-- read
 		empty		: out std_logic;
 		rd_en		: in std_logic;

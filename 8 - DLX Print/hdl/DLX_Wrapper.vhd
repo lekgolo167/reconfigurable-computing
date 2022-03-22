@@ -21,6 +21,7 @@ architecture behave of DLX_Wrapper is
 	signal jump_addr : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 	signal instruction : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal inst_opcode : std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
+	signal ex_mem_opcode : std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 
 	signal wr_en_to_execute : std_logic;
 	signal wr_addr_to_execute : std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
@@ -115,6 +116,7 @@ begin
 		sel_mem_alu => sel_mem_alu,
 		mem_wr_en => mem_wr_en,
 		mem_data => mem_data,
+		ex_mem_opcode => ex_mem_opcode,
 		ex_mem_rd_en => ex_mem_rd_en,
 		ex_mem_rd => ex_mem_rd,
 		branch_taken => branch_taken,
@@ -147,8 +149,8 @@ begin
 		uart_rx => uart_rx,
 		uart_tx => uart_tx,
 		tx_busy => tx_busy,
-		print_data => operand_0,
-		op_code => inst_opcode
+		print_data => alu_out,
+		op_code => ex_mem_opcode
 	);
 	
 end behave;

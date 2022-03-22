@@ -23,7 +23,7 @@ entity uart is
 end uart;
 
 architecture rtl of uart is
-	type state_type is (s_IDLE, s_START_BIT, s_DATA_BITS, s_STOP_BIT);
+	type state_type is (s_IDLE, s_START_BIT, s_DATA_BITS, s_STOP_BIT, s_CLEANUP);
 	signal tx_state : state_type;
 	signal rx_state : state_type;
 	-- rx
@@ -158,9 +158,12 @@ begin
 					if tx_clock_count < clks_per_bit - 1 then
 						tx_clock_count <= tx_clock_count + 1;
 					else
-						tx_state <= s_IDLE;
+						tx_state <= s_CLEANUP;
 					end if;
-
+				
+				when s_CLEANUP =>
+					tx_busy <= '0';
+					tx_state <= s_IDLE;
 				when others =>
 					tx_state <= s_IDLE;
 

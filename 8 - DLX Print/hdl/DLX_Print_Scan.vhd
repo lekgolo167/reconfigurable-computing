@@ -1,6 +1,7 @@
 library ieee, lpm, work;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
 use lpm.lpm_components.all;
 use work.dlx_package.all;
 
@@ -43,8 +44,6 @@ architecture rtl of DLX_Print_Scan is
 	end component;
 
 	-- divider
---	signal numer : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-	signal fifo_rd_delay : std_logic;
 	signal div_input : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal quotient : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal cmd : std_logic_vector(1 downto 0);
@@ -78,10 +77,12 @@ architecture rtl of DLX_Print_Scan is
 	signal received_byte : std_logic_vector(g_UART_WIDTH-1 downto 0);
 	
 	-- State Machine
-	type state_type is (s_IDLE, s_READ, s_CHAR, s_SIGNED, s_DIVIDE, s_WAIT);
+	type state_type is (s_IDLE, s_READ, s_CHAR, s_SIGNED, s_DIVIDE, s_DELAY, s_MORE, s_WAIT, s_CLEANUP);
 	signal print_state : state_type;
 	signal lifo_in_sel : std_logic;
 	signal tx_ready : std_logic;
+	signal tx_ready_dly : std_logic;
+	signal tx_ready_dly2 : std_logic;
 
 begin
 
@@ -90,11 +91,12 @@ begin
 		if(rising_edge(clk)) then
 			if op_code >= c_DLX_PCH and op_code <= c_DLX_PDU then
 				fifo_wr_data <= op_code(1 downto 0) & print_data;
-				fifo_wr_en <= '1';
+				fifo_wr_en <= not fifo_full;
 			else
 				fifo_wr_en <= '0';
 			end if;
-			fifo_rd_delay <= fifo_rd_en;
+			--tx_ready_dly <= tx_ready_dly2;
+			tx_ready_dly <= tx_ready;
 		end if;
 	end process;
 	
@@ -119,6 +121,7 @@ begin
 						print_state <= s_CHAR;
 					else
 						print_state <= s_DIVIDE;
+						lifo_wr_en <= '1';
 						if cmd = c_DLX_PD(1 downto 0) then
 							is_negative <= div_data(31);
 						else
@@ -127,31 +130,36 @@ begin
 					end if;
 					
 				when s_CHAR =>
-					print_state <= s_WAIT;
+					print_state <= s_DELAY;
 					lifo_in_sel <= '1';
+					lifo_wr_en <= '1';
 				
 				when s_SIGNED =>
-					print_state <= s_WAIT;  -- need to change eventually
+					print_state <= s_DELAY;  -- need to change eventually
 					
 				when s_DIVIDE =>
 					if quotient = x"00000000" then
 						if is_negative = '1' then
 							print_state <= s_SIGNED;
 						else
-							print_state <= s_WAIT;
-							lifo_wr_en <= '0';
+							print_state <= s_delay;
 						end if;
 					else 
 						lifo_wr_en <= '1';
 						print_state <= s_DIVIDE;
 					end if;
+
+				when s_DELAY =>
 					
+					print_state <= s_WAIT;
+
 				when s_WAIT =>
 					lifo_in_sel <= '0';
 					lifo_wr_en <= '0';
 					if lifo_empty = '1' then
-						print_state <= s_IDLE;
+						print_state <= s_CLEANUP;
 						tx_ready <= '0';
+						lifo_rd_en <= '0';
 					else
 						tx_ready <= '1';
 						if tx_busy = '0' then
@@ -160,7 +168,14 @@ begin
 							lifo_rd_en <= '0';
 						end if;
 						print_state <= s_WAIT;
-					end if;				
+					end if;
+					
+				when s_CLEANUP =>
+					if tx_busy = '0' then
+						print_state <= s_IDLE;
+					else
+						print_state <= s_CLEANUP;
+					end if;
 				when others =>
 					print_state <= s_IDLE;
 			end case;
@@ -177,13 +192,13 @@ begin
 			rstn => rstn,
 			full => fifo_full,
 			wr_en => fifo_wr_en,
-			wr_data => op_code(1 downto 0) & print_data,
+			wr_data => fifo_wr_data,
 			empty => fifo_empty,
 			rd_en => fifo_rd_en,
 			rd_data => fifo_rd_data
 	);
 
-	div_input <= div_data when fifo_rd_delay = '1' else quotient;
+	div_input <= div_data when fifo_rd_en = '1' else quotient;
 	
 	DIV: component LPM_DIVIDE
 	generic	map (
@@ -194,14 +209,14 @@ begin
 	port map (
 		clock => clk,
 		clken => '1',
-		aclr => rstn,
+		aclr => not rstn,
 		numer => div_input,
 		denom => std_logic_vector(to_unsigned(10, g_UART_WIDTH)),
 		quotient => quotient,
 		remain => div_char
 	);
  
-	lifo_wr_data <= div_data(7 downto 0) when lifo_in_sel = '1' else div_char;
+	lifo_wr_data <= div_data(7 downto 0) when lifo_in_sel = '1' else x"2D" when (print_state = s_SIGNED) else div_char + x"30";
 	
 	TX_BUF: entity work.LIFO(rtl)
 	generic map (
@@ -219,7 +234,7 @@ begin
 		rd_data => tx_byte
 	);
 
-	tx_data_valid <= not lifo_empty and tx_ready;
+	tx_data_valid <= not lifo_empty and tx_ready_dly;
 
 	UART1: entity work.uart(rtl)
 	generic map (

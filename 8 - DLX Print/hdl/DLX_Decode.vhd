@@ -44,7 +44,7 @@ architecture rtl of DLX_Decode is
 begin
 	is_jump <= '1' when (inst_opcode >= c_DLX_J and inst_opcode <= c_DLX_JALR) else '0';
 	
-	label_detected <= '1' when ((opcode >= c_DLX_LW and opcode <= c_DLX_SW) or (opcode >= c_DLX_BEQZ and (opcode /= c_DLX_JR and opcode /= c_DLX_JALR))) else '0';
+	label_detected <= '1' when ((opcode >= c_DLX_LW and opcode <= c_DLX_SW) or (opcode >= c_DLX_BEQZ and (opcode /= c_DLX_JR and opcode < c_DLX_JALR))) else '0';
 
 	imm_detected <= '1' when ((opcode >= c_DLX_ADDI and opcode <= c_DLX_SNEI) and (opcode(0) = '0')) else '0';
 

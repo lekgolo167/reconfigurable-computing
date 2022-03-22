@@ -70,7 +70,7 @@ begin
 
 	is_zero <= '1' when (((alu_in_0 = x"00000000") and (opcode = c_DLX_BEQZ)) or 
 						((alu_in_0 /= x"00000000") and (opcode = c_DLX_BNEZ)) or 
-						(opcode >= c_DLX_J)) and (id_ex_invalid = '0' and br_taken = '0') else '0';
+						(opcode >= c_DLX_J and opcode <= c_DLX_JALR)) and (id_ex_invalid = '0' and br_taken = '0') else '0';
 
 	reg_to_reg_alu <= '1' when sel_immediate = '0' and opcode >= c_DLX_ADD and opcode <= c_DLX_SNEI else '0';
 	data_hazard_0 <= '1' when id_ex_rs1 = ex_mem_rd and opcode /= "000000" else '0';
