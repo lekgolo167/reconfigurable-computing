@@ -622,7 +622,8 @@ class Assembler():
 		if inst_name in REGISTER_OPS:
 			inst_binary += '0' * UNUSED_PAD_SIZE
 		elif inst_name in IO_OPS:
-			inst_binary += '0' * BR_ADDR_PAD_SIZE
+			inst_binary = '11110' + inst_binary + '0' * IMM_PAD_SIZE
+			# inst_binary = '0' * REG_PAD_SIZE + inst_binary + '0' * IMM_PAD_SIZE
 		elif inst_name in NO_OPS:
 			inst_binary += '0' * ABS_ADDR_PAD_SIZE
 		

@@ -141,11 +141,11 @@ begin
 			when c_DLX_JALR	 =>
 				alu_out <= operand_1;
 			when c_DLX_PCH	 =>
-				alu_out <= operand_1;
+				alu_out <= operand_0;
 			when c_DLX_PD =>
-				alu_out <= operand_1;
+				alu_out <= operand_0;
 			when c_DLX_PDU	 =>
-				alu_out <= operand_1;
+				alu_out <= operand_0;
 			when others =>
 				alu_out <= x"00000000";
 

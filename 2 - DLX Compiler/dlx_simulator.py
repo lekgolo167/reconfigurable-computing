@@ -331,17 +331,17 @@ class JALR(Instruction):
 
 class PCH(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		print("PCH -> " + chr(registers[self.r_destination] & 0xFF))
+		print("PCH -> " + chr(registers[self.rs1] & 0xFF))
 		return pc_counter + 1
 
 class PD(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		print("PD -> " + str(registers[self.r_destination]))
+		print("PD -> " + str(registers[self.rs1]))
 		return pc_counter + 1
 
 class PDU(Instruction):
 	def execute(self, registers, memory, pc_counter):
-		print("PDU -> " + str(ctypes.c_ulong(registers[self.r_destination]).value))
+		print("PDU -> " + str(ctypes.c_ulong(registers[self.rs1]).value))
 		return pc_counter + 1
 
 inst_dict = {
