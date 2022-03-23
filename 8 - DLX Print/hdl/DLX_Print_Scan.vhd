@@ -155,7 +155,11 @@ begin
 				when s_POP =>
 					lifo_rd_en <= '1';
 					tx_ready <= '0';
-					print_state <= s_WAIT;
+					if lifo_empty = '1' and tx_busy = '0' then
+						print_state <= s_IDLE;
+					else
+						print_state <= s_WAIT;
+					end if;
 
 				when s_WAIT =>
 					lifo_rd_en <= '0';
