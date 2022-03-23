@@ -146,6 +146,7 @@ begin
 	port map (
 		clk => clk,
 		rstn => rstn,
+		invalid => ex_mem_invalid,
 		uart_rx => uart_rx,
 		uart_tx => uart_tx,
 		tx_busy => tx_busy,

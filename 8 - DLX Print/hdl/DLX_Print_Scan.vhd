@@ -16,6 +16,7 @@ entity DLX_Print_Scan is
 	(
 		clk	: in std_logic;
 		rstn : in std_logic;
+		invalid : in std_logic;
 		print_data : in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 		op_code : in std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		uart_rx : in std_logic;
@@ -43,11 +44,15 @@ architecture rtl of DLX_Print_Scan is
 	REMAIN : out std_logic_vector(LPM_WIDTHD-1 downto 0));
 	end component;
 
+	-- 2's complelent
+	signal twos_complement : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal data_in : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	-- divider
 	signal div_input : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal quotient : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal cmd : std_logic_vector(1 downto 0);
 	signal is_negative : std_logic;
+	signal sign_bit : std_logic;
 	signal div_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 
 	-- FIFO
@@ -83,11 +88,12 @@ architecture rtl of DLX_Print_Scan is
 	signal tx_ready : std_logic;
 
 begin
-
+	twos_complement <= (not fifo_rd_data(31 downto 0)) + '1';
+	data_in <= twos_complement when (fifo_rd_data(33 downto 32) = c_DLX_PD(1 downto 0) and fifo_rd_data(3) = '1') else fifo_rd_data(31 downto 0);
 	process(clk)
 	begin
 		if(rising_edge(clk)) then
-			if op_code >= c_DLX_PCH and op_code <= c_DLX_PDU then
+			if op_code >= c_DLX_PCH and op_code <= c_DLX_PDU and invalid = '0' then
 				fifo_wr_data <= op_code(1 downto 0) & print_data;
 				fifo_wr_en <= not fifo_full;
 			else
@@ -103,7 +109,8 @@ begin
 				when s_IDLE =>
 					if fifo_empty = '0' then
 						fifo_rd_en <= '1';
-						div_data <= fifo_rd_data(31 downto 0);
+						div_data <= data_in;
+						sign_bit <= fifo_rd_data(31);
 						cmd <= fifo_rd_data(33 downto 32);
 						print_state <= s_READ;
 					else
@@ -119,7 +126,7 @@ begin
 						print_state <= s_DIVIDE;
 						lifo_wr_en <= '1';
 						if cmd = c_DLX_PD(1 downto 0) then
-							is_negative <= div_data(31);
+							is_negative <= sign_bit;
 						else
 							is_negative <= '0';
 						end if;

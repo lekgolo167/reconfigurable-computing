@@ -9,7 +9,8 @@ s2	4		"! = "
 s3	1		10
 
 	.text
-
+	ADDI	R28, R0, 10 ; new line
+	ADDI	R29, R0, 13 ; carrage return
 	LW		R5, n(R0)  ;load n into R5
 	ADDU	R6, R5, R0  ;set R6 to R5
 	ADDU 	R11, R5, R0 ;set R11 to R5
@@ -22,6 +23,8 @@ print_intro
 	PCH		R15  ; print R12 to the screen
 	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
 	BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
+	PCH		R29 ; carrage return
+	PCH		R28 ; new line
 
 m_loop	
 	SGTUI	R1, R5, 2
