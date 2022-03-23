@@ -77,12 +77,10 @@ architecture rtl of DLX_Print_Scan is
 	signal received_byte : std_logic_vector(g_UART_WIDTH-1 downto 0);
 	
 	-- State Machine
-	type state_type is (s_IDLE, s_READ, s_CHAR, s_SIGNED, s_DIVIDE, s_DELAY, s_MORE, s_WAIT, s_CLEANUP);
+	type state_type is (s_IDLE, s_READ, s_CHAR, s_SIGNED, s_DIVIDE, s_DELAY, s_POP, s_WAIT);
 	signal print_state : state_type;
 	signal lifo_in_sel : std_logic;
 	signal tx_ready : std_logic;
-	signal tx_ready_dly : std_logic;
-	signal tx_ready_dly2 : std_logic;
 
 begin
 
@@ -95,8 +93,6 @@ begin
 			else
 				fifo_wr_en <= '0';
 			end if;
-			--tx_ready_dly <= tx_ready_dly2;
-			tx_ready_dly <= tx_ready;
 		end if;
 	end process;
 	
@@ -135,14 +131,16 @@ begin
 					lifo_wr_en <= '1';
 				
 				when s_SIGNED =>
-					print_state <= s_DELAY;  -- need to change eventually
+				    lifo_wr_en <= '0';
+					print_state <= s_DELAY;
 					
 				when s_DIVIDE =>
 					if quotient = x"00000000" then
 						if is_negative = '1' then
 							print_state <= s_SIGNED;
 						else
-							print_state <= s_delay;
+							lifo_wr_en <= '0';
+							print_state <= s_DELAY;
 						end if;
 					else 
 						lifo_wr_en <= '1';
@@ -150,32 +148,25 @@ begin
 					end if;
 
 				when s_DELAY =>
-					
+					lifo_wr_en <= '0';
+					lifo_in_sel <= '0';
+					print_state <= s_POP;
+
+				when s_POP =>
+					lifo_rd_en <= '1';
+					tx_ready <= '0';
 					print_state <= s_WAIT;
 
 				when s_WAIT =>
-					lifo_in_sel <= '0';
-					lifo_wr_en <= '0';
-					if lifo_empty = '1' then
-						print_state <= s_CLEANUP;
+					lifo_rd_en <= '0';
+					tx_ready <= '1';
+					if lifo_empty = '0' and tx_busy = '0' then
+						print_state <= s_POP;
+					elsif lifo_empty = '1' and tx_busy = '0' then
 						tx_ready <= '0';
-						lifo_rd_en <= '0';
-					else
-						tx_ready <= '1';
-						if tx_busy = '0' then
-							lifo_rd_en <= '1';
-						else
-							lifo_rd_en <= '0';
-						end if;
-						print_state <= s_WAIT;
+						print_state <= s_IDLE;
 					end if;
 					
-				when s_CLEANUP =>
-					if tx_busy = '0' then
-						print_state <= s_IDLE;
-					else
-						print_state <= s_CLEANUP;
-					end if;
 				when others =>
 					print_state <= s_IDLE;
 			end case;
@@ -234,13 +225,13 @@ begin
 		rd_data => tx_byte
 	);
 
-	tx_data_valid <= not lifo_empty and tx_ready_dly;
+	tx_data_valid <= tx_ready;
 
 	UART1: entity work.uart(rtl)
 	generic map (
 		-- clk_freq / BAUD = clks_per_bit
 		-- 50MHz / 19200 = 2604
-		clks_per_bit => 2604
+		clks_per_bit => 434
 	)
 	port map (
 		clk => clk,
