@@ -52,6 +52,8 @@ INSTRUCTIONS = [
 		"PCH",
 		"PD",
 		"PDU",
+		"GD",
+		"GDU",
 ]
 
 NO_OPS = [
@@ -62,6 +64,8 @@ IO_OPS = [
 		"PCH",
 		"PD",
 		"PDU",
+		"GD",
+		"GDU",
 ]
 
 MEMORY_OPS = [
@@ -180,5 +184,7 @@ OP_CODES_DICT = {
 		"PCH":49,
 		"PD":50,
 		"PDU":51,
+		"GD":52,
+		"GDU":53,
 }
 

@@ -1,0 +1,62 @@
+	.data
+	
+f		1	0
+
+	.const
+s1	37		"Welcome to the DLX factorial program!"
+s2	4		"! = "
+
+	.text
+	ADDI	R28, R0, 10 ; new line
+	ADDI	R29, R0, 13 ; carrage return
+	GDU		R5			; Scan an unsigned decimal and save to R5
+	ADDU	R6, R5, R0  ;set R6 to R5
+	ADDU 	R11, R5, R0 ;set R11 to R5
+	LW		R12, s1(R0)  ; find how many values s1 has
+	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
+
+print_intro
+	LW		R15, s1(R13)  ; load the next char into R15
+	SGEU	R14, R13, R12  ; Set if R13 > R12
+	PCH		R15  ; print R12 to the screen
+	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
+	BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
+	PCH		R29 ; carrage return
+	PCH		R28 ; new line
+
+m_loop	
+	SGTUI	R1, R5, 2
+	BEQZ	R1, print_result  ; go to print_result if original value is zero
+	SUBUI	R5, R5, 1  ; subtract one from R5
+	JAL		func_mult  ; multiply R5 and R6
+	J		m_loop
+
+print_result
+	PDU		R11  ; print the original value to the screen
+	LW		R12, s2(R0)  ; find how many values s2 has
+	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
+
+print_fact_string
+	LW		R15, s2(R13)  ; load the next char into R15
+	SGEU	R14, R13, R12  ; Set if R13 > R12
+	PCH		R15  ; print R12 to the screen
+	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
+	BEQZ	R14, print_fact_string  ; jump back to print_intro if R14==0
+
+	PDU		R6  ; print the final result to the screen
+	
+done
+	SW		f(R0), R6  ;store R6 into f
+	J		done
+		
+func_mult
+	SUBUI	R7, R5, 1  ; R7 is the loop counter
+	ADDU	R8, R6, R0  ; set R8 equal to R6
+
+f_loop
+	ADDU	R6, R6, R8  ; add
+	SUBUI	R7, R7, 1  ; decrement R7 by 1
+	BNEZ	R7, f_loop  ; loop back if R7 is not zero
+	
+;loop_done
+	JR		R31

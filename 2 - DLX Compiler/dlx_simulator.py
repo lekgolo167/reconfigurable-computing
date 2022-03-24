@@ -344,6 +344,18 @@ class PDU(Instruction):
 		print("PDU -> " + str(ctypes.c_ulong(registers[self.rs1]).value))
 		return pc_counter + 1
 
+class GD(Instruction):
+	def execute(self, registers, memory, pc_counter):
+		x = input("GD -> ")
+		registers[self.rs1] = ctypes.c_long(int(x)).value
+		return pc_counter + 1
+
+class GDU(Instruction):
+	def execute(self, registers, memory, pc_counter):
+		x = input("GDU -> ")
+		registers[self.rs1] = ctypes.c_ulong(int(x)).value
+		return pc_counter + 1
+
 inst_dict = {
 	0X0:NOP,
 	0X1:LW,
@@ -396,11 +408,13 @@ inst_dict = {
 	0X30:JALR,
 	0x31:PCH,
 	0x32:PD,
-	0x33:PDU
+	0x33:PDU,
+	0x34:GD,
+	0x35:GDU
 }
 
 class DlxSimulator:
-	def __init__(self, code_name, data_name, exit_point, max_iters, reg_limit, step_through):
+	def __init__(self, code_name, data_name, exit_point, max_iters, reg_limit, step_through, branch_stats, info):
 		self.pc_counter = 0
 		self.instruction_memory = []
 		self.data_memory = []
@@ -409,6 +423,8 @@ class DlxSimulator:
 		self.max_iterations = max_iters
 		self.reg_limit = reg_limit if reg_limit < 32 else 31
 		self.step_mode = step_through
+		self.branch_stats = branch_stats
+		self.info = info
 
 		self.parse_data_mif(data_name)
 		self.parse_code_mif(code_name)
@@ -460,13 +476,14 @@ class DlxSimulator:
 				x = input(f"[{hex(pc_counter)}] -> [{hex(pc_next_counter)}] Continue?")
 			pc_counter = pc_next_counter
 		
-		self.show_results()
 		if iterations == self.max_iterations:
 			print('Max loop iterations reached!')
-		else:
+		elif self.info:
+			self.show_results()
 			print(f'Finished in {iterations} iterations')
 
-		self.branch_analysis()
+		if self.branch_stats:
+			self.branch_analysis()
 
 	def show_results(self):
 		print('=== Memory Contents ===')
@@ -501,7 +518,10 @@ if __name__ == '__main__':
 						help='Limit the number of registers shown from 0-r')
 	parser.add_argument('--step', '-s', action='store_true', default=False,
 						help='Enables stepping through the program')
-
+	parser.add_argument('--branch', '-b', action='store_true', default=False,
+						help='Enables branch analysis at the end of the program')
+	parser.add_argument('--info', '-i', action='store_true', default=False,
+						help='Enables printing of how many cycles the program took and final register and memory states')
 	argument = parser.parse_args()
 
 	code_file = argument.code
@@ -510,6 +530,8 @@ if __name__ == '__main__':
 	max_iters = int(argument.max)
 	reg_limit = int(argument.reg)
 	step_through = bool(argument.step)
+	branch_stats = bool(argument.branch)
+	info = bool(argument.info)
 
-	sim = DlxSimulator(code_file, data_file, exit_point, max_iters, reg_limit, step_through)
+	sim = DlxSimulator(code_file, data_file, exit_point, max_iters, reg_limit, step_through, branch_stats, info)
 	sim.run_program()
