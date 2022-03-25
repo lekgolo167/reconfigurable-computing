@@ -44,9 +44,7 @@ architecture rtl of DLX_Scan is
 
 	-- multiplyer
 	signal mult_result : std_logic_vector((c_DLX_WORD_WIDTH * 2)-1 downto 0);
-	signal mult_in : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-	signal mult_op : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-	signal mult_out : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal mult_accum : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	
 	
 	-- 2's complelent
@@ -62,8 +60,6 @@ architecture rtl of DLX_Scan is
 	signal fifo_rd_en : std_logic;
 	signal fifo_rd_data : std_logic_vector(g_UART_WIDTH-1 downto 0);
 	signal fifo_wr_data : std_logic_vector(g_UART_WIDTH-1 downto 0);
-	
-	signal fifo_mult_data : std_logic_vector(g_UART_WIDTH-1 downto 0);
 
 	-- State Machine
 	type state_type is (s_IDLE, s_READ, s_SAVE, s_MULT, s_ADD, s_DONE);
@@ -75,16 +71,16 @@ architecture rtl of DLX_Scan is
 
 begin
 	
-	twos_complement <= (not mult_out) + '1';
-	data_out <= mult_out when is_negative = '0' else twos_complement;
+	twos_complement <= (not mult_accum) + '1';
+	data_out <= mult_accum when is_negative = '0' else twos_complement;
 	
 	process(clk)
 	begin
 		if(rising_edge(clk)) then
 			if mult_en = '1' then
-				mult_out <= mult_result(c_DLX_WORD_WIDTH-1 downto 0);
+				mult_accum <= mult_result(c_DLX_WORD_WIDTH-1 downto 0) + fifo_rd_data;
 			else
-				mult_out <= (others => '0');
+				mult_accum <= (others => '0');
 			end if;
 
 			scan_data <= data_out;
@@ -137,16 +133,19 @@ begin
 					fifo_wr_en <= '0';
 					
 				when s_MULT =>
+					fifo_rd_en <= '1';
 					if fifo_empty = '1' then
-						scan_state <= s_DONE;
-						fifo_rd_en <= '0';
+						scan_valid <= '1';
+						scan_state <= s_IDLE;
 					else
-						fifo_rd_en <= '1';
-						scan_state <= s_MULT;
+						scan_state <= s_ADD;
 					end if;
-
+					
+				when s_ADD =>
+					scan_state <= s_MULT;
+					fifo_rd_en <= '0';
+					
 				when s_DONE =>
-					scan_valid <= '1';
 					scan_state <= s_IDLE;
 					
 				when others =>
@@ -168,29 +167,23 @@ begin
 			wr_en => fifo_wr_en,
 			wr_data => fifo_wr_data,
 			empty => fifo_empty,
-			rd_en => fifo_rd_en,
+			rd_en => fifo_rd_en and not fifo_empty,
 			rd_data => fifo_rd_data
 	);
-
-	mult_op <= x"0000000A" when scan_state = s_MULT else x"00000000";
-	--fifo_mult_data <= fifo_rd_data when mult_en = '1' else x"00";
-	mult_in <= (x"000000" & fifo_rd_data) + mult_out;
-	--mult_in <= (x"000000" & fifo_mult_data) + mult_out;
 
 	MUL: component LPM_MULT
 		generic	map (
 			LPM_WIDTHA => c_DLX_WORD_WIDTH,
 			LPM_WIDTHB => c_DLX_WORD_WIDTH,
 			LPM_WIDTHP => c_DLX_WORD_WIDTH * 2,
-			LPM_PIPELINE => 0
+			LPM_PIPELINE => 1
 		)
 		port map (
 			clock => clk,
 			clken => '1',
 			aclr => not rstn,
-			--dataa => x"0000000A",
-			dataa => mult_op,
-			datab => mult_in,
+			dataa => x"0000000A",
+			datab => mult_accum,
 			result => mult_result
 		);
 

@@ -59,7 +59,10 @@ begin
 	
 	wait until reset = '1';
 
-	-- send the string number 1234
+	-- send the string number -1234
+	wait until rising_edge(clk);
+	UART_WRITE_BYTE(x"2D", rx);
+	wait for c_CLK_PERIOD*15;
 	wait until rising_edge(clk);
 	UART_WRITE_BYTE(x"31", rx);
 	wait for c_CLK_PERIOD*15;
