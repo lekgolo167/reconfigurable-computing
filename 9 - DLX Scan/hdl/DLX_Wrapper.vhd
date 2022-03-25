@@ -149,7 +149,7 @@ begin
 		invalid => ex_mem_invalid,
 		uart_rx => uart_rx,
 		uart_tx => uart_tx,
-		tx_busy => tx_busy,
+		tx_led => tx_busy,
 		print_data => alu_out,
 		op_code => ex_mem_opcode
 	);

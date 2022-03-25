@@ -177,13 +177,15 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[32]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[33]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[34]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to GPIO[35]
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Scan.vhd -hdl_version VHDL_2008
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Print.vhd -hdl_version VHDL_2008
 set_global_assignment -name VHDL_FILE ../hdl/uart.vhd
 set_global_assignment -name VHDL_FILE ../hdl/LIFO.vhd
 set_global_assignment -name VHDL_FILE ../hdl/FIFO.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Wrapper.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Top.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Registers.vhd
-set_global_assignment -name VHDL_FILE ../hdl/DLX_Print_Scan.vhd
+set_global_assignment -name VHDL_FILE ../hdl/DLX_Print_Scan.vhd -hdl_version VHDL_2008
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Package.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Memory_Writeback.vhd
 set_global_assignment -name VHDL_FILE ../hdl/DLX_Fetch.vhd
