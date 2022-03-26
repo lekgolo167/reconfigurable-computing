@@ -347,13 +347,13 @@ class PDU(Instruction):
 class GD(Instruction):
 	def execute(self, registers, memory, pc_counter):
 		x = input("GD -> ")
-		registers[self.rs1] = ctypes.c_long(int(x)).value
+		registers[self.r_destination] = ctypes.c_long(int(x)).value
 		return pc_counter + 1
 
 class GDU(Instruction):
 	def execute(self, registers, memory, pc_counter):
 		x = input("GDU -> ")
-		registers[self.rs1] = ctypes.c_ulong(int(x)).value
+		registers[self.r_destination] = ctypes.c_ulong(int(x)).value
 		return pc_counter + 1
 
 inst_dict = {

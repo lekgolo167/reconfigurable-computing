@@ -1,17 +1,12 @@
 	.data
-	
-f		1	0
 
 	.const
-s1	37		"Welcome to the DLX factorial program!"
+s1	57		"Welcome to the DLX factorial program!\r\nEnter a number: \r\n"
 s2	4		"! = "
 
 	.text
 	ADDI	R28, R0, 10 ; new line
 	ADDI	R29, R0, 13 ; carrage return
-	GDU		R5			; Scan an unsigned decimal and save to R5
-	ADDU	R6, R5, R0  ;set R6 to R5
-	ADDU 	R11, R5, R0 ;set R11 to R5
 	LW		R12, s1(R0)  ; find how many values s1 has
 	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
 
@@ -21,9 +16,10 @@ print_intro
 	PCH		R15  ; print R12 to the screen
 	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
 	BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
-	PCH		R29 ; carrage return
-	PCH		R28 ; new line
-
+	GDU		R5			; Scan an unsigned decimal and save to R5
+	ADDU	R6, R5, R0  ;set R6 to R5
+	ADDU 	R11, R5, R0 ;set R11 to R5
+	
 m_loop	
 	SGTUI	R1, R5, 2
 	BEQZ	R1, print_result  ; go to print_result if original value is zero
@@ -45,8 +41,9 @@ print_fact_string
 
 	PDU		R6  ; print the final result to the screen
 	
+	PCH		R29 ; carrage return
+	PCH		R28 ; new line
 done
-	SW		f(R0), R6  ;store R6 into f
 	J		done
 		
 func_mult

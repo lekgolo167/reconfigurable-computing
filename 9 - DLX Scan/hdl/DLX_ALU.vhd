@@ -146,6 +146,10 @@ begin
 				alu_out <= operand_0;
 			when c_DLX_PDU	 =>
 				alu_out <= operand_0;
+			when c_DLX_GD =>
+				alu_out <= operand_0;
+			when c_DLX_GDU	 =>
+				alu_out <= operand_0;
 			when others =>
 				alu_out <= x"00000000";
 

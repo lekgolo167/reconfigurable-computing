@@ -25,7 +25,7 @@ begin
 
 	WRP: entity work.DLX_Wrapper(behave)
 	port map (
-		clk => MAX10_CLK1_50,
+		clk => ADC_CLK_10,
 		rstn => rstn_btn,
 		uart_rx => rx_pin,
 		tx_busy => tx_busy,
@@ -33,6 +33,7 @@ begin
 	);
 	
 	rstn_btn <= KEY(0);
+	rx_pin <= GPIO(0);
 	GPIO(1) <= tx_pin;  -- white pin
 	LEDR(0) <= tx_busy;
 	LEDR(9 downto 1) <= (others => '0');

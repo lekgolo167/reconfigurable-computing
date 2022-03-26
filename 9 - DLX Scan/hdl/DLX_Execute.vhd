@@ -8,6 +8,7 @@ entity DLX_Execute is
 	(
 		clk				: in std_logic;
 		id_ex_invalid	: in std_logic;
+		scan_valid		: in std_logic;
 		opcode			: in std_logic_vector(c_DLX_OPCODE_WIDTH-1 downto 0);
 		id_ex_rd_en		: in std_logic;
 		id_ex_rd		: in std_logic_vector(c_DLX_REG_ADDR_WIDTH-1 downto 0);
@@ -57,6 +58,7 @@ architecture rtl of DLX_Execute is
 	signal mem_sel : std_logic;
 	signal link_sel : std_logic;
 	signal stalling : std_logic;
+	signal stall_haz : std_logic;
 	signal reg_to_reg_alu : std_logic;
 	signal data_hazard_0 : std_logic;
 	signal data_hazard_1 : std_logic;
@@ -79,8 +81,8 @@ begin
 	data_hazard_1_1 <= '1' when id_ex_rs2 = mem_wb_rd and reg_to_reg_alu = '1' else '0';
 	data_hazard_0_0_0 <= '1' when id_ex_rs1 = ex_mem_rd and ex_mem_opcode /= "000000"else '0';
 	data_hazard_1_1_1 <= '1' when id_ex_rs2 = ex_mem_rd and (reg_to_reg_alu = '1' and ex_mem_opcode = c_DLX_LW) else '0';
-	stall <= '1' when (data_hazard_0_0_0 = '1' or data_hazard_1_1_1 = '1') and stalling = '1' else '0';
-
+	stall_haz <= '1' when (data_hazard_0_0_0 = '1' or data_hazard_1_1_1 = '1') and stalling = '1' else '0';
+	stall <= '1' when ((opcode = c_DLX_GD or opcode = c_DLX_GDU ) and scan_valid = '0' and ex_mem_invalid = '0') or stall_haz = '1' else '0';
 	mem_en <= '1' when opcode = c_DLX_SW else '0';
 	mem_sel <= '1' when opcode = c_DLX_LW else '0';
 	link_sel <= '1' when opcode = c_DLX_JAL or opcode = c_DLX_JALR else '0';

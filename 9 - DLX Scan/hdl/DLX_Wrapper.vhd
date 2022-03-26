@@ -5,7 +5,9 @@ use ieee.std_logic_unsigned.all;
 use work.dlx_package.all;
 
 entity DLX_Wrapper is
-	
+	generic (
+		clks_per_bit : integer := 434
+	);
 	port (
 		clk : in std_logic;
 		rstn : in std_logic;
@@ -49,13 +51,16 @@ architecture behave of DLX_Wrapper is
 	signal sel_jump_link : std_logic;
 	signal sel_mem_alu : std_logic;
 	signal stall : std_logic;
-
+	
 	signal mem_wr_en : std_logic;
 	signal mem_addr : std_logic_vector(c_DLX_PC_WIDTH-1 downto 0);
 	signal mem_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	
+	signal operand_0_0 : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal alu_out : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
-
+	signal scan_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
+	signal scan_valid : std_logic;
+	
 begin
 
 	jump_addr <= alu_out(c_DLX_PC_WIDTH-1 downto 0);
@@ -98,6 +103,7 @@ begin
 	EXC: entity work.DLX_Execute(rtl)
 	port map (
 		clk => clk,
+		scan_valid => scan_valid,
 		id_ex_invalid => invalid,
 		opcode => inst_opcode,
 		id_ex_rd_en => wr_en_to_execute,
@@ -107,7 +113,7 @@ begin
 		id_ex_rs2 => rs2,
 		mem_wb_rd => wb_id_rd,
 		rd_mem_data => wr_back_data,
-		operand_0 => operand_0,
+		operand_0 => operand_0_0,
 		operand_1 => operand_1,
 		sel_immediate => sel_immediate,
 		immediate => immediate,
@@ -124,7 +130,8 @@ begin
 		ex_mem_pc => ex_mem_pc,
 		data_out => alu_out
 	);
-	
+
+	operand_0_0 <= scan_data when scan_valid = '1' else operand_0;
 	MEM: entity work.DLX_Memory_Writeback(rtl)
 	port map (
 		clk => clk,
@@ -143,15 +150,20 @@ begin
 	);
 	
 	PRT: entity work.DLX_Print_Scan(rtl)
+	generic map (
+		clks_per_bit => clks_per_bit
+	)
 	port map (
 		clk => clk,
 		rstn => rstn,
-		invalid => ex_mem_invalid,
+		invalid => ex_mem_invalid or stall,
 		uart_rx => uart_rx,
 		uart_tx => uart_tx,
 		tx_led => tx_busy,
 		print_data => alu_out,
-		op_code => ex_mem_opcode
+		op_code => ex_mem_opcode,
+		scan_data => scan_data,
+		scan_valid => scan_valid
 	);
 	
 end behave;

@@ -62,7 +62,7 @@ architecture rtl of DLX_Scan is
 	signal fifo_wr_data : std_logic_vector(g_UART_WIDTH-1 downto 0);
 
 	-- State Machine
-	type state_type is (s_IDLE, s_READ, s_SAVE, s_MULT, s_ADD, s_DONE);
+	type state_type is (s_IDLE, s_READ, s_SAVE, s_MULT, s_ADD);
 	signal scan_state : state_type;
 	signal mult_en : std_logic;
 	signal is_negative : std_logic;
@@ -144,9 +144,6 @@ begin
 				when s_ADD =>
 					scan_state <= s_MULT;
 					fifo_rd_en <= '0';
-					
-				when s_DONE =>
-					scan_state <= s_IDLE;
 					
 				when others =>
 					scan_state <= s_IDLE;

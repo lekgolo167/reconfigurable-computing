@@ -5,6 +5,8 @@
 
 import argparse
 
+from numpy import char
+
 from dlx_constants import *
 from dlx_utilities import *
 from dlx_instruction_set import *
@@ -145,7 +147,17 @@ class Lexer:
 		char_array = ""
 
 		while self.current_char != None and self.current_char not in '"\n\r':
-			char_array += self.current_char
+			if self.current_char == '\\':
+				self.advance()
+				if self.nextCharIs('n'):
+					char_array += '\n'
+				elif self.nextCharIs('r'):
+					char_array += '\r'
+				elif self.nextCharIs('0'):
+					char_array += '\0'
+			else:
+				char_array += self.current_char
+
 			self.advance()
 		
 		tok_type = None
@@ -573,7 +585,7 @@ class Assembler():
 				for char in array[1].value:
 					addr_str = format(address, 'X').zfill(ADDR_PAD_SIZE)
 					value_str = self.tohex(ord(char), WORD_WIDTH).zfill(WORD_PAD_SIZE)
-					mif_text += f"{addr_str} : {value_str}; --'{char}'\n"
+					mif_text += f"{addr_str} : {value_str}; --{char.__repr__()}\n"
 
 					address += 1
 		
@@ -622,7 +634,10 @@ class Assembler():
 		if inst_name in REGISTER_OPS:
 			inst_binary += '0' * UNUSED_PAD_SIZE
 		elif inst_name in IO_OPS:
-			inst_binary = '11110' + inst_binary + '0' * IMM_PAD_SIZE
+			if inst_name in ['GD', 'GDU']:
+				inst_binary += '0' * BR_ADDR_PAD_SIZE
+			else:
+				inst_binary = '11110' + inst_binary + '0' * IMM_PAD_SIZE
 			# inst_binary = '0' * REG_PAD_SIZE + inst_binary + '0' * IMM_PAD_SIZE
 		elif inst_name in NO_OPS:
 			inst_binary += '0' * ABS_ADDR_PAD_SIZE
