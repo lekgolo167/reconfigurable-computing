@@ -13,6 +13,7 @@ entity DLX_Scan is
 	port
 	(
 		clk	: in std_logic;
+		clk_io	: in std_logic;
 		rstn : in std_logic;
 		rx_data_valid : in std_logic;
 		rx_byte : in std_logic_vector(g_UART_WIDTH-1 downto 0);
@@ -69,20 +70,29 @@ architecture rtl of DLX_Scan is
 	signal number_char : std_logic;
 	signal escape_char : std_logic;
 
+	signal is_valid : std_logic;
+	signal is_valid_dly : std_logic;
+
 begin
 	
 	twos_complement <= (not mult_accum) + '1';
 	data_out <= mult_accum when is_negative = '0' else twos_complement;
 	
+	scan_valid <= is_valid and not is_valid_dly;
 	process(clk)
 	begin
 		if(rising_edge(clk)) then
+			is_valid_dly <= is_valid;
+		end if;
+	end process;
+	process(clk_io)
+	begin
+		if(rising_edge(clk_io)) then
 			if mult_en = '1' then
 				mult_accum <= mult_result(c_DLX_WORD_WIDTH-1 downto 0) + fifo_rd_data;
 			else
 				mult_accum <= (others => '0');
 			end if;
-
 			scan_data <= data_out;
 		end if;
 	end process;
@@ -90,9 +100,9 @@ begin
 	number_char <= '1' when rx_byte >= x"30" and rx_byte <= x"39" else '0';
 	escape_char <= '1' when rx_byte = x"0A" or rx_byte = x"0D" else '0';
 
-	process(clk)
+	process(clk_io)
 	begin
-		if(rising_edge(clk)) then
+		if(rising_edge(clk_io)) then
 			case scan_state is
 				when s_IDLE =>
 					if rx_data_valid = '1' then
@@ -106,7 +116,7 @@ begin
 					else
 						scan_state <= s_IDLE;
 						is_negative <= '0';
-						scan_valid <= '0';
+						is_valid <= '0';
 						mult_en <= '0';
 						fifo_rd_en <= '0';
 						fifo_wr_en <= '0';
@@ -135,7 +145,7 @@ begin
 				when s_MULT =>
 					fifo_rd_en <= '1';
 					if fifo_empty = '1' then
-						scan_valid <= '1';
+						is_valid <= '1';
 						scan_state <= s_IDLE;
 					else
 						scan_state <= s_ADD;
@@ -158,7 +168,7 @@ begin
 			g_DEPTH => g_DEPTH
 		)
 		port map (
-			clk => clk,
+			clk => clk_io,
 			rstn => rstn,
 			full => fifo_full,
 			wr_en => fifo_wr_en,
@@ -176,7 +186,7 @@ begin
 			LPM_PIPELINE => 1
 		)
 		port map (
-			clock => clk,
+			clock => clk_io,
 			clken => '1',
 			aclr => not rstn,
 			dataa => x"0000000A",

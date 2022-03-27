@@ -15,6 +15,8 @@ entity DLX_Top is
 end DLX_Top;
 
 architecture behave of DLX_Top is
+	signal clk_sys : std_logic;
+	signal clk_io : std_logic;
 	signal rstn_btn : std_logic;
 	-- uart signals
 	signal tx_busy : std_logic;
@@ -22,10 +24,17 @@ architecture behave of DLX_Top is
 	signal tx_pin : std_logic;
 
 begin
+	PL0: entity work.PLL(syn)
+	port map (
+		inclk0 => MAX10_CLK1_50,
+		c0	=> clk_sys,
+		c1 => clk_io
+	);
 
 	WRP: entity work.DLX_Wrapper(behave)
 	port map (
-		clk => ADC_CLK_10,
+		clk => clk_sys,
+		clk_io => clk_io,
 		rstn => rstn_btn,
 		uart_rx => rx_pin,
 		tx_busy => tx_busy,

@@ -6,10 +6,11 @@ use work.dlx_package.all;
 
 entity DLX_Wrapper is
 	generic (
-		clks_per_bit : integer := 434
+		clks_per_bit : integer := 87
 	);
 	port (
 		clk : in std_logic;
+		clk_io : in std_logic;
 		rstn : in std_logic;
 		uart_rx : in std_logic;
 		tx_busy : out std_logic;
@@ -155,6 +156,7 @@ begin
 	)
 	port map (
 		clk => clk,
+		clk_io => clk_io,
 		rstn => rstn,
 		invalid => ex_mem_invalid or stall,
 		uart_rx => uart_rx,

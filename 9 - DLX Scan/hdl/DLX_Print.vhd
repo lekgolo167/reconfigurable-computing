@@ -15,6 +15,7 @@ entity DLX_Print is
 	port
 	(
 		clk	: in std_logic;
+		clk_io	: in std_logic;
 		rstn : in std_logic;
 		invalid : in std_logic;
 		print_data : in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
@@ -96,9 +97,9 @@ begin
 		end if;
 	end process;
 	
-	process(clk)
+	process(clk_io)
 	begin
-		if(rising_edge(clk)) then
+		if(rising_edge(clk_io)) then
 			case print_state is
 				when s_IDLE =>
 					if fifo_empty = '0' then
@@ -203,7 +204,7 @@ begin
 		LPM_PIPELINE => 1
 	)
 	port map (
-		clock => clk,
+		clock => clk_io,
 		clken => '1',
 		aclr => not rstn,
 		numer => div_input,
@@ -220,7 +221,7 @@ begin
 		g_DEPTH => g_TX_DEPTH
 	)
 	port map (
-		clk => clk,
+		clk => clk_io,
 		rstn => rstn,
 		full => lifo_full,
 		wr_en => lifo_wr_en,

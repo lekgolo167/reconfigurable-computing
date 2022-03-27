@@ -60,8 +60,19 @@ architecture rtl of FIFO is
   signal w_FULL  : std_logic;
   signal w_EMPTY : std_logic;
    
+  signal read_en : std_logic;
+  signal read_en_dly : std_logic;
 begin
- 
+
+  process (clk)
+  begin
+    if rising_edge(clk) then
+      read_en_dly <= rd_en;
+    end if;
+  end process;
+
+  read_en <= rd_en and not read_en_dly;
+
   p_CONTROL : process (clk, rstn) is
   begin
 	if rstn = '0' then
@@ -70,9 +81,9 @@ begin
 		r_RD_INDEX   <= 0;
     elsif rising_edge(clk) then
         -- Keeps track of the total number of words in the FIFO
-        if (wr_en = '1' and rd_en = '0') then
+        if (wr_en = '1' and read_en = '0') then
           r_FIFO_COUNT <= r_FIFO_COUNT + 1;
-        elsif (wr_en = '0' and rd_en = '1') then
+        elsif (wr_en = '0' and read_en = '1') then
           r_FIFO_COUNT <= r_FIFO_COUNT - 1;
         end if;
  
@@ -86,7 +97,7 @@ begin
         end if;
  
         -- Keeps track of the read index (and controls roll-over)        
-        if (rd_en = '1' and w_EMPTY = '0') then
+        if (read_en = '1' and w_EMPTY = '0') then
           if r_RD_INDEX = g_DEPTH-1 then
             r_RD_INDEX <= 0;
           else

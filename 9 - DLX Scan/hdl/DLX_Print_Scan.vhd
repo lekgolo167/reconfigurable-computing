@@ -16,6 +16,7 @@ entity DLX_Print_Scan is
 	port
 	(
 		clk	: in std_logic;
+		clk_io	: in std_logic;
 		rstn : in std_logic;
 		invalid : in std_logic;
 		print_data : in std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
@@ -50,6 +51,7 @@ begin
 	)
 	port map (
 		clk => clk,
+		clk_io => clk_io,
 		rstn => rstn,
 		invalid => invalid,
 		print_data => print_data,
@@ -66,6 +68,7 @@ begin
 	)
 	port map (
 		clk => clk,
+		clk_io => clk_io,
 		rstn => rstn,
 		rx_data_valid => rx_data_valid,
 		rx_byte => received_byte,
@@ -80,7 +83,7 @@ begin
 		clks_per_bit => clks_per_bit
 	)
 	port map (
-		clk => clk,
+		clk => clk_io,
 		-- rx
 		rx_serial => uart_rx,
 		rx_data_valid => rx_data_valid,
