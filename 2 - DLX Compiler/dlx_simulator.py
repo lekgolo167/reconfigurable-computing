@@ -1,5 +1,6 @@
 import argparse
 import ctypes
+from datetime import datetime
 
 def rshift(val, n):
 	return (val % 0x100000000) >> n
@@ -18,6 +19,8 @@ class Instruction:
 		self.r_comp = r_comp
 		self.branch_taken = 0
 		self.branch_not_taken = 0
+		self.timer_value = 0
+		self.timer_date = datetime.now()
 
 class NOP(Instruction):
 	def execute(self, registers, memory, pc_counter):
@@ -356,6 +359,27 @@ class GDU(Instruction):
 		registers[self.r_destination] = ctypes.c_ulong(int(x)).value
 		return pc_counter + 1
 
+class TR(Instruction):
+	def execute(self, register, memory, pc_counter):
+		self.timer_value = 0
+		self.timer_date = None
+		print("TR -> Timer reset");
+		return pc_counter + 1
+
+class TGO(Instruction):
+	def execute(self, register, memory, pc_counter):
+		if self.timer_date is None:
+			self.timer_date = datetime.now()
+		print("TGO -> timer started");
+		return pc_counter + 1
+
+class TSP(Instruction):
+	def execute(self, register, memory, pc_counter):
+		timeD = (datetime.now() - self.timer_date)
+		self.timer_value += (timeD.seconds * 1000000)  + timeD.microseconds
+		print(f"TSP -> Timer stopped: {self.timer_value}");
+		return pc_counter + 1
+
 inst_dict = {
 	0X0:NOP,
 	0X1:LW,
@@ -410,7 +434,10 @@ inst_dict = {
 	0x32:PD,
 	0x33:PDU,
 	0x34:GD,
-	0x35:GDU
+	0x35:GDU,
+	0x36:TR,
+	0x37:TGO,
+	0x38:TSP
 }
 
 class DlxSimulator:

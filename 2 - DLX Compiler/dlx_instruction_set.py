@@ -1,6 +1,9 @@
 
 INSTRUCTIONS = [
 		"NOP",
+		"TR",
+		"TGO",
+		"TSP",
 		"LW",
 		"SW",
 		"ADD",
@@ -58,6 +61,9 @@ INSTRUCTIONS = [
 
 NO_OPS = [
 		"NOP",
+		"TR",
+		"TGO",
+		"TSP",
 ]
 
 IO_OPS = [
@@ -133,6 +139,9 @@ IMMEDIATE_OPS = [
 
 OP_CODES_DICT = {
 		"NOP":0,
+		"TR":54,
+		"TGO":55,
+		"TSP":56,
 		"LW":1,
 		"SW":2,
 		"ADD":3,
