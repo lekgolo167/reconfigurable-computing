@@ -4,10 +4,9 @@
 
 .text
 
-TR
-TGO
-GDU R15
-TGO
-GDU R15
-TSP
-NOP
+	TR
+	TGO
+	GDU	R15
+	TSP
+done
+	J	done

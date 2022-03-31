@@ -12,6 +12,8 @@ entity DLX_Wrapper is
 		clk : in std_logic;
 		clk_io : in std_logic;
 		rstn : in std_logic;
+		periph_rst : out std_logic;
+		timer_en : out std_logic;
 		uart_rx : in std_logic;
 		tx_busy : out std_logic;
 		uart_tx : out std_logic
@@ -61,6 +63,11 @@ architecture behave of DLX_Wrapper is
 	signal alu_out : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal scan_data : std_logic_vector(c_DLX_WORD_WIDTH-1 downto 0);
 	signal scan_valid : std_logic;
+
+	-- timer signals
+	signal timer_rst : std_logic;
+	signal timer_start : std_logic;
+	signal timer_stop : std_logic;
 	
 begin
 
@@ -168,4 +175,29 @@ begin
 		scan_valid => scan_valid
 	);
 	
+	periph_rst <= timer_rst;
+	process(clk) is
+	begin
+		if rising_edge(clk) then
+			case ex_mem_opcode is
+				when c_DLX_TR =>
+					timer_rst <= '1';
+					timer_en <= '0';
+
+				when c_DLX_TGO =>
+					timer_rst <= '0';
+					timer_en <= '1';
+
+				when c_DLX_TSP =>
+					timer_rst <= '0';
+					timer_en <= '0';
+					
+				when others =>
+					timer_rst <= '0';
+					timer_en <= '0';
+			end case;
+
+		end if;
+	end process;
+
 end behave;

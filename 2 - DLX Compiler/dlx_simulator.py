@@ -370,7 +370,7 @@ class TGO(Instruction):
 	def execute(self, register, memory, pc_counter):
 		if self.timer_date is None:
 			self.timer_date = datetime.now()
-		print("TGO -> timer started");
+		print("TGO -> Timer started");
 		return pc_counter + 1
 
 class TSP(Instruction):
