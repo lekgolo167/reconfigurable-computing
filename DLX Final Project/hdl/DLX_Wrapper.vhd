@@ -194,7 +194,7 @@ begin
 					
 				when others =>
 					timer_rst <= '0';
-					timer_en <= '0';
+					--timer_en <= '0';
 			end case;
 
 		end if;

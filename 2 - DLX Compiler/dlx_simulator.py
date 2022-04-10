@@ -2,6 +2,9 @@ import argparse
 import ctypes
 from datetime import datetime
 
+timer_value = 0
+timer_date = None
+
 def rshift(val, n):
 	return (val % 0x100000000) >> n
 
@@ -19,8 +22,6 @@ class Instruction:
 		self.r_comp = r_comp
 		self.branch_taken = 0
 		self.branch_not_taken = 0
-		self.timer_value = 0
-		self.timer_date = datetime.now()
 
 class NOP(Instruction):
 	def execute(self, registers, memory, pc_counter):
@@ -361,23 +362,27 @@ class GDU(Instruction):
 
 class TR(Instruction):
 	def execute(self, register, memory, pc_counter):
-		self.timer_value = 0
-		self.timer_date = None
+		global timer_date, timer_value
+		timer_value = 0
+		timer_date = None
 		print("TR -> Timer reset");
 		return pc_counter + 1
 
 class TGO(Instruction):
 	def execute(self, register, memory, pc_counter):
-		if self.timer_date is None:
-			self.timer_date = datetime.now()
+		global timer_date, timer_value
+		if timer_date is None:
+			timer_date = datetime.now()
 		print("TGO -> Timer started");
 		return pc_counter + 1
 
 class TSP(Instruction):
 	def execute(self, register, memory, pc_counter):
-		timeD = (datetime.now() - self.timer_date)
-		self.timer_value += (timeD.seconds * 1000000)  + timeD.microseconds
-		print(f"TSP -> Timer stopped: {self.timer_value}");
+		global timer_date, timer_value
+		timeD = (datetime.now() - timer_date)
+		timer_date = None
+		timer_value += timeD.total_seconds() * 1000
+		print(f"TSP -> Timer stopped: {timer_value} ms");
 		return pc_counter + 1
 
 inst_dict = {
@@ -505,7 +510,7 @@ class DlxSimulator:
 		
 		if iterations == self.max_iterations:
 			print('Max loop iterations reached!')
-		elif self.info:
+		if self.info:
 			self.show_results()
 			print(f'Finished in {iterations} iterations')
 

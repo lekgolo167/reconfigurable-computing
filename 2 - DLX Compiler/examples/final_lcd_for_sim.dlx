@@ -9,42 +9,52 @@
 	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
 
 print_intro
-	LW		R15, s1(R13)  ; load the next char into R15
-	SGEU	R14, R13, R12  ; Set if R13 > R12
-	PCH		R15  ; print R12 to the screen
-	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
-	BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
-	ADDUI	R31, R0, 32
-	GDU		R1 ; get user input 10 times
-	PDU		R1
-	PCH		R31
-	GDU		R2
-	PDU		R2
-	PCH		R31
-	GDU		R3
-	PDU		R3
-	PCH		R31
-	GDU		R4
-	PDU		R4
-	PCH		R31
-	GDU		R5
-	PDU		R5
-	PCH		R31
-	GDU		R6
-	PDU		R6
-	PCH		R31
-	GDU		R7
-	PDU		R7
-	PCH		R31
-	GDU		R8
-	PDU		R8
-	PCH		R31
-	GDU		R9
-	PDU		R9
-	PCH		R31
-	GDU		R10
-	PDU		R10
-	PCH		R31
+	;LW		R15, s1(R13)  ; load the next char into R15
+	;SGEU	R14, R13, R12  ; Set if R13 > R12
+	;PCH		R15  ; print R12 to the screen
+	;ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
+	;BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
+	;ADDUI	R31, R0, 32
+	;GDU		R1 ; get user input 10 times
+	;PDU		R1
+	;PCH		R31
+	;GDU		R2
+	;PDU		R2
+	;PCH		R31
+	;GDU		R3
+	;PDU		R3
+	;PCH		R31
+	;GDU		R4
+	;PDU		R4
+	;PCH		R31
+	;GDU		R5
+	;PDU		R5
+	;PCH		R31
+	;GDU		R6
+	;PDU		R6
+	;PCH		R31
+	;GDU		R7
+	;PDU		R7
+	;PCH		R31
+	;GDU		R8
+	;PDU		R8
+	;PCH		R31
+	;GDU		R9
+	;PDU		R9
+	;PCH		R31
+	;GDU		R10
+	;PDU		R10
+	;PCH		R31
+	ADDUI	R1, R0, 5
+	ADDUI	R2, R0, 5
+	ADDUI	R3, R0, 5
+	ADDUI	R4, R0, 5
+	ADDUI	R5, R0, 10
+	ADDUI	R6, R0, 5
+	ADDUI	R7, R0, 5
+	ADDUI	R8, R0, 5
+	ADDUI	R9, R0, 5
+	ADDUI	R10, R0, 5
 	ADDU	R11, R1, R0 ; copy originals into scratch registers
 	ADDU	R12, R2, R0
 	ADDU	R13, R3, R0
@@ -57,8 +67,8 @@ print_intro
 	ADDU	R20, R10, R0
 	ADDUI	R28, R0, 13
 	ADDUI	R29, R0, 10
-	PCH		R28
-	PCH		R29
+	;PCH		R28
+	;PCH		R29
 	TR
 	TGO
 main

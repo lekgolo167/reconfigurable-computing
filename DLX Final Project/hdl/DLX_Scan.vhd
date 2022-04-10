@@ -85,6 +85,7 @@ begin
 			is_valid_dly <= is_valid;
 		end if;
 	end process;
+	
 	process(clk_io)
 	begin
 		if(rising_edge(clk_io)) then
@@ -98,7 +99,7 @@ begin
 	end process;
 	
 	number_char <= '1' when rx_byte >= x"30" and rx_byte <= x"39" else '0';
-	escape_char <= '1' when rx_byte = x"0A" or rx_byte = x"0D" else '0';
+	escape_char <= '1' when rx_byte = x"0A" or rx_byte = x"0D" or rx_byte = x"20" else '0';
 
 	process(clk_io)
 	begin
