@@ -1,56 +1,16 @@
 .data
 
 .const
-	s1	57		"Welcome to the DLX LCD program!\r\nEnter 10 numbers: \r\n"
 	s2	4		"LCD = "
 
 .text
-	LW		R12, s1(R0)  ; find how many values s1 has
-	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
 
-print_intro
-	;LW		R15, s1(R13)  ; load the next char into R15
-	;SGEU	R14, R13, R12  ; Set if R13 > R12
-	;PCH		R15  ; print R12 to the screen
-	;ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
-	;BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
-	;ADDUI	R31, R0, 32
-	;GDU		R1 ; get user input 10 times
-	;PDU		R1
-	;PCH		R31
-	;GDU		R2
-	;PDU		R2
-	;PCH		R31
-	;GDU		R3
-	;PDU		R3
-	;PCH		R31
-	;GDU		R4
-	;PDU		R4
-	;PCH		R31
-	;GDU		R5
-	;PDU		R5
-	;PCH		R31
-	;GDU		R6
-	;PDU		R6
-	;PCH		R31
-	;GDU		R7
-	;PDU		R7
-	;PCH		R31
-	;GDU		R8
-	;PDU		R8
-	;PCH		R31
-	;GDU		R9
-	;PDU		R9
-	;PCH		R31
-	;GDU		R10
-	;PDU		R10
-	;PCH		R31
 	ADDUI	R1, R0, 5
 	ADDUI	R2, R0, 5
-	ADDUI	R3, R0, 5
+	ADDUI	R3, R0, 8
 	ADDUI	R4, R0, 5
-	ADDUI	R5, R0, 10
-	ADDUI	R6, R0, 5
+	ADDUI	R5, R0, 5
+	ADDUI	R6, R0, 60
 	ADDUI	R7, R0, 5
 	ADDUI	R8, R0, 5
 	ADDUI	R9, R0, 5
@@ -67,177 +27,175 @@ print_intro
 	ADDU	R20, R10, R0
 	ADDUI	R28, R0, 13
 	ADDUI	R29, R0, 10
-	;PCH		R28
-	;PCH		R29
 	TR
 	TGO
 main
+NOP
 ;incr_1
 	SLT		R21, R11, R12
-	NOP
 	BEQZ	R21, incr_2
-	ADDU	R11, R11, R1
-	J		main
+	ADDU	R11, R1, R11
 
+	BEQZ	R0,	main
+
+NOP
 incr_2
 	SLT		R21, R12, R13
-	NOP
 	BEQZ	R21, incr_3
-	ADDU	R12, R12, R2
-	J		incr_2
+	ADDU	R12, R2, R12
 
+	BEQZ	R0,	incr_2
+
+NOP
 incr_3
 	SLT		R21, R13, R14
-	NOP
 	BEQZ	R21, incr_4
-	ADDU	R13, R13, R3
-	J		incr_3
+	ADDU	R13, R3, R13
 
+	BEQZ	R0,	incr_3
+
+NOP
 incr_4
 	SLT		R21, R14, R15
-	NOP
 	BEQZ	R21, incr_5
-	ADDU	R14, R14, R4
-	J		incr_4
+	ADDU	R14, R4, R14
 
+	BEQZ	R0,	incr_4
+
+NOP
 incr_5
 	SLT		R21, R15, R16
-	NOP
 	BEQZ	R21, incr_6
-	ADDU	R15, R15, R5
-	J		incr_5
+	ADDU	R15, R5, R15
 
+	BEQZ	R0,	incr_5
+
+NOP
 incr_6
 	SLT		R21, R16, R17
-	NOP
 	BEQZ	R21, incr_7
-	ADDU	R16, R16, R6
-	J		incr_6
+	ADDU	R16, R6, R16
 
+	BEQZ	R0,	incr_6
+
+NOP
 incr_7
 	SLT		R21, R17, R18
-	NOP
 	BEQZ	R21, incr_8
-	ADDU	R17, R17, R7
-	J		incr_7
+	ADDU	R17, R7, R17
 
+	BEQZ	R0,	incr_7
+
+NOP
 incr_8
 	SLT		R21, R18, R19
-	NOP
 	BEQZ	R21, incr_9
-	ADDU	R18, R18, R8
-	J		incr_8
+	ADDU	R18, R8, R18
 
+	BEQZ	R0,	incr_8
+
+NOP
 incr_9
 	SLT		R21, R19, R20
-	NOP
 	BEQZ	R21, incr_10_b
-	ADDU	R19, R19, R9
-	J		incr_9
+	ADDU	R19, R9, R19
 
-; ------------------------------------ backwards
+	BEQZ	R0,	incr_9
+
 NOP
+; ------------------------------------ backwards
 incr_10_b
 	SLT		R21, R20, R19
-	NOP
 	BEQZ	R21, incr_9_b
-	ADDU	R20, R20, R10
-	J		incr_10_b
+	ADDU	R20, R10, R20
 
+	BEQZ	R0,	incr_10_b
+
+NOP
 incr_9_b
 	SLT		R21, R19, R18
-	NOP
 	BEQZ	R21, incr_8_b
-	ADDU	R19, R19, R9
-	J		incr_9_b
+	ADDU	R19, R9, R19
 
+	BEQZ	R0,	incr_9_b
+
+NOP
 incr_8_b
 	SLT		R21, R18, R17
-	NOP
 	BEQZ	R21, incr_7_b
-	ADDU	R18, R18, R8
-	J		incr_8_b
+	ADDU	R18, R8, R18
 
+	BEQZ	R0,	incr_8_b
+
+NOP
 incr_7_b
 	SLT		R21, R17, R16
-	NOP
 	BEQZ	R21, incr_6_b
-	ADDU	R17, R17, R7
-	J		incr_7_b
+	ADDU	R17, R7, R17
 
+	BEQZ	R0,	incr_7_b
+
+NOP
 incr_6_b
 	SLT		R21, R16, R15
-	NOP
 	BEQZ	R21, incr_5_b
-	ADDU	R16, R16, R6
-	J		incr_6_b
+	ADDU	R16, R6, R16
 
+	BEQZ	R0,	incr_6_b
+
+NOP
 incr_5_b
 	SLT		R21, R15, R14
-	NOP
 	BEQZ	R21, incr_4_b
-	ADDU	R15, R15, R5
-	J		incr_5_b
+	ADDU	R15, R5, R15
 
+	BEQZ	R0,	incr_5_b
+
+NOP
 incr_4_b
 	SLT		R21, R14, R13
-	NOP
 	BEQZ	R21, incr_3_b
-	ADDU	R14, R14, R4
-	J		incr_4_b
+	ADDU	R14, R4, R14
 
+	BEQZ	R0,	incr_4_b
+
+NOP
 incr_3_b
 	SLT		R21, R13, R12
-	NOP
 	BEQZ	R21, incr_2_b
-	ADDU	R13, R13, R3
-	J		incr_3_b
+	ADDU	R13, R3, R13
+	BEQZ	R0,	incr_3_b
 
+NOP
 incr_2_b
 	SLT		R21, R12, R11
-	NOP
 	BEQZ	R21, is_done
-	ADDU	R12, R12, R2
-	J		incr_2_b
-
-;incr_1_b
-;	SLT		R21, R11, R12
-;	NOP
-;	BEQZ	R21, is_done
-;	ADDU	R11, R11, R1
-;	J		incr_1_b
+	ADDU	R12, R2, R12
+	BEQZ	R0,	incr_2_b
 
 is_done
-	NOP
-	NOP
+NOP
+NOP
 	SNE		R21, R11, R12
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R12, R13
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R13, R14
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R14, R15
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R15, R16
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R16, R17
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R17, R18
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R18, R19
 	BNEZ	R21, main
-	NOP
 	SNE		R21, R19, R20
-	BNEZ	R21, main
+	BNEZ	R21, main	
 	NOP
-
+	NOP
 print_result
 	LW		R12, s2(R0)  ; find how many values s2 has
 	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
@@ -250,11 +208,10 @@ print_result_loop
 	BEQZ	R14, print_result_loop  ; jump back to print_intro if R14==0
 
 	PDU		R11  ; print the final result to the screen
-	
 	PCH		R28 ; carrage return
 	PCH		R29 ; new line
 
 	TSP
 
 done
-	J		done
+	BEQZ	R0,	done

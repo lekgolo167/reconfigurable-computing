@@ -102,10 +102,10 @@ begin
 	end process;
 
 	opcode <= instruction(31 downto 31-c_DLX_OPCODE_WIDTH+1);
-	rd_addr_0 <= instruction(20 downto 20-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_BEQZ and opcode /= c_DLX_BNEZ ) else rd_reg;
+	rd_addr_0 <= instruction(20 downto 20-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_BEQZ and opcode /= c_DLX_BNEZ ) else instruction(25 downto 25-c_DLX_REG_ADDR_WIDTH+1);
 	rd_addr_1 <= instruction(15 downto 15-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_SW and opcode < c_DLX_J) else rd_reg;
 	imm <= instruction(15 downto 15-c_DLX_IMM_WIDTH+1);
-	rd_reg <= instruction(25 downto 25-c_DLX_REG_ADDR_WIDTH+1);
+	rd_reg <= instruction(25 downto 25-c_DLX_REG_ADDR_WIDTH+1) when (opcode /= c_DLX_BEQZ and opcode /= c_DLX_BNEZ ) else "00000";
 
 	REG: entity work.DLX_Registers(rtl)
 		port map (

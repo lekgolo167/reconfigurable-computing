@@ -55,14 +55,14 @@ begin
 
 	-- send the string number 5
 	wait until rising_edge(clk);
-	UART_WRITE_BYTE(x"36", rx);
+	--UART_WRITE_BYTE(x"36", rx);
 	wait for c_CLK_PERIOD*15;
 	-- send enter key
 	wait until rising_edge(clk);
-	UART_WRITE_BYTE(x"0D", rx);
+	--UART_WRITE_BYTE(x"0D", rx);
 	wait for c_CLK_PERIOD*15;
 	wait until rising_edge(clk);
-	UART_WRITE_BYTE(x"0A", rx);
+	--UART_WRITE_BYTE(x"0A", rx);
 	wait for c_CLK_PERIOD*15;
 	end process;
 
