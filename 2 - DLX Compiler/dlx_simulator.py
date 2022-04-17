@@ -510,9 +510,11 @@ class DlxSimulator:
 		
 		if iterations == self.max_iterations:
 			print('Max loop iterations reached!')
+		else:
+			print(f'Finished in {iterations} iterations')
+
 		if self.info:
 			self.show_results()
-			print(f'Finished in {iterations} iterations')
 
 		if self.branch_stats:
 			self.branch_analysis()

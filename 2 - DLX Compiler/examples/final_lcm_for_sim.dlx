@@ -1,0 +1,275 @@
+.data
+
+.const
+	s2	4		"LCM = "
+
+.text
+
+	ADDUI	R1, R0, 1
+	ADDUI	R2, R0, 19
+	ADDUI	R3, R0, 5
+	ADDUI	R4, R0, 15
+	ADDUI	R5, R0, 11
+	ADDUI	R6, R0, 9
+	ADDUI	R7, R0, 13
+	ADDUI	R8, R0, 7
+	ADDUI	R9, R0, 17
+	ADDUI	R10, R0, 3
+	ADDU	R11, R1, R0 ; copy originals into scratch registers
+	ADDU	R12, R2, R0
+	ADDU	R13, R3, R0
+	ADDU	R14, R4, R0
+	ADDU	R15, R5, R0
+	ADDU	R16, R6, R0
+	ADDU	R17, R7, R0
+	ADDU	R18, R8, R0
+	ADDU	R19, R9, R0
+	ADDU	R20, R10, R0
+	ADDUI	R28, R0, 13
+	ADDUI	R29, R0, 10
+	TR
+	TGO
+
+first_lcm_1
+NOP
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_lcm_1
+
+NOP
+first_lcm_2
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	first_lcm_2
+
+NOP
+check_1
+	SNE		R21, R11, R12
+	BNEZ	R21, first_lcm_1
+
+	ADDU	R1, R11, R0
+
+; -- second lcm
+NOP
+second_lcm_1
+	SLT		R21, R13, R14
+	BEQZ	R21, second_lcm_2
+	ADDU	R13, R3, R13
+
+	BEQZ	R0,	second_lcm_1
+
+NOP
+second_lcm_2
+	SLT		R21, R14, R13
+	BEQZ	R21, check_2
+	ADDU	R14, R4, R14
+
+	BEQZ	R0,	second_lcm_2
+
+NOP
+check_2
+	SNE		R21, R13, R14
+	BNEZ	R21, second_lcm_1
+
+	ADDU	R2, R13, R0
+
+; -- third lcm
+NOP
+third_lcm_1
+	SLT		R21, R15, R16
+	BEQZ	R21, third_lcm_2
+	ADDU	R15, R5, R15
+
+	BEQZ	R0,	third_lcm_1
+
+NOP
+third_lcm_2
+	SLT		R21, R16, R15
+	BEQZ	R21, check_3
+	ADDU	R16, R6, R16
+
+	BEQZ	R0,	third_lcm_2
+
+NOP
+check_3
+	SNE		R21, R15, R16
+	BNEZ	R21, third_lcm_1
+
+	ADDU	R3, R15, R0
+
+; -- fourth lcm
+NOP
+fourth_lcm_1
+	SLT		R21, R17, R18
+	BEQZ	R21, fourth_lcm_2
+	ADDU	R17, R7, R17
+
+	BEQZ	R0,	fourth_lcm_1
+
+NOP
+fourth_lcm_2
+	SLT		R21, R18, R17
+	BEQZ	R21, check_4
+	ADDU	R18, R8, R18
+
+	BEQZ	R0,	fourth_lcm_2
+
+NOP
+check_4
+	SNE		R21, R17, R18
+	BNEZ	R21, fourth_lcm_1
+
+	ADDU	R4, R17, R0
+
+; -- fifth lcm
+NOP
+fifth_lcm_1
+	SLT		R21, R19, R20
+	BEQZ	R21, fifth_lcm_2
+	ADDU	R19, R9, R19
+
+	BEQZ	R0,	fifth_lcm_1
+
+NOP
+fifth_lcm_2
+	SLT		R21, R20, R19
+	BEQZ	R21, check_5
+	ADDU	R20, R10, R20
+
+	BEQZ	R0,	fifth_lcm_2
+
+NOP
+check_5
+	SNE		R21, R19, R20
+	BNEZ	R21, fourth_lcm_1
+
+	ADDU	R5, R19, R0
+
+; ---- second round
+NOP
+	ADDU	R11, R1, R0
+	ADDU	R12, R2, R0
+	ADDU	R13, R3, R0
+	ADDU	R14, R4, R0
+	ADDU	R15, R5, R0
+
+NOP
+first_lcm_1_b
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2_b
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_lcm_1_b
+
+NOP
+first_lcm_2_b
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1_b
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	first_lcm_2_b
+
+NOP
+check_1_b
+	SNE		R21, R11, R12
+	BNEZ	R21, first_lcm_1_b
+
+	ADDU	R1, R11, R0
+
+; -- second lcm
+NOP
+second_lcm_1_b
+	SLT		R21, R13, R14
+	BEQZ	R21, second_lcm_2_b
+	ADDU	R13, R3, R13
+
+	BEQZ	R0,	second_lcm_1_b
+
+NOP
+second_lcm_2_b
+	SLT		R21, R14, R13
+	BEQZ	R21, check_2_b
+	ADDU	R14, R4, R14
+
+	BEQZ	R0,	second_lcm_2_b
+
+NOP
+check_2_b
+	SNE		R21, R13, R14
+	BNEZ	R21, second_lcm_1_b
+
+	ADDU	R6, R13, R0
+	ADDU	R16, R13, R0
+
+; -- third lcm
+NOP
+third_lcm_1_b
+	SLT		R21, R15, R16
+	BEQZ	R21, third_lcm_2_b
+	ADDU	R15, R5, R15
+
+	BEQZ	R0,	third_lcm_1_b
+
+NOP
+third_lcm_2_b
+	SLT		R21, R16, R15
+	BEQZ	R21, check_3_b
+	ADDU	R16, R6, R16
+
+	BEQZ	R0,	third_lcm_2_b
+
+NOP
+check_3_b
+	SNE		R21, R15, R16
+	BNEZ	R21, third_lcm_1_b
+
+	ADDU	R2, R15, R0
+	ADDU	R11, R1, R0
+	ADDU	R12, R2, R0
+
+NOP
+first_lcm_1_c
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2_c
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_lcm_1_c
+
+NOP
+first_lcm_2_c
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	first_lcm_2_c
+
+NOP
+check_1_c
+	SNE		R21, R11, R12
+	BNEZ	R21, first_lcm_1_c
+
+	NOP
+	NOP
+print_result
+	LW		R12, s2(R0)  ; find how many values s2 has
+	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
+
+print_result_loop
+	LW		R15, s2(R13)  ; load the next char into R15
+	SGEU	R14, R13, R12  ; Set if R13 > R12
+	PCH		R15  ; print R12 to the screen
+	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
+	BEQZ	R14, print_result_loop  ; jump back to print_intro if R14==0
+
+	PDU		R11  ; print the final result to the screen
+	PCH		R28 ; carrage return
+	PCH		R29 ; new line
+
+	TSP
+
+done
+	BEQZ	R0,	done
