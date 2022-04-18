@@ -5,16 +5,16 @@
 
 .text
 
-	ADDUI	R1, R0, 1
-	ADDUI	R2, R0, 19
+	ADDUI	R1, R0, 2
+	ADDUI	R2, R0, 3
 	ADDUI	R3, R0, 5
-	ADDUI	R4, R0, 15
+	ADDUI	R4, R0, 7
 	ADDUI	R5, R0, 11
-	ADDUI	R6, R0, 9
-	ADDUI	R7, R0, 13
-	ADDUI	R8, R0, 7
-	ADDUI	R9, R0, 17
-	ADDUI	R10, R0, 3
+	ADDUI	R6, R0, 13
+	ADDUI	R7, R0, 17
+	ADDUI	R8, R0, 19
+	ADDUI	R9, R0, 20
+	ADDUI	R10, R0, 23
 	ADDU	R11, R1, R0 ; copy originals into scratch registers
 	ADDU	R12, R2, R0
 	ADDU	R13, R3, R0
@@ -35,11 +35,23 @@ NOP
 	SLT		R21, R11, R12
 	BEQZ	R21, first_lcm_2
 	ADDU	R11, R1, R11
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2
+	ADDU	R11, R1, R11
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2
+	ADDU	R11, R1, R11
 
 	BEQZ	R0,	first_lcm_1
 
 NOP
 first_lcm_2
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1
+	ADDU	R12, R2, R12
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1
+	ADDU	R12, R2, R12
 	SLT		R21, R12, R11
 	BEQZ	R21, check_1
 	ADDU	R12, R2, R12
@@ -59,11 +71,23 @@ second_lcm_1
 	SLT		R21, R13, R14
 	BEQZ	R21, second_lcm_2
 	ADDU	R13, R3, R13
+	SLT		R21, R13, R14
+	BEQZ	R21, second_lcm_2
+	ADDU	R13, R3, R13
+	SLT		R21, R13, R14
+	BEQZ	R21, second_lcm_2
+	ADDU	R13, R3, R13
 
 	BEQZ	R0,	second_lcm_1
 
 NOP
 second_lcm_2
+	SLT		R21, R14, R13
+	BEQZ	R21, check_2
+	ADDU	R14, R4, R14
+	SLT		R21, R14, R13
+	BEQZ	R21, check_2
+	ADDU	R14, R4, R14
 	SLT		R21, R14, R13
 	BEQZ	R21, check_2
 	ADDU	R14, R4, R14
@@ -83,11 +107,23 @@ third_lcm_1
 	SLT		R21, R15, R16
 	BEQZ	R21, third_lcm_2
 	ADDU	R15, R5, R15
+	SLT		R21, R15, R16
+	BEQZ	R21, third_lcm_2
+	ADDU	R15, R5, R15
+	SLT		R21, R15, R16
+	BEQZ	R21, third_lcm_2
+	ADDU	R15, R5, R15
 
 	BEQZ	R0,	third_lcm_1
 
 NOP
 third_lcm_2
+	SLT		R21, R16, R15
+	BEQZ	R21, check_3
+	ADDU	R16, R6, R16
+	SLT		R21, R16, R15
+	BEQZ	R21, check_3
+	ADDU	R16, R6, R16
 	SLT		R21, R16, R15
 	BEQZ	R21, check_3
 	ADDU	R16, R6, R16
@@ -107,11 +143,23 @@ fourth_lcm_1
 	SLT		R21, R17, R18
 	BEQZ	R21, fourth_lcm_2
 	ADDU	R17, R7, R17
+	SLT		R21, R17, R18
+	BEQZ	R21, fourth_lcm_2
+	ADDU	R17, R7, R17
+	SLT		R21, R17, R18
+	BEQZ	R21, fourth_lcm_2
+	ADDU	R17, R7, R17
 
 	BEQZ	R0,	fourth_lcm_1
 
 NOP
 fourth_lcm_2
+	SLT		R21, R18, R17
+	BEQZ	R21, check_4
+	ADDU	R18, R8, R18
+	SLT		R21, R18, R17
+	BEQZ	R21, check_4
+	ADDU	R18, R8, R18
 	SLT		R21, R18, R17
 	BEQZ	R21, check_4
 	ADDU	R18, R8, R18
@@ -131,11 +179,23 @@ fifth_lcm_1
 	SLT		R21, R19, R20
 	BEQZ	R21, fifth_lcm_2
 	ADDU	R19, R9, R19
+	SLT		R21, R19, R20
+	BEQZ	R21, fifth_lcm_2
+	ADDU	R19, R9, R19
+	SLT		R21, R19, R20
+	BEQZ	R21, fifth_lcm_2
+	ADDU	R19, R9, R19
 
 	BEQZ	R0,	fifth_lcm_1
 
 NOP
 fifth_lcm_2
+	SLT		R21, R20, R19
+	BEQZ	R21, check_5
+	ADDU	R20, R10, R20
+	SLT		R21, R20, R19
+	BEQZ	R21, check_5
+	ADDU	R20, R10, R20
 	SLT		R21, R20, R19
 	BEQZ	R21, check_5
 	ADDU	R20, R10, R20
@@ -162,11 +222,23 @@ first_lcm_1_b
 	SLT		R21, R11, R12
 	BEQZ	R21, first_lcm_2_b
 	ADDU	R11, R1, R11
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2_b
+	ADDU	R11, R1, R11
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2_b
+	ADDU	R11, R1, R11
 
 	BEQZ	R0,	first_lcm_1_b
 
 NOP
 first_lcm_2_b
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1_b
+	ADDU	R12, R2, R12
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1_b
+	ADDU	R12, R2, R12
 	SLT		R21, R12, R11
 	BEQZ	R21, check_1_b
 	ADDU	R12, R2, R12
@@ -186,11 +258,23 @@ second_lcm_1_b
 	SLT		R21, R13, R14
 	BEQZ	R21, second_lcm_2_b
 	ADDU	R13, R3, R13
+	SLT		R21, R13, R14
+	BEQZ	R21, second_lcm_2_b
+	ADDU	R13, R3, R13
+	SLT		R21, R13, R14
+	BEQZ	R21, second_lcm_2_b
+	ADDU	R13, R3, R13
 
 	BEQZ	R0,	second_lcm_1_b
 
 NOP
 second_lcm_2_b
+	SLT		R21, R14, R13
+	BEQZ	R21, check_2_b
+	ADDU	R14, R4, R14
+	SLT		R21, R14, R13
+	BEQZ	R21, check_2_b
+	ADDU	R14, R4, R14
 	SLT		R21, R14, R13
 	BEQZ	R21, check_2_b
 	ADDU	R14, R4, R14
@@ -211,11 +295,23 @@ third_lcm_1_b
 	SLT		R21, R15, R16
 	BEQZ	R21, third_lcm_2_b
 	ADDU	R15, R5, R15
+	SLT		R21, R15, R16
+	BEQZ	R21, third_lcm_2_b
+	ADDU	R15, R5, R15
+	SLT		R21, R15, R16
+	BEQZ	R21, third_lcm_2_b
+	ADDU	R15, R5, R15
 
 	BEQZ	R0,	third_lcm_1_b
 
 NOP
 third_lcm_2_b
+	SLT		R21, R16, R15
+	BEQZ	R21, check_3_b
+	ADDU	R16, R6, R16
+	SLT		R21, R16, R15
+	BEQZ	R21, check_3_b
+	ADDU	R16, R6, R16
 	SLT		R21, R16, R15
 	BEQZ	R21, check_3_b
 	ADDU	R16, R6, R16
@@ -236,11 +332,23 @@ first_lcm_1_c
 	SLT		R21, R11, R12
 	BEQZ	R21, first_lcm_2_c
 	ADDU	R11, R1, R11
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2_c
+	ADDU	R11, R1, R11
+	SLT		R21, R11, R12
+	BEQZ	R21, first_lcm_2_c
+	ADDU	R11, R1, R11
 
 	BEQZ	R0,	first_lcm_1_c
 
 NOP
 first_lcm_2_c
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLT		R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
 	SLT		R21, R12, R11
 	BEQZ	R21, check_1_c
 	ADDU	R12, R2, R12

@@ -502,10 +502,13 @@ class DlxSimulator:
 			pc_next_counter = inst.execute(self.registers, self.data_memory, pc_counter)
 			if pc_counter == self.exit_addr:
 				break
-			iterations += 1
 			if self.step_mode:
 				self.show_results()
 				x = input(f"[{hex(pc_counter)}] -> [{hex(pc_next_counter)}] Continue?")
+			if pc_counter != pc_next_counter + 1:
+				iterations += 3
+			else:
+				iterations += 1
 			pc_counter = pc_next_counter
 		
 		if iterations == self.max_iterations:
