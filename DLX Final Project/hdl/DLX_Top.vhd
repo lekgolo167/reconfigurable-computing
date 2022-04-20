@@ -31,7 +31,7 @@ architecture behave of DLX_Top is
 
 	-- stop watch
 	-- clock cycles per 100ths of a second
-	constant g_clks_per_100th : natural := 100000;
+	constant g_clks_per_100th : natural := 10000;
 	-- counter limit per segment
     constant c_counter_limit : natural := 9;
 	-- interconnects
@@ -85,7 +85,7 @@ begin
 		tick => tick
 	);
 
-	hundredths: entity work.Seg_Counter(rtl)
+	ms_ones: entity work.Seg_Counter(rtl)
 	generic map (
 		g_max_count => c_counter_limit
 	)
@@ -97,7 +97,7 @@ begin
 		hex => HEX0(6 downto 0)
 	);
 
-	tenths: entity work.Seg_Counter(rtl)
+	ms_tenths: entity work.Seg_Counter(rtl)
 	generic map (
 		g_max_count => c_counter_limit
 	)
@@ -109,7 +109,7 @@ begin
 		hex => HEX1(6 downto 0)
 	);
 
-	seconds_ones: entity work.Seg_Counter(rtl)
+	ms_hundredths: entity work.Seg_Counter(rtl)
 	generic map (
 		g_max_count => c_counter_limit
 	)
@@ -121,9 +121,9 @@ begin
 		hex => HEX2(6 downto 0)
 	);
 
-	seconds_tens: entity work.Seg_Counter(rtl)
+	seconds_ones: entity work.Seg_Counter(rtl)
 	generic map (
-		g_max_count => 5
+		g_max_count => c_counter_limit
 	)
 	port map (
 		clk => clk_io,
@@ -133,9 +133,9 @@ begin
 		hex => HEX3(6 downto 0)
 	);
 
-	minutes_ones: entity work.Seg_Counter(rtl)
+	seconds_tens: entity work.Seg_Counter(rtl)
 	generic map (
-		g_max_count => c_counter_limit
+		g_max_count => 5
 	)
 	port map (
 		clk => clk_io,
@@ -145,7 +145,7 @@ begin
 		hex => HEX4(6 downto 0)
 	);
 
-	minutes_tens: entity work.Seg_Counter(rtl)
+	minutes_ones: entity work.Seg_Counter(rtl)
 	generic map (
 		g_max_count => c_counter_limit
 	)
@@ -158,9 +158,9 @@ begin
 
 	HEX0(7) <= '1';
 	HEX1(7) <= '1';
-	HEX2(7) <= '0';
-	HEX3(7) <= '1';
-	HEX4(7) <= '0';
-	HEX5(7) <= '1';
+	HEX2(7) <= '1';
+	HEX3(7) <= '0';
+	HEX4(7) <= '1';
+	HEX5(7) <= '0';
 
 end behave;
