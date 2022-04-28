@@ -82,105 +82,175 @@ print_intro
 	ADDUI	R17, R0, 7
 	ADDUI	R18, R0, 8
 	ADDUI	R19, R0, 9
+	NOP
+	NOP
     SW		reg(R0), R1
+	NOP
 	SW		reg(R11), R2
+	NOP
 	SW		reg(R12), R3
+	NOP
 	SW		reg(R13), R4
+	NOP
 	SW		reg(R14), R5
+	NOP
 	SW		reg(R15), R6
+	NOP
 	SW		reg(R16), R7
+	NOP
 	SW		reg(R17), R8
+	NOP
 	SW		reg(R18), R9
+	NOP
 	SW		reg(R19), R10
+	NOP
 
 	ADDU	R24, R0, R0  ; go through the find_max_loop 10 times
+NOP
+NOP
 find_max_loop
-
 	LW		R1, reg(R0)
+	NOP
 	LW		R2, reg(R11)
+	NOP
 	LW		R3, reg(R12)
+	NOP
 	LW		R4, reg(R13)
+	NOP
 	LW		R5, reg(R14)
+	NOP
 	LW		R6, reg(R15)
+	NOP
 	LW		R7, reg(R16)
+	NOP
 	LW		R8, reg(R17)
+	NOP
 	LW		R9, reg(R18)
+	NOP
 	LW		R10, reg(R19)
+	NOP
 
 	ADDU	R21, R1, R0  ; R21 will keep track of the highest values
 	ADDUI	R22, R0, 0  ; R22 will keep track of which reg had the highest values
 	
 	SGTU	R23, R2, R21
 	BEQZ	R23, check_three
+	NOP
+	NOP
 	ADDU	R21, R2, R0
 	ADDUI	R22, R0, 1
 
+NOP
+NOP
 check_three
 	SGTU	R23, R3, R21
 	BEQZ	R23, check_four
+	NOP
+	NOP
 	ADDU	R21, R3, R0
 	ADDUI	R22, R0, 2
 
+NOP
+NOP
 check_four
 	SGTU	R23, R4, R21
 	BEQZ	R23, check_five
+	NOP
+	NOP
 	ADDU	R21, R4, R0
 	ADDUI	R22, R0, 3
 
+NOP
+NOP
 check_five
 	SGTU	R23, R5, R21
 	BEQZ	R23, check_six
+	NOP
+	NOP
 	ADDU	R21, R5, R0
 	ADDUI	R22, R0, 4
 
+NOP
+NOP
 check_six
 	SGTU	R23, R6, R21
 	BEQZ	R23, check_seven
+	NOP
+	NOP
 	ADDU	R21, R6, R0
 	ADDUI	R22, R0, 5
 
+NOP
+NOP
 check_seven
 	SGTU	R23, R7, R21
 	BEQZ	R23, check_eight
+	NOP
+	NOP
 	ADDU	R21, R7, R0
 	ADDUI	R22, R0, 6
-    
+
+NOP
+NOP   
 check_eight
 	SGTU	R23, R8, R21
 	BEQZ	R23, check_nine
+	NOP
+	NOP
 	ADDU	R21, R8, R0
 	ADDUI	R22, R0, 7
 
+NOP
+NOP
 check_nine
 	SGTU	R23, R9, R21
 	BEQZ	R23, check_ten
+	NOP
+	NOP
 	ADDU	R21, R9, R0
 	ADDUI	R22, R0, 8
 
+NOP
+NOP
 check_ten
 	SGTU	R23, R10, R21
 	BEQZ	R23, update
+	NOP
+	NOP
 	ADDU	R21, R10, R0
 	ADDUI	R22, R0, 9
 
+NOP
+NOP
 update
 	SW		reg(R22), R0   ; store a zero in the register memory position
 	SW		high_to_low(R24), R21  ; store the maximum value in the max value array
 	ADDUI	R24, R24, 1
 	SLTUI	R23, R24, 10
 	BNEZ	R23, find_max_loop
-
+	NOP
+	NOP
 
 	LW		R1, high_to_low(R0)
+	NOP
 	LW		R2, high_to_low(R19)
+	NOP
 	LW		R3, high_to_low(R11)
+	NOP
 	LW		R4, high_to_low(R18)
+	NOP
 	LW		R5, high_to_low(R12)
+	NOP
 	LW		R6, high_to_low(R17)
+	NOP
 	LW		R7, high_to_low(R13)
+	NOP
 	LW		R8, high_to_low(R16)
+	NOP
 	LW		R9, high_to_low(R14)
+	NOP
 	LW		R10, high_to_low(R15)
+	NOP
 	ADDU	R11, R1, R0	
 	ADDU	R12, R2, R0	
 	ADDU	R13, R3, R0
@@ -192,7 +262,8 @@ update
 	ADDU	R19, R9, R0
 	ADDU	R20, R10, R0
 
-
+NOP
+NOP
 first_lcm_1
 NOP
 NOP
