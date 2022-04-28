@@ -1,0 +1,603 @@
+.data
+	reg 10 0 0 0 0 0 0 0 0 0 0
+	high_to_low 10 0 0 0 0 0 0 0 0 0 0
+
+.const
+	s1	57		"Welcome to the DLX LCM program!\r\nEnter 10 numbers: "
+	s2	4		"\r\nLCM = "
+
+.text
+	TR
+	LW		R12, s1(R0)  ; find how many values s1 has
+	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
+
+print_intro
+	LW		R15, s1(R13)  ; load the next char into R15
+	SGEU	R14, R13, R12  ; Set if R13 > R12
+	PCH		R15  ; print R12 to the screen
+	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
+	BEQZ	R14, print_intro  ; jump back to print_intro if R14==0
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	ADDUI	R29, R0, 32
+	PCH		R29
+	GDU		R1 ; get user input 10 times
+	PCH		R29
+	PDU		R1
+	PCH		R29
+	GDU		R2
+	PCH		R29
+	PDU		R2
+	PCH		R29
+	GDU		R3
+	PCH		R29
+	PDU		R3
+	PCH		R29
+	GDU		R4
+	PCH		R29
+	PDU		R4
+	PCH		R29
+	GDU		R5
+	PCH		R29
+	PDU		R5
+	PCH		R29
+	GDU		R6
+	PCH		R29
+	PDU		R6
+	PCH		R29
+	GDU		R7
+	PCH		R29
+	PDU		R7
+	PCH		R29
+	GDU		R8
+	PCH		R29
+	PDU		R8
+	PCH		R29
+	GDU		R9
+	PCH		R29
+	PDU		R9
+	PCH		R29
+	GDU		R10
+	PCH		R29
+	PDU		R10
+	PCH		R29
+	ADDUI	R28, R0, 13
+	ADDUI	R29, R0, 10
+	PCH		R28
+	PCH		R29
+	TGO
+
+    ; arrange the values to be in the best order
+    ; first arrange them to be greatest to smallest
+	ADDUI	R11, R0, 1
+	ADDUI	R12, R0, 2
+	ADDUI	R13, R0, 3
+	ADDUI	R14, R0, 4
+	ADDUI	R15, R0, 5
+	ADDUI	R16, R0, 6
+	ADDUI	R17, R0, 7
+	ADDUI	R18, R0, 8
+	ADDUI	R19, R0, 9
+    SW		reg(R0), R1
+	SW		reg(R11), R2
+	SW		reg(R12), R3
+	SW		reg(R13), R4
+	SW		reg(R14), R5
+	SW		reg(R15), R6
+	SW		reg(R16), R7
+	SW		reg(R17), R8
+	SW		reg(R18), R9
+	SW		reg(R19), R10
+
+	ADDU	R24, R0, R0  ; go through the find_max_loop 10 times
+find_max_loop
+
+	LW		R1, reg(R0)
+	LW		R2, reg(R11)
+	LW		R3, reg(R12)
+	LW		R4, reg(R13)
+	LW		R5, reg(R14)
+	LW		R6, reg(R15)
+	LW		R7, reg(R16)
+	LW		R8, reg(R17)
+	LW		R9, reg(R18)
+	LW		R10, reg(R19)
+
+	ADDU	R21, R1, R0  ; R21 will keep track of the highest values
+	ADDUI	R22, R0, 0  ; R22 will keep track of which reg had the highest values
+	
+	SGTU	R23, R2, R21
+	BEQZ	R23, check_three
+	ADDU	R21, R2, R0
+	ADDUI	R22, R0, 1
+
+check_three
+	SGTU	R23, R3, R21
+	BEQZ	R23, check_four
+	ADDU	R21, R3, R0
+	ADDUI	R22, R0, 2
+
+check_four
+	SGTU	R23, R4, R21
+	BEQZ	R23, check_five
+	ADDU	R21, R4, R0
+	ADDUI	R22, R0, 3
+
+check_five
+	SGTU	R23, R5, R21
+	BEQZ	R23, check_six
+	ADDU	R21, R5, R0
+	ADDUI	R22, R0, 4
+
+check_six
+	SGTU	R23, R6, R21
+	BEQZ	R23, check_seven
+	ADDU	R21, R6, R0
+	ADDUI	R22, R0, 5
+
+check_seven
+	SGTU	R23, R7, R21
+	BEQZ	R23, check_eight
+	ADDU	R21, R7, R0
+	ADDUI	R22, R0, 6
+    
+check_eight
+	SGTU	R23, R8, R21
+	BEQZ	R23, check_nine
+	ADDU	R21, R8, R0
+	ADDUI	R22, R0, 7
+
+check_nine
+	SGTU	R23, R9, R21
+	BEQZ	R23, check_ten
+	ADDU	R21, R9, R0
+	ADDUI	R22, R0, 8
+
+check_ten
+	SGTU	R23, R10, R21
+	BEQZ	R23, update
+	ADDU	R21, R10, R0
+	ADDUI	R22, R0, 9
+
+update
+	SW		reg(R22), R0   ; store a zero in the register memory position
+	SW		high_to_low(R24), R21  ; store the maximum value in the max value array
+	ADDUI	R24, R24, 1
+	SLTUI	R23, R24, 10
+	BNEZ	R23, find_max_loop
+
+
+	LW		R1, high_to_low(R0)
+	LW		R2, high_to_low(R19)
+	LW		R3, high_to_low(R11)
+	LW		R4, high_to_low(R18)
+	LW		R5, high_to_low(R12)
+	LW		R6, high_to_low(R17)
+	LW		R7, high_to_low(R13)
+	LW		R8, high_to_low(R16)
+	LW		R9, high_to_low(R14)
+	LW		R10, high_to_low(R15)
+	ADDU	R11, R1, R0	
+	ADDU	R12, R2, R0	
+	ADDU	R13, R3, R0
+	ADDU	R14, R4, R0	
+	ADDU	R15, R5, R0
+	ADDU	R16, R6, R0
+	ADDU	R17, R7, R0
+	ADDU	R18, R8, R0
+	ADDU	R19, R9, R0
+	ADDU	R20, R10, R0
+
+
+first_lcm_1
+NOP
+NOP
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_lcm_1
+
+NOP
+NOP
+first_lcm_2
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	first_lcm_2
+
+NOP
+NOP
+check_1
+NOP
+NOP
+	SNE		R21, R11, R12
+	BNEZ	R21, first_lcm_1
+NOP
+NOP
+	ADDU	R1, R11, R0
+
+; -- second lcm
+NOP
+NOP
+second_lcm_1
+	SLTU	R21, R13, R14
+	BEQZ	R21, second_lcm_2
+	ADDU	R13, R3, R13
+	SLTU	R21, R13, R14
+	BEQZ	R21, second_lcm_2
+	ADDU	R13, R3, R13
+	SLTU	R21, R13, R14
+	BEQZ	R21, second_lcm_2
+	ADDU	R13, R3, R13
+
+	BEQZ	R0,	second_lcm_1
+
+NOP
+NOP
+second_lcm_2
+	SLTU	R21, R14, R13
+	BEQZ	R21, check_2
+	ADDU	R14, R4, R14
+	SLTU	R21, R14, R13
+	BEQZ	R21, check_2
+	ADDU	R14, R4, R14
+	SLTU	R21, R14, R13
+	BEQZ	R21, check_2
+	ADDU	R14, R4, R14
+
+	BEQZ	R0,	second_lcm_2
+
+NOP
+NOP
+check_2
+NOP
+NOP
+	SNE		R21, R13, R14
+	BNEZ	R21, second_lcm_1
+NOP
+NOP
+	ADDU	R2, R13, R0
+
+; -- third lcm
+NOP
+NOP
+third_lcm_1
+	SLTU	R21, R15, R16
+	BEQZ	R21, third_lcm_2
+	ADDU	R15, R5, R15
+	SLTU	R21, R15, R16
+	BEQZ	R21, third_lcm_2
+	ADDU	R15, R5, R15
+	SLTU	R21, R15, R16
+	BEQZ	R21, third_lcm_2
+	ADDU	R15, R5, R15
+
+	BEQZ	R0,	third_lcm_1
+
+NOP
+NOP
+third_lcm_2
+	SLTU	R21, R16, R15
+	BEQZ	R21, check_3
+	ADDU	R16, R6, R16
+	SLTU	R21, R16, R15
+	BEQZ	R21, check_3
+	ADDU	R16, R6, R16
+	SLTU	R21, R16, R15
+	BEQZ	R21, check_3
+	ADDU	R16, R6, R16
+
+	BEQZ	R0,	third_lcm_2
+
+NOP
+NOP
+check_3
+NOP
+NOP
+	SNE		R21, R15, R16
+	BNEZ	R21, third_lcm_1
+NOP
+NOP
+	ADDU	R3, R15, R0
+
+; -- fourth lcm
+NOP
+NOP
+fourth_lcm_1
+	SLTU	R21, R17, R18
+	BEQZ	R21, fourth_lcm_2
+	ADDU	R17, R7, R17
+	SLTU	R21, R17, R18
+	BEQZ	R21, fourth_lcm_2
+	ADDU	R17, R7, R17
+	SLTU	R21, R17, R18
+	BEQZ	R21, fourth_lcm_2
+	ADDU	R17, R7, R17
+
+	BEQZ	R0,	fourth_lcm_1
+
+NOP
+NOP
+fourth_lcm_2
+	SLTU	R21, R18, R17
+	BEQZ	R21, check_4
+	ADDU	R18, R8, R18
+	SLTU	R21, R18, R17
+	BEQZ	R21, check_4
+	ADDU	R18, R8, R18
+	SLTU	R21, R18, R17
+	BEQZ	R21, check_4
+	ADDU	R18, R8, R18
+
+	BEQZ	R0,	fourth_lcm_2
+
+NOP
+NOP
+check_4
+NOP
+NOP
+	SNE		R21, R17, R18
+	BNEZ	R21, fourth_lcm_1
+NOP
+NOP
+	ADDU	R4, R17, R0
+
+; -- fifth lcm
+NOP
+NOP
+fifth_lcm_1
+	SLTU	R21, R19, R20
+	BEQZ	R21, fifth_lcm_2
+	ADDU	R19, R9, R19
+	SLTU	R21, R19, R20
+	BEQZ	R21, fifth_lcm_2
+	ADDU	R19, R9, R19
+	SLTU	R21, R19, R20
+	BEQZ	R21, fifth_lcm_2
+	ADDU	R19, R9, R19
+
+	BEQZ	R0,	fifth_lcm_1
+
+NOP
+NOP
+fifth_lcm_2
+	SLTU	R21, R20, R19
+	BEQZ	R21, check_5
+	ADDU	R20, R10, R20
+	SLTU	R21, R20, R19
+	BEQZ	R21, check_5
+	ADDU	R20, R10, R20
+	SLTU	R21, R20, R19
+	BEQZ	R21, check_5
+	ADDU	R20, R10, R20
+
+	BEQZ	R0,	fifth_lcm_2
+
+NOP
+NOP
+check_5
+NOP
+NOP
+	SNE		R21, R19, R20
+	BNEZ	R21, fourth_lcm_1
+NOP
+NOP
+	ADDU	R5, R19, R0
+
+; ---- second round
+NOP
+NOP
+	ADDU	R11, R1, R0
+	ADDU	R12, R2, R0
+	ADDU	R13, R3, R0
+	ADDU	R14, R4, R0
+	ADDU	R15, R5, R0
+
+NOP
+NOP
+first_lcm_1_b
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2_b
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2_b
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2_b
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_lcm_1_b
+
+NOP
+NOP
+first_lcm_2_b
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_b
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_b
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_b
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	first_lcm_2_b
+
+NOP
+NOP
+check_1_b
+NOP
+NOP
+	SNE		R21, R11, R12
+	BNEZ	R21, first_lcm_1_b
+NOP
+NOP
+	ADDU	R1, R11, R0
+
+; -- second lcm
+NOP
+NOP
+second_lcm_1_b
+	SLTU	R21, R13, R14
+	BEQZ	R21, second_lcm_2_b
+	ADDU	R13, R3, R13
+	SLTU	R21, R13, R14
+	BEQZ	R21, second_lcm_2_b
+	ADDU	R13, R3, R13
+	SLTU	R21, R13, R14
+	BEQZ	R21, second_lcm_2_b
+	ADDU	R13, R3, R13
+
+	BEQZ	R0,	second_lcm_1_b
+
+NOP
+NOP
+second_lcm_2_b
+	SLTU	R21, R14, R13
+	BEQZ	R21, check_2_b
+	ADDU	R14, R4, R14
+	SLTU	R21, R14, R13
+	BEQZ	R21, check_2_b
+	ADDU	R14, R4, R14
+	SLTU	R21, R14, R13
+	BEQZ	R21, check_2_b
+	ADDU	R14, R4, R14
+
+	BEQZ	R0,	second_lcm_2_b
+
+NOP
+NOP
+check_2_b
+NOP
+NOP
+	SNE		R21, R13, R14
+	BNEZ	R21, second_lcm_1_b
+NOP
+NOP
+	ADDU	R6, R13, R0
+	ADDU	R16, R13, R0
+
+; -- third lcm
+NOP
+NOP
+third_lcm_1_b
+	SLTU	R21, R15, R16
+	BEQZ	R21, third_lcm_2_b
+	ADDU	R15, R5, R15
+	SLTU	R21, R15, R16
+	BEQZ	R21, third_lcm_2_b
+	ADDU	R15, R5, R15
+	SLTU	R21, R15, R16
+	BEQZ	R21, third_lcm_2_b
+	ADDU	R15, R5, R15
+
+	BEQZ	R0,	third_lcm_1_b
+
+NOP
+NOP
+third_lcm_2_b
+	SLTU	R21, R16, R15
+	BEQZ	R21, check_3_b
+	ADDU	R16, R6, R16
+	SLTU	R21, R16, R15
+	BEQZ	R21, check_3_b
+	ADDU	R16, R6, R16
+	SLTU	R21, R16, R15
+	BEQZ	R21, check_3_b
+	ADDU	R16, R6, R16
+
+	BEQZ	R0,	third_lcm_2_b
+
+NOP
+NOP
+check_3_b
+NOP
+NOP
+	SNE		R21, R15, R16
+	BNEZ	R21, third_lcm_1_b
+NOP
+NOP
+	ADDU	R2, R15, R0
+	ADDU	R11, R1, R0
+	ADDU	R12, R2, R0
+
+NOP
+NOP
+first_lcm_1_c
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2_c
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2_c
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, first_lcm_2_c
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_lcm_1_c
+
+NOP
+NOP
+first_lcm_2_c
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	first_lcm_2_c
+
+NOP
+NOP
+check_1_c
+NOP
+NOP
+	SNE		R21, R11, R12
+	BNEZ	R21, first_lcm_1_c
+
+	NOP
+	NOP
+	NOP
+	NOP
+
+print_result
+	LW		R12, s2(R0)  ; find how many values s2 has
+	ADDUI	R13, R0, 1  ; R13 will be the loop counter for printer
+
+print_result_loop
+	LW		R15, s2(R13)  ; load the next char into R15
+	SGEU	R14, R13, R12  ; Set if R13 > R12
+	PCH		R15  ; print R12 to the screen
+	ADDUI	R13, R13, 1  ; R13 will be the loop counter for printer
+	BEQZ	R14, print_result_loop  ; jump back to print_intro if R14==0
+
+	PDU		R11  ; print the final result to the screen
+	PCH		R28 ; carrage return
+	PCH		R29 ; new line
+
+	TSP
+
+done
+	BEQZ	R0,	done

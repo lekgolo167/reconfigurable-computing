@@ -31,7 +31,7 @@ architecture behave of DLX_Top is
 
 	-- stop watch
 	-- clock cycles per 100ths of a second
-	constant g_clks_per_100th : natural := 10000;
+	constant g_clks_per_100th : natural := 100000;
 	-- counter limit per segment
     constant c_counter_limit : natural := 9;
 	-- interconnects
@@ -123,7 +123,7 @@ begin
 
 	seconds_ones: entity work.Seg_Counter(rtl)
 	generic map (
-		g_max_count => c_counter_limit
+		g_max_count => 5
 	)
 	port map (
 		clk => clk_io,
@@ -135,7 +135,7 @@ begin
 
 	seconds_tens: entity work.Seg_Counter(rtl)
 	generic map (
-		g_max_count => 5
+		g_max_count => c_counter_limit
 	)
 	port map (
 		clk => clk_io,
@@ -158,9 +158,9 @@ begin
 
 	HEX0(7) <= '1';
 	HEX1(7) <= '1';
-	HEX2(7) <= '1';
-	HEX3(7) <= '0';
-	HEX4(7) <= '1';
-	HEX5(7) <= '0';
+	HEX2(7) <= '0';
+	HEX3(7) <= '1';
+	HEX4(7) <= '0';
+	HEX5(7) <= '1';
 
 end behave;

@@ -142,9 +142,9 @@ BEGIN
 	altpll_component : altpll
 	GENERIC MAP (
 		bandwidth_type => "AUTO",
-		clk0_divide_by => 2,
+		clk0_divide_by => 5,
 		clk0_duty_cycle => 50,
-		clk0_multiply_by => 3,
+		clk0_multiply_by => 9,
 		clk0_phase_shift => "0",
 		clk1_divide_by => 5,
 		clk1_duty_cycle => 50,
