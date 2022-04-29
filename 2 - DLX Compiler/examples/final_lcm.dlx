@@ -63,6 +63,12 @@ print_intro
 	PCH		R29
 	PDU		R10
 	PCH		R29
+	ADDUI	R28, R0, 13
+	ADDUI	R29, R0, 10
+	PCH		R28
+	PCH		R29
+	TGO
+
 	ADDU	R11, R1, R0 ; copy originals into scratch registers
 	ADDU	R12, R2, R0
 	ADDU	R13, R3, R0
@@ -73,11 +79,6 @@ print_intro
 	ADDU	R18, R8, R0
 	ADDU	R19, R9, R0
 	ADDU	R20, R10, R0
-	ADDUI	R28, R0, 13
-	ADDUI	R29, R0, 10
-	PCH		R28
-	PCH		R29
-	TGO
 
 first_lcm_1
 NOP
@@ -246,47 +247,6 @@ NOP
 NOP
 	ADDU	R4, R17, R0
 
-; -- fifth lcm
-NOP
-NOP
-fifth_lcm_1
-	SLTU	R21, R19, R20
-	BEQZ	R21, fifth_lcm_2
-	ADDU	R19, R9, R19
-	SLTU	R21, R19, R20
-	BEQZ	R21, fifth_lcm_2
-	ADDU	R19, R9, R19
-	SLTU	R21, R19, R20
-	BEQZ	R21, fifth_lcm_2
-	ADDU	R19, R9, R19
-
-	BEQZ	R0,	fifth_lcm_1
-
-NOP
-NOP
-fifth_lcm_2
-	SLTU	R21, R20, R19
-	BEQZ	R21, check_5
-	ADDU	R20, R10, R20
-	SLTU	R21, R20, R19
-	BEQZ	R21, check_5
-	ADDU	R20, R10, R20
-	SLTU	R21, R20, R19
-	BEQZ	R21, check_5
-	ADDU	R20, R10, R20
-
-	BEQZ	R0,	fifth_lcm_2
-
-NOP
-NOP
-check_5
-NOP
-NOP
-	SNE		R21, R19, R20
-	BNEZ	R21, fourth_lcm_1
-NOP
-NOP
-	ADDU	R5, R19, R0
 
 ; ---- second round
 NOP
@@ -378,55 +338,108 @@ NOP
 	BNEZ	R21, second_lcm_1_b
 NOP
 NOP
-	ADDU	R6, R13, R0
-	ADDU	R16, R13, R0
+	ADDU	R2, R13, R0
+	ADDU	R12, R13, R0
 
-; -- third lcm
+; injecting stuff here
 NOP
 NOP
-third_lcm_1_b
-	SLTU	R21, R15, R16
-	BEQZ	R21, third_lcm_2_b
-	ADDU	R15, R5, R15
-	SLTU	R21, R15, R16
-	BEQZ	R21, third_lcm_2_b
-	ADDU	R15, R5, R15
-	SLTU	R21, R15, R16
-	BEQZ	R21, third_lcm_2_b
-	ADDU	R15, R5, R15
 
-	BEQZ	R0,	third_lcm_1_b
 
-NOP
-NOP
-third_lcm_2_b
-	SLTU	R21, R16, R15
-	BEQZ	R21, check_3_b
-	ADDU	R16, R6, R16
-	SLTU	R21, R16, R15
-	BEQZ	R21, check_3_b
-	ADDU	R16, R6, R16
-	SLTU	R21, R16, R15
-	BEQZ	R21, check_3_b
-	ADDU	R16, R6, R16
+first_on_third_to_last
+	SLTU	R21, R11, R12
+	BEQZ	R21, second_on_third_to_last
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, second_on_third_to_last
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, second_on_third_to_last
+	ADDU	R11, R1, R11
 
-	BEQZ	R0,	third_lcm_2_b
+	BEQZ	R0,	first_on_third_to_last
 
 NOP
 NOP
-check_3_b
-NOP
-NOP
-	SNE		R21, R15, R16
-	BNEZ	R21, third_lcm_1_b
-NOP
-NOP
-	ADDU	R2, R15, R0
-	ADDU	R11, R1, R0
-	ADDU	R12, R2, R0
+second_on_third_to_last
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_on_third_to_last
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_on_third_to_last
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_on_third_to_last
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	second_on_third_to_last
 
 NOP
 NOP
+check_on_third_to_last
+NOP
+NOP
+	SNE		R21, R11, R12
+	BNEZ	R21, first_on_third_to_last
+
+	NOP
+	NOP
+
+	ADDU 	R1, R12, R0
+	ADDU 	R2, R9, R0
+	ADDU 	R12, R9, R0
+
+NOP
+NOP
+
+
+first_on_second_to_last
+	SLTU	R21, R11, R12
+	BEQZ	R21, second_on_second_to_last
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, second_on_second_to_last
+	ADDU	R11, R1, R11
+	SLTU	R21, R11, R12
+	BEQZ	R21, second_on_second_to_last
+	ADDU	R11, R1, R11
+
+	BEQZ	R0,	first_on_second_to_last
+
+NOP
+NOP
+second_on_second_to_last
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_second_to_last
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_second_to_last
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_second_to_last
+	ADDU	R12, R2, R12
+
+	BEQZ	R0,	second_on_second_to_last
+
+NOP
+NOP
+check_second_to_last
+NOP
+NOP
+	SNE		R21, R11, R12
+	BNEZ	R21, first_on_second_to_last
+
+	NOP
+	NOP
+
+	ADDU 	R2, R12, R0
+	ADDU 	R1, R10, R0
+	ADDU 	R11, R10, R0
+
+NOP
+NOP
+
+
 first_lcm_1_c
 	SLTU	R21, R11, R12
 	BEQZ	R21, first_lcm_2_c
@@ -452,6 +465,484 @@ first_lcm_2_c
 	SLTU	R21, R12, R11
 	BEQZ	R21, check_1_c
 	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+		SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12	
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+	SLTU	R21, R12, R11
+	BEQZ	R21, check_1_c
+	ADDU	R12, R2, R12
+
 
 	BEQZ	R0,	first_lcm_2_c
 
@@ -465,6 +956,10 @@ NOP
 
 	NOP
 	NOP
+
+	ADDU 	R1, R12, R0
+	ADDU 	R2, R9, R0
+	ADDU 	R12, R9, R0
 	NOP
 	NOP
 
